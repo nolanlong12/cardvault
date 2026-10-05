@@ -373,9 +373,9 @@ setInterval(()=>{const l=$$('lt');if(l&&tab=='shop'){const v=Math.ceil((avail()?
 /* ================= CARDVAULT ONLINE LAYER =================
    Paste your Supabase project details below (Project Settings -> API).
    The anon key is safe to expose: row-level security protects the data. */
-   const CV={url:'https://xsxzenvtbljpzqrtbbhp.supabase.co',key:'sb_publishable_5ZciuEDrZihpTWqSJtK9HQ_PXuVGiP_'};
+const CV={url:'https://xsxzenvtbljpzqrtbbhp.supabase.co',key:'sb_publishable_5ZciuEDrZihpTWqSJtK9HQ_PXuVGiP_'};
 const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-let sb,READY=false,USER=null,OFF=0,manualOut=false,entering=false,REM=localStorage.getItem('cv_rem')!=='0',subbed=false;
+let LASTERR='',sb,READY=false,USER=null,OFF=0,manualOut=false,entering=false,REM=localStorage.getItem('cv_rem')!=='0',subbed=false;
 const store={getItem:k=>localStorage.getItem(k)??sessionStorage.getItem(k),setItem:(k,v)=>(REM?localStorage:sessionStorage).setItem(k,v),removeItem:k=>{localStorage.removeItem(k);sessionStorage.removeItem(k)}};
 const cvNow=()=>Date.now()+OFF,noModal=()=>$$('ov').style.display!='flex'&&$$('md').style.display!='flex';
 const modal=h=>{const md=$$('md');md.style.display='flex';md.innerHTML=`<div class="box" style="text-align:left;max-width:560px;max-height:92vh;overflow:auto">${h}</div>`},closeM=()=>{$$('md').style.display='none'};
@@ -393,7 +393,7 @@ function hydrate(st,pr,runs){const p=st.profile,keep={ch:S.ch};S=def();S.ch=keep
  pr.forEach(r=>{S.pr[r.card_id]=+r.price;S.hi[r.card_id]=(r.hist||[+r.price]).map(Number)});runs.forEach(r=>S.cr[r.card_id+':'+r.ed]=r.created);
  S.off=0;S.trades=[];S.ev=null;S.seen=Date.now();OFF=st.now-Date.now()}
 async function resync(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1),[a,b]=await Promise.all([sb.from('prices').select('card_id,price,hist'),sb.from('print_runs').select('card_id,ed,created')]);
- hydrate(st,a.data||[],b.data||[]);if(noModal())draw()}catch(e){}}
+ hydrate(st,a.data||[],b.data||[]);LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}}
 const lazySync=()=>{const t=setInterval(()=>{if(noModal()){clearInterval(t);resync()}},700)};
 let pBusy=0;async function pollPrices(){if(!READY||pBusy)return;pBusy=1;try{await sb.rpc('market_tick');const{data}=await sb.from('prices').select('card_id,price,hist');(data||[]).forEach(r=>{S.pr[r.card_id]=+r.price;S.hi[r.card_id]=(r.hist||[]).map(Number)})}catch(e){}pBusy=0}
 
@@ -456,7 +456,7 @@ async function authDo(mode){const v=id=>($$(id)||{}).value||'';
  if(mode=='forgot'){const{error}=await sb.auth.resetPasswordForEmail(v('em').trim(),{redirectTo:location.href.split('#')[0]});if(error)throw Error(error.message);return showAuth('login','Reset link sent. Check your email.')}
  if(mode=='recover'){const pw=v('np');if(pw.length<8)throw Error('Password must be at least 8 characters');const{error}=await sb.auth.updateUser({password:pw});if(error)throw Error(error.message);const{data}=await sb.auth.getSession();return data.session?enter(data.session.user):showAuth('login','Password changed. Log in.')}}
 async function enter(user){if(entering)return;entering=true;USER=user;showAuth('loading');
- try{READY=true;await resync();if(!S.prefs)throw Error('Could not load your account');tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
+ try{READY=true;await resync();if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
  catch(e){READY=false;entering=false;return showAuth('login',(e&&e.message)||'Could not load your account. Try again.')}entering=false}
 
 /* ---------- boot ---------- */
