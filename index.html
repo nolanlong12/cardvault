@@ -77,6 +77,7 @@ body.home{background:transparent}body.home header{display:none}body.home main{pa
 .shk{animation:shk .5s infinite}@keyframes shk{25%{transform:translateX(-8px) rotate(-4deg)}75%{transform:translateX(8px) rotate(4deg)}}.gl2{animation:gl2 .8s infinite alternate}@keyframes gl2{from{filter:brightness(1)}to{filter:brightness(2.2)}}
 #auth{position:fixed;inset:0;z-index:100;display:flex;align-items:center;justify-content:center;background:#0008;backdrop-filter:blur(4px);padding:16px;overflow:auto}#auth.off{display:none}
 .acard{display:flex;flex-direction:column;gap:10px;max-width:380px;text-align:center}.acard input[type=text],.acard input[type=email],.acard input[type=password]{padding:11px;border-radius:8px;border:1px solid var(--pn2);background:var(--pn2);color:var(--tx);font:inherit}.acard h2{margin:4px 0}.acard a{color:var(--ac);cursor:pointer;text-decoration:underline}.aerr{color:var(--dn);margin:0;font-size:14px}
+.t4{background:linear-gradient(160deg,#2b0a4d,#7a2cff 55%,#12001f)}.t5{background:linear-gradient(160deg,#101216,#4a4f6a)}.t6{background:linear-gradient(160deg,#f472b6,#6d28d9)}.t7{background:linear-gradient(160deg,#facc15,#b45309)}.t8{background:linear-gradient(160deg,#ef4444,#450a0a)}.t9{background:linear-gradient(160deg,#0b0b10,#e5e7eb 55%,#0b0b10)}
 </style><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script></head><body>
 <div id="bg"></div><header><div class="top"><svg width="26" height="26" viewBox="0 0 26 26" style="align-self:center"><path d="M13 2l10 5v8c0 5-4 8-10 10C7 23 3 20 3 15V7z" fill="#e8b84a"/><path d="M13 8l4 5-4 6-4-6z" fill="#14121a"/></svg><span class="big" id="mo"></span><span class="mt" id="ih"></span><span class="mt" id="lv"></span><button class="g" id="mu" style="padding:4px 10px">🔊</button></div>
 <nav id="nav"></nav></header><main id="m"></main>
@@ -224,10 +225,10 @@ function detail(uid){const i=S.inv.find(x=>x.uid==uid);if(!i)return;const c=card
 const same=S.inv.filter(x=>x.cid==i.cid&&x.f==0&&x!==i&&!inSlot(x.uid)&&!x.lock);
 const sup=i.pr?(i.pr==1?'<b>1 / 1 CREATED</b> · Only copy in existence':`Print run <b>${i.pr.toLocaleString()}</b> · Created <b>${cr.toLocaleString()} / ${i.pr.toLocaleString()}</b> · Remaining <b>${Math.max(0,i.pr-cr).toLocaleString()}</b>${cr>=i.pr?'<br><b>NO MORE CAN BE CREATED</b>':''}`):'Unlimited print run';
 md.style.display='flex';md.innerHTML=`<div class="box" style="text-align:left;max-width:560px;max-height:92vh;overflow:auto"><h2 style="margin:0;color:${RC[c.r]}">${SG[c.r]} ${c.n}</h2><div class="mt">${RN[c.r]}${i.f?' · '+FN[i.f]:''}${i.ed?' · '+EDN[i.ed]+' Edition':''} · ${c.set} · ${serT(i)}${sp?' · '+sp:''}</div>
-${spark(h)}<div class="row mt" style="font-size:13px"><span>Value <b style="color:var(--tx)">${$$$(val(i))}</b></span><span>High ${$$$(Math.max(...h)*mm)}</span><span>Low ${$$$(Math.min(...h)*mm)}</span><span>Income ${fm(rate(val(i)))}/min</span></div>
+${spark(h)}<div class="row mt" style="font-size:13px"><span>Value <b style="color:var(--tx)">${$$$(val(i))}</b></span><span>High ${$$$(Math.max(...h)*mm)}</span><span>Low ${$$$(Math.min(...h)*mm)}</span><span>Income ${fm(rateOf(i))}/min</span></div>
 <p class="mt" style="font-size:13px">${sup}</p><p class="mt" style="font-size:13px">Recent sales: ${h.slice(-4,-1).reverse().map(v=>$$$(v*mm)).join(' · ')}</p>
 <div class="mt" style="font-size:13px"><b style="color:var(--tx)">History${(i.h||[]).length>=6||val(i)>=1e5?' ⭐ FAMOUS CARD':''}</b><br>${(i.h||[]).map(e=>new Date(e.t).toLocaleString()+' — '+e.x).join('<br>')}</div>
-<div class="row" style="margin-top:12px"><button id="s1" ${sl||i.lock?'disabled':''}>Sell ${$$$(val(i)*.95)}</button>${sl?'':`<button class="g" id="s2">Send to income slot</button>`}${same.length>=4&&!sl&&!i.pr?`<button class="g" id="s3">Combine 5 → Holo</button>`:''}
+<div class="row" style="margin-top:12px"><button id="s1" ${sl||i.lock?'disabled':''}>Sell ${$$$(val(i)*.95)}</button>${sl?'':`<button class="g" id="s2">Equip as Active Card</button>`}${same.length>=4&&!sl&&!i.pr?`<button class="g" id="s3">Combine 5 → Holo</button>`:''}
 ${evoT(i)&&same.length>=4&&!sl&&!i.pr&&!i.lock&&canMake(evoT(i),0)?`<button class="g" id="s5">Evolve 5 → ${evoT(i).n}</button>`:''}<button class="g" data-f="fav">${i.fav?'❤️ Favorited':'🤍 Favorite'}</button><button class="g" data-f="lock">${i.lock?'🔒 Locked':'🔓 Lock'}</button><button class="g" data-f="show">${i.show?'⭐ Showcased':'☆ Showcase'}</button><button class="g" id="s4">Close</button></div>${sl?'<p class="mt">In an income slot. Remove it from Home to sell.</p>':''}${i.lock?'<p class="mt">Locked cards can’t be sold.</p>':''}</div>`;
 $$('s4').onclick=()=>md.style.display='none';
 md.querySelectorAll('[data-f]').forEach(b=>b.onclick=()=>{const k=b.dataset.f;if(k=='show'&&!i.show&&S.inv.filter(x=>x.show).length>=5)return toast('Showcase holds 5 cards');i[k]=!i[k];save();detail(uid);draw()});
@@ -247,10 +248,10 @@ function pick(k){const L=S.inv.filter(i=>!inSlot(i.uid)).sort((a,b)=>val(b)-val(
 md.innerHTML=`<div class="box" style="max-width:640px"><h2 style="margin-top:0">Choose a card for slot ${k+1}</h2><p class="mt">Its current rate locks in for 10 minutes.</p><div class="grid">${L.map(i=>cardH(i,`data-u="${i.uid}"`)).join('')||'<p class="mt">No free cards.</p>'}</div><button class="g" id="pc" style="margin-top:10px">Cancel</button></div>`;
 $$('pc').onclick=()=>md.style.display='none';
 md.querySelectorAll('[data-u]').forEach(e=>e.onclick=()=>{const i=S.inv.find(x=>x.uid==e.dataset.u);S.slots[k]={uid:i.uid,rate:rate(val(i)),t:Date.now()};md.style.display='none';toast('Locked at '+fm(S.slots[k].rate)+'/min');draw()})}
-function refreshS(k){const s=S.slots[k],it=S.inv.find(i=>i.uid==s.uid),nr=rate(val(it));
+function refreshS(k){const s=S.slots[k],it=S.inv.find(i=>i.uid==s.uid),nr=rateOf(it);
 if(nr>s.rate||Date.now()-s.t>=LOCK){s.rate=nr;s.t=Date.now();toast('Rate set to '+fm(nr)+'/min, locked for 10 min')}else toast('Your locked '+fm(s.rate)+'/min is already as good or better. Kept.');draw()}
 function frame(s,k){const it=s&&S.inv.find(i=>i.uid==s.uid);if(!it){S.slots[k]=null;return`<div class="sc"><div class="rt">&nbsp;</div><div class="cw" data-p="${k}"><div class="card" style="--f:#fff7;--b:#0005;--tx:#fff;border-style:dashed"><b style="margin:auto;font-size:30cqw">+</b></div></div></div>`}
-const nr=rate(val(it)),left=s.t+LOCK-Date.now(),lk=left>0;
+const nr=rateOf(it),left=s.t+LOCK-Date.now(),lk=left>0;
 return`<div class="sc"><div class="rt">${fm(s.rate)}/min</div>${cardH(it,`data-u="${it.uid}"`,1)}<div class="sb2"><button data-r="${k}" title="Refresh rate">↻</button><button class="g" data-x="${k}" ${lk?'disabled':''} title="Remove">✕</button></div><div class="lk ${nr>=s.rate?'up':'dn'}">${lk?'🔒 '+Math.ceil(left/6e4)+'m':'🔓'} · ${fm(nr)}/min now</div></div>`}
 function genTrades(){const pool=S.inv.filter(i=>val(i)>=40&&!inSlot(i.uid)&&!i.lock);S.trades=[];S.tAt=Date.now();
 const names=['Marlo','Ivy','Dex'];for(let k=0;k<3&&pool.length;k++){const a=pool.splice(Math.random()*pool.length|0,1)[0],tg=val(a)*(.85+Math.random()*.4);
@@ -262,7 +263,7 @@ const CH=[['open','Open 3 packs',3,500],['sell','Sell 2 cards',2,250],['trade','
 function draw(){document.body.classList.toggle('home',tab=='home');$$('mo').textContent=m2(S.money);$$('ih').textContent=fm(incMin())+'/min';$$('lv').textContent='Level '+lvl()+' · '+$$$(S.inv.reduce((a,i)=>a+val(i),0))+' collection';
 $$('nav').innerHTML=[['home','⌂ Home'],['shop','Store'],['open','Packs'],['binder','Binder'],['market','Market'],['trades','Trades'],['income','Income'],['auction','🏛 Auction'],['more','More']].map(([k,l])=>`<button class="${tab==k?'on':''}" data-t="${k}">${l}</button>`).join('');
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
-const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,quests,sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m)})[tab](m);save()}
+const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,quests,sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
 const K=n=>n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e4?'$'+Math.round(n/1e3)+'k':$$$(n);let SCN=['park','aquarium','mall'][Math.random()*3|0];
 const HS={park:`<defs><linearGradient id="hp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ecbff"/><stop offset="1" stop-color="#e8f8ff"/></linearGradient></defs><rect width="100" height="160" fill="url(#hp)"/><circle cx="78" cy="30" r="10" fill="#ffe27a"/><ellipse cx="30" cy="40" rx="14" ry="5" fill="#fff"/><ellipse cx="62" cy="52" rx="12" ry="4" fill="#fff"/><path d="M0 100Q30 80 60 98T100 90V160H0Z" fill="#5fbf63"/><path d="M0 120Q40 105 100 118V160H0Z" fill="#43a64f"/><path d="M40 160Q48 130 60 110" stroke="#e9d49b" stroke-width="10" fill="none"/><g fill="#2f8f46"><rect x="19" y="92" width="4" height="22" fill="#7a5230"/><circle cx="21" cy="88" r="11"/><circle cx="14" cy="95" r="8"/><circle cx="28" cy="95" r="8"/><rect x="79" y="100" width="3" height="16" fill="#7a5230"/><circle cx="80.5" cy="97" r="8"/></g>`,
 aquarium:`<defs><linearGradient id="ha" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46c2e8"/><stop offset="1" stop-color="#0a2f6b"/></linearGradient></defs><rect width="100" height="160" fill="url(#ha)"/><path d="M20 0L45 160H5ZM60 0L90 160H55Z" fill="#fff" opacity=".07"/><g fill="none" stroke="#fff" opacity=".5"><circle cx="20" cy="110" r="2"/><circle cx="26" cy="90" r="3"/><circle cx="70" cy="100" r="2"/><circle cx="76" cy="70" r="3"/></g><g fill="#ff9f43"><ellipse cx="30" cy="60" rx="7" ry="4"/><path d="M37 60l7-4v8z"/></g><g fill="#ffd166"><ellipse cx="70" cy="85" rx="6" ry="3.5"/><path d="M64 85l-6-4v8z"/></g><path d="M0 142Q30 132 60 142T100 140V160H0Z" fill="#e8d29a"/><path d="M12 145Q8 130 14 118M18 145Q22 132 17 122M86 145Q90 128 84 116" stroke="#2fb86a" stroke-width="3" fill="none"/>`,
@@ -329,7 +330,7 @@ m.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>acceptT(+b.dataset.a));$
 function tick(){const n=Date.now(),dt=(n-S.seen)/6e4,r=incMin();S.seen=n;S.peak=Math.max(S.peak||0,r);if(dt>.1)S.off=Math.min((S.off||0)+r*dt,r*720);else{S.money+=r*dt;S.earned=(S.earned||0)+r*dt}}
 function collect(){const p=S.off;if(p<.01)return;S.money+=p;S.earned+=p;S.off=0;S.ch.coll++;xp(3);const e=document.createElement('div');e.className='fq';e.textContent='💰 +'+m2(p);document.body.appendChild(e);setTimeout(()=>e.remove(),1500);draw()}
 function doSell(i){const v=val(i)*.95;sell(i);$$('md').style.display='none';toast('Sold for '+$$$(v));draw()}
-function confirmSell(i){const md=$$('md'),c=card(i),r=rate(val(i));md.innerHTML=`<div class="box"><h2 style="margin-top:0">SELL ${c.n.toUpperCase()}?</h2><div class="mt">Current value</div><b style="font-size:22px">${$$$(val(i))}</b><div class="mt" style="margin-top:8px">Income</div><b class="up" style="font-size:20px">+${fm(r)}/min</b><div class="mt" style="margin-top:8px">Estimated income per day</div><b>${$$$(r*1440)}</b><div class="row" style="justify-content:center;margin-top:14px"><button id="k">KEEP CARD</button><button class="g" id="y">SELL FOR ${$$$(val(i)*.95)}</button></div></div>`;$$('k').onclick=()=>detail(i.uid);$$('y').onclick=()=>doSell(i)}
+function confirmSell(i){const md=$$('md'),c=card(i),r=rateOf(i);md.innerHTML=`<div class="box"><h2 style="margin-top:0">SELL ${c.n.toUpperCase()}?</h2><div class="mt">Current value</div><b style="font-size:22px">${$$$(val(i))}</b><div class="mt" style="margin-top:8px">Income</div><b class="up" style="font-size:20px">+${fm(r)}/min</b><div class="mt" style="margin-top:8px">Estimated income per day</div><b>${$$$(r*1440)}</b><div class="row" style="justify-content:center;margin-top:14px"><button id="k">KEEP CARD</button><button class="g" id="y">SELL FOR ${$$$(val(i)*.95)}</button></div></div>`;$$('k').onclick=()=>detail(i.uid);$$('y').onclick=()=>doSell(i)}
 const evoT=i=>{const c=card(i);if(c.sec||c.ex||c.set=='Ancient')return null;return c.id%10<4?CARDS[c.id+3]:null};
 function evolve(i,same){const t=evoT(i),use=[i,...same.slice(0,4)],ov=$$('ov');S.inv=S.inv.filter(x=>!use.includes(x));use.forEach(u=>unslot(u.uid));$$('md').style.display='none';ov.className='';ov.style.background='';ov.style.display='flex';
 ov.innerHTML=`<div class="box"><h2>✨ Evolving…</h2><div class="shk gl2" style="font-size:80px">${card(i).ic}</div></div>`;
@@ -385,15 +386,15 @@ async function rpc(fn,a,quiet){const{data,error}=await sb.rpc(fn,a||{});
  if(error){if(error.code=='PGRST301'||error.status==401||/JWT/i.test(error.message)){expire();throw error}if(!quiet)toast(error.message,4500);throw error}return data}
 function expire(){if(READY){READY=false;sb.auth.signOut({scope:'local'})}}
 function hydrate(st,pr,runs){const p=st.profile,keep={ch:S.ch};S=def();S.ch=keep.ch||S.ch;
- S.money=+p.money;S.held=+p.held;S.xp=p.xp;S.name=p.username;S.earned=+p.earned;S.peak=+p.peak;S.born=new Date(p.created_at).getTime();S.st={open:p.opens,trades:0,sold:p.sold};S.prefs=p;
+ S.money=+p.money;S.held=+p.held;S.xp=p.xp;S.name=p.username;S.earned=+p.earned;S.peak=+p.peak;S.born=new Date(p.created_at).getTime();S.st={open:p.opens,trades:0,sold:p.sold};S.prefs=p;S.isAdmin=st.is_admin;S.pity=st.pity||{};S.streaks=st.streaks||[];
  S.inv=st.cards.map(c=>(c.h=c.h||[],c.m=+c.m,c));S.inv.forEach(c=>S.disc[c.cid]=1);
  S.slots=[null,null,null,null];st.slots.forEach(s=>{if(s.uid)S.slots[s.idx]={uid:s.uid,rate:+s.rate,t:s.t}});S.sealed=st.sealed;
  S.hist=st.pulls.map(x=>({n:CARDS[x.card_id].n,r:CARDS[x.card_id].r,sr:x.sr,pr:x.pr,ed:x.ed,v:+x.value,t:x.t,p:x.product}));st.pulls.forEach(x=>S.disc[x.card_id]=1);
  const fe=e=>({t:e.t,w:e.who,cid:e.card_id,sr:e.sr,pr:e.pr,f:e.f,src:e.src,v:+e.v,hist:e.historic});S.feed=st.feed.map(fe);S.hf=S.feed.filter(e=>e.hist);
  pr.forEach(r=>{S.pr[r.card_id]=+r.price;S.hi[r.card_id]=(r.hist||[+r.price]).map(Number)});runs.forEach(r=>S.cr[r.card_id+':'+r.ed]=r.created);
  S.off=0;S.trades=[];S.ev=null;S.seen=Date.now();OFF=st.now-Date.now()}
-async function resync(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1),[a,b]=await Promise.all([sb.from('prices').select('card_id,price,hist'),sb.from('print_runs').select('card_id,ed,created')]);
- hydrate(st,a.data||[],b.data||[]);LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}}
+async function resync(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1),[a,b,cd,pd]=await Promise.all([sb.from('prices').select('card_id,price,hist'),sb.from('print_runs').select('card_id,ed,created'),sb.from('card_defs').select('*').order('id'),sb.from('products').select('*')]);
+ loadCatalog(cd.data||[],pd.data||[]);hydrate(st,a.data||[],b.data||[]);LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}}
 const lazySync=()=>{const t=setInterval(()=>{if(noModal()){clearInterval(t);resync()}},700)};
 let pBusy=0;async function pollPrices(){if(!READY||pBusy)return;pBusy=1;try{await sb.rpc('market_tick');const{data}=await sb.from('prices').select('card_id,price,hist');(data||[]).forEach(r=>{S.pr[r.card_id]=+r.price;S.hi[r.card_id]=(r.hist||[]).map(Number)})}catch(e){}pBusy=0}
 
@@ -410,7 +411,7 @@ sell=function(i,q){if(i.lock||i.listed)return;S.money+=val(i)*.95;S.inv=S.inv.fi
  rpc('sell_card',{p_uid:i.uid},1).catch(e=>{toast(e.message,4000);resync()})};
 async function slotSet(k,uid){try{await rpc('set_slot',{p_idx:k,p_uid:uid})}catch(e){return}closeM();await resync();toast('Slot set')}
 pick=function(k){const L=S.inv.filter(i=>!inSlot(i.uid)&&!i.listed).sort((a,b)=>val(b)-val(a));
- modal(`<h2 style="margin-top:0">Choose a card for slot ${k+1}</h2><p class="mt">Its current rate locks in for 10 minutes.</p><div class="grid">${L.map(i=>cardH(i,`data-u="${i.uid}"`)).join('')||'<p class="mt">No free cards.</p>'}</div><button class="g" id="pc" style="margin-top:10px">Cancel</button>`);
+ modal(`<h2 style="margin-top:0">Choose an Active Card for slot ${k+1}</h2><p class="mt">Its current rate locks in for 10 minutes.</p><div class="grid">${L.map(i=>cardH(i,`data-u="${i.uid}"`)).join('')||'<p class="mt">No free cards.</p>'}</div><button class="g" id="pc" style="margin-top:10px">Cancel</button>`);
  $$('pc').onclick=closeM;$$('md').querySelectorAll('[data-u]').forEach(e=>e.onclick=()=>slotSet(k,e.dataset.u))};
 const _detail=detail;detail=function(uid){_detail(uid);const i=S.inv.find(x=>x.uid==uid);if(!i)return;const md=$$('md');
  const s1=$$('s1');if(s1&&i.listed)s1.disabled=true;
@@ -481,7 +482,8 @@ function subscribeLive(){if(subbed)return;subbed=true;
    else if(old&&l.bid_count>old.bid_count){ahPush(`🔥 New bid: ${$$$(l.current_bid)} on ${esc(CARDS[l.card_id].n)}${l.pr?' #'+l.sr+'/'+l.pr:''}`);if(AH.open==l.id&&l.high_bidder!=USER.id)toast('NEW BID! '+$$$(l.current_bid))}
    if(AH.open==l.id)ahUpd(l);ahRender()})
  .on('postgres_changes',{event:'INSERT',schema:'public',table:'txns'},p=>{const t=p.new;ahPush(`🔥 ${esc(CARDS[t.card_id].n)}${t.pr?' #'+t.sr+'/'+t.pr:''} sold for ${$$$(t.price)}`)})
- .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications'},p=>{toast(p.new.body,6000);resync()}).subscribe()}
+ .on('postgres_changes',{event:'INSERT',schema:'public',table:'notifications'},p=>{toast(p.new.body,6000);resync()})
+ .on('postgres_changes',{event:'INSERT',schema:'public',table:'feed'},p=>{const f=p.new,c=CARDS[f.card_id];if(f.historic&&c)toast('🚨 JACKPOT! '+f.who+' pulled '+c.n+(f.pr?' #'+f.sr+'/'+f.pr:''),7000)}).subscribe()}
 
 /* ---------- AUCTION HOUSE ---------- */
 const AH={map:new Map(),q:'',rar:'',type:'',sort:'end',min:'',max:'',live:[],watch:new Set(),open:null,mt:'active',at:0};
@@ -569,6 +571,89 @@ function accountPg(m){const p=S.prefs||{},u=USER||{};
  const reauth=async()=>{const cur=prompt('Enter your current password to continue');if(!cur)return false;const{error}=await sb.auth.signInWithPassword({email:USER.email,password:cur});if(error){toast('Wrong password');return false}return true};
  $$('cp').onclick=async()=>{if(!await reauth())return;const np=prompt('New password (8+ characters)');if(!np||np.length<8)return toast('Too short');const{error}=await sb.auth.updateUser({password:np});toast(error?error.message:'Password changed')};
  $$('da').onclick=async()=>{if(prompt('This permanently deletes your account. Type DELETE to confirm')!=='DELETE')return;if(!await reauth())return;try{await rpc('delete_account')}catch(e){return}manualOut=true;await sb.auth.signOut({scope:'local'});showAuth('login','Account deleted.')}}
+
+/* ================= EXPANSION LAYER ================= */
+RN.push('Relic','Prismatic','Eternal','Omega','Founder');
+RC.push('#d98a3d','#59f0ff','#ff5ea8','#ffffff','#ffd700');
+FRM.push(['#b4651d','#2a1608','#ffd9a8','#ffcf99'],['#59f0ff','#10122a','#e6f7ff','#99ffff'],['#ff5ea8','#1a0b25','#ffe0f0','#ffb3d9'],['#ffffff','#05050a','#f0f0ff','#ffffff'],['#ffd700','#1c1405','#fff4c2','#ffe680']);
+SG.push('☬','❂','∞','Ω','♛');
+SC.Void=['#7a2cff','#d9a6ff'];SC.Shadow=['#3c3f58','#9aa0c8'];
+BG.Void=`<defs><linearGradient id="gV" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#12001f"/><stop offset="1" stop-color="#4b1d8c"/></linearGradient></defs><rect width="120" height="80" fill="url(#gV)"/><circle cx="88" cy="24" r="12" fill="#000"/><circle cx="88" cy="24" r="14" fill="none" stroke="#c9a0ff" stroke-width="1.5" opacity=".7"/><g fill="#fff"><circle cx="14" cy="12" r=".8"/><circle cx="40" cy="30" r=".7"/><circle cx="64" cy="10" r=".9"/><circle cx="20" cy="62" r=".7"/></g>`;
+BG.Shadow=`<defs><linearGradient id="gSh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1b1d2b"/><stop offset="1" stop-color="#4a4f6a"/></linearGradient></defs><rect width="120" height="80" fill="url(#gSh)"/><circle cx="92" cy="20" r="10" fill="#d8dcf2" opacity=".85"/><path d="M0 80V58L18 46 36 60 60 42 88 62 120 50V80Z" fill="#0d0e16"/>`;
+AN.Void=['Gravity Pulse','Null Slash','Rift Bite','Collapse','Event Horizon','Starless Roar'];
+AN.Shadow=['Umbra Strike','Night Claw','Dusk Slash','Veil Rush','Hollow Bite','Eclipse'];
+FL.Void=['It fell from a star that never existed.','Light bends away from it.','Nothing returns from where it hunts.'];
+FL.Shadow=['It moves where torches cannot reach.','Its footsteps leave no sound.','Born when the last lantern went out.'];
+
+/* ---------- card + pack catalog is loaded from the server, so new cards need no code changes ---------- */
+function loadCatalog(defs,prods){
+ defs.forEach(d=>{const st=d.cset;if(!SETS[st]){SETS[st]=[d.icon||'🔷',[]];SC[st]=SC[st]||SC.Space;BG[st]=BG[st]||BG.Space;AN[st]=AN[st]||AN.Space;FL[st]=FL[st]||FL.Space}
+  const x={id:d.id,n:d.name,set:st,ic:d.icon||'🔷',r:d.rarity,base:+d.base,ex:d.ex,one:d.one,sec:d.sec,pr:d.print_run,sup:d.print_run,inc:d.income==null?null:+d.income,
+   atk:d.attack,def:d.defense,spd:d.speed,hp:d.health,ab:d.ability,dw:+d.drop_weight,off:d.enabled===false,pool:d.pack_pool,chase:d.chase};
+  const c=CARDS[d.id];if(!c)CARDS[d.id]=x;else Object.assign(c,{inc:x.inc,atk:x.atk,def:x.def,spd:x.spd,hp:x.hp,ab:x.ab,dw:x.dw,off:x.off,pool:x.pool,chase:x.chase})});
+ prods.forEach(r=>{const o=P[r.key];if(!o)P[r.key]={n:r.name,price:+r.price,packs:r.packs,per:r.per,g:r.g,gm:r.gm,e:r.e,exc:r.exc,set:r.pset||undefined,ltd:r.ltd,lv:r.lv||0,w:(r.w||[]).map(Number),myst:r.myst,t:r.theme||0,art:r.art||[0,1],desc:r.descr||'',box:r.box,pity:r.pity};
+  else{o.pity=r.pity;if(!r.ltd)o.price=+r.price}});
+ const ents=Object.entries(P).sort((a,b)=>a[1].price-b[1].price);ents.forEach(([k])=>delete P[k]);ents.forEach(([k,v])=>P[k]=v)}
+const rateOf=i=>{const c=CARDS[i.cid];return c&&c.inc!=null?+(c.inc*[1,1.25,1.5][i.f||0]).toFixed(2):rate(val(i))};
+const _info=info;info=function(c){const d=_info(c);if(d.hp==null||isNaN(d.hp))d.hp=300+(c.r-8)*50;if(c.hp!=null)d.hp=c.hp;
+ if(c.atk!=null){d.a[0][2]=c.atk;d.a[1][2]=c.atk*2}if(c.ab)d.a[1][1]=c.ab;return d};
+
+/* ---------- pack preview with the server's real odds ---------- */
+const oddsT=p=>p>=1?'about '+p.toFixed(1)+' per pack':p>0?'1 in '+Math.round(1/p).toLocaleString()+' packs':'—';
+preview=async function(k){const p=P[k];
+ if(p.myst){return modal(`<h2 style="margin-top:0">${p.n}</h2><p class="mt">Not available in the online version yet.</p><button class="g" id="pc2">Close</button>`),$$('pc2').onclick=closeM}
+ let odds;try{odds=await rpc('product_odds',{p_key:k})}catch(e){return}
+ const rows=odds.filter(o=>CARDS[o.cid]).map(o=>({c:CARDS[o.cid],pp:+o.pp})),tot=p.w.reduce((a,b)=>a+b,0);
+ const chase=rows.filter(x=>x.c.r>=6||x.c.one||x.c.ex||x.c.chase).sort((a,b)=>b.c.base-a.c.base).slice(0,6);
+ const tags=p.w.map((w,r)=>w?`<span class="tag" style="color:${RC[r]}">${RN[r]} ${(w/tot*100).toFixed(w/tot<.001?4:w/tot<.01?3:1)}%</span>`:'').join(' ');
+ const pt=(p.pity||[]).map(r=>`${RN[r.min]}+ every ${r.every} packs`).join(' · '),cnt=S.pity[k]||0;
+ const row=x=>`<div class="pv" style="--c:${FRM[x.c.r][0]}"><div class="th">${scene(x.c)}</div><div style="flex:1"><b>${esc(x.c.n)}</b> <span style="color:${RC[x.c.r]}">${RN[x.c.r]}</span>${x.c.one?' <span class="chs2">1 / 1</span>':x.c.chase?' <span class="chs2">CHASE</span>':''}<br><span class="mt">${x.c.pr?(x.c.one?'Only one exists':'Supply '+x.c.pr.toLocaleString()):'Unlimited'}</span></div><div style="text-align:right"><b>${$$$(S.pr[x.c.id])}</b><br><span class="mt">${oddsT(x.pp)}</span></div></div>`;
+ modal(`<h2 style="margin:0">${esc(p.n)}</h2><div class="mt">${esc(p.desc)}</div><div class="row" style="gap:4px;margin:8px 0">${tags}</div>
+ ${pt?`<div class="pn">🎯 <b>Pity</b> (saved to your account): guaranteed ${pt}.<br><span class="mt">Your counter: ${cnt} packs opened</span></div>`:''}
+ ${chase.length?`<b>CHASE CARDS</b>${chase.map(row).join('')}`:''}<b style="display:block;margin-top:8px">All possible pulls (${rows.length})</b>
+ <div style="max-height:36vh;overflow:auto">${rows.sort((a,b)=>b.c.r-a.c.r||b.c.base-a.c.base).map(row).join('')}</div>
+ <div class="row" style="margin-top:10px"><button id="pb">Buy ${$$$(p.price)}</button><button class="g" id="pc2">Close</button></div>`);
+ $$('pc2').onclick=closeM;$$('pb').onclick=()=>{closeM();buy(k)}};
+
+/* ---------- pity + streak panels on the Packs tab ---------- */
+const STREAK=[[5,'$500'],[10,'1 Rare Pack'],[25,'$5,000'],[50,'1 Epic Pack'],[100,'1 Legendary Pack']];
+const _openT=openT;openT=function(m){_openT(m);const opens=S.prefs?S.prefs.opens:0;
+ const ks=Object.keys(P).filter(k=>P[k].pity&&P[k].pity.length);
+ m.insertAdjacentHTML('beforeend',`<h2>Pity counters</h2><div class="pn">${ks.map(k=>`<div><b>${esc(P[k].n)}</b> ${P[k].pity.map(r=>{const c=(S.pity[k]||0)%r.every;return`<span class="tag">${RN[r.min]}+ ${c} / ${r.every}</span>`}).join(' ')}</div>`).join('')||'<span class="mt">No pity packs yet.</span>'}<div class="mt" style="font-size:12px;margin-top:4px">At 10 / 10 your next pack is guaranteed that rarity or better. Counters are saved to your account.</div></div>
+ <h2>Pack streak rewards <span class="mt" style="font-size:13px">(${opens} packs opened)</span></h2>${STREAK.map(([n,r])=>{const done=S.streaks.includes(n);return`<div class="pn row" style="justify-content:space-between"><span>Open ${n} packs → <b>${r}</b></span><button data-sk="${n}" ${opens<n||done?'disabled':''}>${done?'Claimed':'Claim'}</button></div>`}).join('')}`);
+ m.querySelectorAll('[data-sk]').forEach(b=>b.onclick=async()=>{try{toast('🎁 '+await rpc('claim_streak',{p_n:+b.dataset.sk}),3000)}catch(e){return}resync()})};
+
+/* ---------- base value vs market value, Active Cards wording ---------- */
+const _mkt=mkt;mkt=function(id){_mkt(id);const r=document.querySelector('#md .row.mt');if(r)r.insertAdjacentHTML('beforeend',`<span>Base value <b style="color:var(--tx)">${$$$(CARDS[id].base)}</b></span>`)};
+const _detail2=detail;detail=function(uid){_detail2(uid);const i=S.inv.find(x=>x.uid==uid);if(!i)return;const r=document.querySelector('#md .row.mt'),c=CARDS[i.cid];
+ if(r)r.insertAdjacentHTML('beforeend',`<span>Base ${$$$(c.base)}</span>${c.inc!=null?'<span>$/min set by card</span>':''}`);
+ const s2=$$('s2');if(s2)s2.textContent='Equip as Active Card';
+ const lk=document.querySelector('#md [data-f=lock]');if(lk)lk.textContent=i.lock?'🔒 LOCKED (tap to unlock)':'🔓 Lock card'};
+const _more=more;more=function(m){_more(m);const g=m.querySelector('.tg');if(S.isAdmin&&g){const t=document.createElement('div');t.className='tile';t.innerHTML='<div style="font-size:40px">🛠</div><b>Admin</b>';t.onclick=()=>{tab='admin';draw()};g.appendChild(t)}};
+
+/* ---------- ADMIN ---------- */
+function adminPg(m){if(!S.isAdmin){m.innerHTML='<p class="pn mt">Admins only.</p>';return}
+ const I=(id,ph,w)=>`<input id="${id}" placeholder="${ph}" style="width:${w||120}px;background:var(--pn2);color:var(--tx);border:0;border-radius:8px;padding:7px">`;
+ const keys=Object.keys(P).filter(k=>!P[k].myst);
+ m.innerHTML=`<h2 style="margin-top:0">🛠 Admin</h2><div class="pn"><b>Create card</b><div class="row" style="margin-top:6px">${I('ac_n','Name',140)}${I('ac_s','Set (e.g. Void)',110)}${I('ac_i','Icon 🔷',60)}
+ <select id="ac_r">${RN.map((n,i)=>`<option value="${i}">${i} ${n}</option>`).join('')}</select>${I('ac_p','Supply (0 = unlimited)',130)}${I('ac_b','Base value $',110)}${I('ac_m','$/min (blank = auto)',120)}
+ ${I('ac_a','Attack',70)}${I('ac_d','Defense',70)}${I('ac_sp','Speed',70)}${I('ac_h','Health',70)}${I('ac_ab','Ability text',220)}${I('ac_w','Drop weight (1)',100)}${I('ac_pp','Pack pool: '+keys.join(','),300)}
+ <label><input type="checkbox" id="ac_o"> 1/1</label><label><input type="checkbox" id="ac_c"> Chase</label><button id="ac_go">Create card</button></div><div class="mt" style="font-size:12px">Leave pack pool blank to let it drop from every pack. Use the pack keys listed to limit it.</div></div>
+ <div class="pn"><b>Pack odds</b><div class="row" style="margin-top:6px"><select id="ao_k">${keys.map(k=>`<option value="${k}">${esc(P[k].n)}</option>`).join('')}</select><input id="ao_w" style="flex:1;min-width:260px;background:var(--pn2);color:var(--tx);border:0;border-radius:8px;padding:7px"><button id="ao_go">Save weights</button></div><div class="mt" style="font-size:12px">One weight per rarity in order (${RN.join(', ')}).</div></div>
+ <div class="pn"><b>Give a card</b><div class="row" style="margin-top:6px">${I('ag_u','Username',130)}${I('ag_c','Card id',80)}<button id="ag_go">Grant</button></div></div>
+ <div class="pn"><b>Cards</b> <input id="af" placeholder="filter" style="background:var(--pn2);color:var(--tx);border:0;border-radius:8px;padding:6px;margin-left:8px"><div id="al" style="margin-top:6px"></div></div>`;
+ const num=id=>{const v=$$(id).value.trim();return v===''?null:+v},txt=id=>$$(id).value.trim()||null;
+ const setW=()=>{const p=P[$$('ao_k').value];$$('ao_w').value=p?p.w.join(', '):''};$$('ao_k').onchange=setW;setW();
+ const list=()=>{const f=$$('af').value.toLowerCase();$$('al').innerHTML=CARDS.filter(c=>!f||(c.n+' '+c.set+' '+RN[c.r]).toLowerCase().includes(f)).slice().reverse().slice(0,60).map(c=>`<div class="row" style="justify-content:space-between;border-bottom:1px solid var(--pn2);padding:4px 0;font-size:13px"><span>#${c.id} <b>${esc(c.n)}</b> <span style="color:${RC[c.r]}">${RN[c.r]}</span> · ${esc(c.set)} · ${c.pr?(c.pr==1?'1/1':c.pr.toLocaleString()+' supply · '+crOf(c,0).toLocaleString()+' made'):'unlimited'} · ${$$$(c.base)}${c.off?' · <b class="dn">DISABLED</b>':''}</span><span class="row"><button class="g" data-ow="${c.id}">Owners</button><button class="g" data-ed="${c.id}">Edit</button><button class="g" data-tg="${c.id}">${c.off?'Enable':'Disable'}</button></span></div>`).join('');
+  $$('al').querySelectorAll('[data-tg]').forEach(b=>b.onclick=async()=>{const c=CARDS[+b.dataset.tg];try{await rpc('admin_update_card',{p_id:c.id,p:{enabled:!!c.off}})}catch(e){return}resync()});
+  $$('al').querySelectorAll('[data-ow]').forEach(b=>b.onclick=async()=>{try{const o=await rpc('admin_owners',{p_id:+b.dataset.ow});modal(`<h2 style="margin-top:0">Owners of ${esc(CARDS[+b.dataset.ow].n)}</h2>${o.map(x=>`<div class="pn">${esc(x.username)} · ${x.pr?'#'+x.sr+'/'+x.pr:'unnumbered'}${x.listed?' · listed':''}</div>`).join('')||'<p class="mt">Nobody owns it yet.</p>'}<button class="g" id="x">Close</button>`);$$('x').onclick=closeM}catch(e){}});
+  $$('al').querySelectorAll('[data-ed]').forEach(b=>b.onclick=async()=>{const c=CARDS[+b.dataset.ed],p={},bv=prompt('Base value',c.base),iv=prompt('$/min (blank = auto)',c.inc==null?'':c.inc),sv=c.pr>1?prompt('Supply (can only go up from copies already made)',c.pr):null;
+   if(bv===null||iv===null)return;if(bv!=='')p.base=+bv;p.income=iv===''?null:+iv;if(sv)p.print_run=+sv;try{await rpc('admin_update_card',{p_id:c.id,p});toast('Saved')}catch(e){return}resync()})};
+ $$('af').oninput=list;list();
+ $$('ac_go').onclick=async()=>{const pp=txt('ac_pp'),p={name:txt('ac_n'),cset:txt('ac_s'),icon:txt('ac_i'),rarity:+$$('ac_r').value,print_run:num('ac_p')||0,base:num('ac_b'),income:num('ac_m'),attack:num('ac_a'),defense:num('ac_d'),speed:num('ac_sp'),health:num('ac_h'),ability:txt('ac_ab'),drop_weight:num('ac_w')||1,one:$$('ac_o').checked,chase:$$('ac_c').checked,pack_pool:pp?pp.split(',').map(s=>s.trim()).filter(Boolean):null};
+  try{const id=await rpc('admin_create_card',{p});toast('Created card #'+id)}catch(e){return}await resync()};
+ $$('ao_go').onclick=async()=>{const w=$$('ao_w').value.split(',').map(s=>+s.trim());if(w.some(isNaN))return toast('Weights must be numbers');try{await rpc('admin_set_odds',{p_key:$$('ao_k').value,p_w:w});toast('Odds saved')}catch(e){return}resync()};
+ $$('ag_go').onclick=async()=>{try{await rpc('admin_grant',{p_username:$$('ag_u').value.trim(),p_id:+$$('ag_c').value});toast('Granted')}catch(e){}}}
 
 </script></body></html>
  
