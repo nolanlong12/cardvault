@@ -212,8 +212,9 @@ for(let i=0;i<n;i++){const x=40+(i-(n-1)/2)*(38/n);o+=`<path d="M${x-5} 30L${x} 
 o+=`<ellipse cx="40" cy="50" rx="${19+R()*6}" ry="${17+R()*6}" fill="${a}" stroke="#0006" stroke-width="1.5"/><ellipse cx="40" cy="58" rx="11" ry="9" fill="${b}" opacity=".65"/><rect x="28" y="64" width="7" height="9" rx="3" fill="${a}" stroke="#0006"/><rect x="45" y="64" width="7" height="9" rx="3" fill="${a}" stroke="#0006"/>`;
 (e?[[31,44],[49,44]]:[[40,38],[30,46],[50,46]]).forEach(([x,y])=>o+=`<circle cx="${x}" cy="${y}" r="5" fill="#fff"/><circle cx="${x+1}" cy="${y+1}" r="2.4" fill="#222"/>`);
 return o+`<path d="M33 56Q40 ${60+R()*5} 47 56" stroke="#0007" stroke-width="2" fill="none"/>`}
-const art=c=>`<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="38" fill="${SC[c.set][1]}" opacity=".3"/>${cre(c)}</svg>`;
-const scene=c=>`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice">${BG[c.set]}<g transform="translate(20 0)">${cre(c)}</g></svg>`;
+let art=c=>`<svg viewBox="0 0 80 80"><circle cx="40" cy="40" r="38" fill="SC[c.set][1]"opacity=".3"/>{cre(c)}</svg>`;
+let art=c=>`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice">BG[c.set]<gtransform="translate(200)">{cre(c)}</g></svg>`;
+
 function cardH(i,x,nc){const c=card(i),F=FRM[c.r],d=info(c);
 return`<div class="cw" ${x||''}><div class="card ${['','holo','rain'][i.f]}${i.pr&&(i.pr==1||i.sr==1||i.sr==i.pr)?' sp':''}" style="--f:${F[0]};--b:${F[1]};--tx:${F[2]};--nc:${F[3]}"><div class="ct"><b class="nm">${c.n}</b><span class="hp">HP <i>${d.hp}</i></span><span class="ty">${c.ic}</span></div><span class="rb">${RN[c.r]}${i.f?' · '+FN[i.f]:''}${c.ex?' · Collector':''}${i.ed?' · '+EDN[i.ed]+' Ed.':''}</span><div class="aw">${scene(c)}${specLabel(i)?`<span class="bdg">${specLabel(i)}</span>`:''}</div>${d.a.map(([n,t,dm],k)=>`<div class="ak"><span class="ais">${`<u>${c.ic}</u>`.repeat(k+1)}</span><div class="at"><b>${n}</b><small>${t}</small></div><span class="dm">${dm}</span></div>`).join('')}<div class="fv"><span>${d.fl}</span><i${i.pr?' class="sn"':''}>${i.pr?serT(i):d.no}</i></div></div>${nc?'':`<div class="cap">${$$$(val(i))}${inSlot(i.uid)?' · 🖼':''}${i.fav?' ❤️':''}${i.lock?' 🔒':''}${i.show?' ⭐':''}</div>`}</div>`}
 function sell(i,q){if(i.lock)return;S.money+=val(i)*.95;S.inv=S.inv.filter(x=>x!==i);unslot(i.uid);S.st.sold++;S.ch.sell++;xp(5);if(!q)save()}
