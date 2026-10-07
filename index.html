@@ -656,5 +656,30 @@ function adminPg(m){if(!S.isAdmin){m.innerHTML='<p class="pn mt">Admins only.</p
  $$('ao_go').onclick=async()=>{const w=$$('ao_w').value.split(',').map(s=>+s.trim());if(w.some(isNaN))return toast('Weights must be numbers');try{await rpc('admin_set_odds',{p_key:$$('ao_k').value,p_w:w});toast('Odds saved')}catch(e){return}resync()};
  $$('ag_go').onclick=async()=>{try{await rpc('admin_grant',{p_username:$$('ag_u').value.trim(),p_id:+$$('ag_c').value});toast('Granted')}catch(e){}}}
 
+ /* ===== BRAIN ROT ADD-ON (paste right before the line  </script></body></html> ) ===== */
+RN.push('Prism Green','Prism Blue','Prism Red','Prism Pink','Prism Rainbow','Prism Gold','Prism Diamond','Autograph','1 of 1');
+RC.push('#3ddc6f','#3b9cff','#ff4d4d','#ff7bd5','#ffe14d','#ffc933','#7df9ff','#c58bff','#ffffff');
+FRM.push(['#2fbf5b','#0e2a17','#d8ffe6','#a8f5c4'],['#2b8cff','#0b1a33','#dcecff','#a9d0ff'],['#ff3b3b','#2a0c0c','#ffe0e0','#ffb3b3'],['#ff6fcf','#2a0b22','#ffe3f6','#ffc2ea'],['#ffd84d','#1b1a2e','#fff7cc','#ffe680'],['#ffbf1f','#2a1d03','#fff2c4','#ffe28a'],['#59f0ff','#07192a','#e6fbff','#b9fbff'],['#b57cff','#150a2a','#f0e4ff','#dcc2ff'],['#ffffff','#000000','#ffffff','#ffffff']);
+SG.push('◇','◇◇','◇◇◇','❖','❖❖','✦✦✦','♦','✍','1/1');
+
+/* real images for cards that have one */
+{const _a=art,_s=scene;
+art=c=>c.img?`<svg viewBox="0 0 80 80"><image href="${c.img}" width="80" height="80" preserveAspectRatio="xMidYMid slice"/></svg>`:_a(c);
+scene=c=>c.img?`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice"><rect width="120" height="80" fill="#000"/><image href="${c.img}" width="120" height="80" preserveAspectRatio="xMidYMid slice"/></svg>`:_s(c);}
+
+/* remember each card's image path */
+const _lc=loadCatalog;loadCatalog=function(defs,prods){_lc(defs,prods);defs.forEach(d=>{const c=CARDS[d.id];if(c&&d.img)c.img=d.img})};
+
+/* load more than 1,000 rows (Supabase caps one request at 1,000) */
+async function selAll(t,cols,ord){let out=[],from=0;for(;;){let q=sb.from(t).select(cols);ord.forEach(o=>q=q.order(o));const{data,error}=await q.range(from,from+999);if(error)throw error;out=out.concat(data||[]);if(!data||data.length<1000)break;from+=1000}return{data:out}}
+resync=async function(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1),[a,b,cd,pd]=await Promise.all([selAll('prices','card_id,price,hist',['card_id']),selAll('print_runs','card_id,ed,created',['card_id','ed']),selAll('card_defs','*',['id']),sb.from('products').select('*')]);
+ loadCatalog(cd.data||[],pd.data||[]);hydrate(st,a.data||[],b.data||[]);LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}};
+
+/* light 5-second price refresh */
+pollPrices=async function(){if(!READY||pBusy)return;pBusy=1;try{await sb.rpc('market_tick');const{data}=await selAll('prices','card_id,price',['card_id']);(data||[]).forEach(r=>{const p=+r.price,h=S.hi[r.card_id]||(S.hi[r.card_id]=[p]);S.pr[r.card_id]=p;if(h[h.length-1]!==p){h.push(p);if(h.length>80)h.shift()}})}catch(e){}pBusy=0};
+
+/* market tab shows the top 150 (search still finds everything) */
+const _mk=market;market=function(m){_mk(m);m.querySelectorAll('[data-m]').forEach((e,i)=>{if(i>=150)e.remove()})};
+
 </script></body></html>
  
