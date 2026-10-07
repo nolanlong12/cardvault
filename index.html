@@ -1,6 +1,3 @@
-
-
-Cardvault · HTML
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><title>CardVault</title><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
@@ -656,9 +653,7 @@ function adminPg(m){if(!S.isAdmin){m.innerHTML='<p class="pn mt">Admins only.</p
  $$('ao_go').onclick=async()=>{const w=$$('ao_w').value.split(',').map(s=>+s.trim());if(w.some(isNaN))return toast('Weights must be numbers');try{await rpc('admin_set_odds',{p_key:$$('ao_k').value,p_w:w});toast('Odds saved')}catch(e){return}resync()};
  $$('ag_go').onclick=async()=>{try{await rpc('admin_grant',{p_username:$$('ag_u').value.trim(),p_id:+$$('ag_c').value});toast('Granted')}catch(e){}}}
 
-
-
- 
+ /* ===== BRAIN ROT ADD-ON ===== */
 RN.push('Prism Green','Prism Blue','Prism Red','Prism Pink','Prism Rainbow','Prism Gold','Prism Diamond','Autograph','1 of 1');
 RC.push('#3ddc6f','#3b9cff','#ff4d4d','#ff7bd5','#ffe14d','#ffc933','#7df9ff','#c58bff','#ffffff');
 FRM.push(['#2fbf5b','#0e2a17','#d8ffe6','#a8f5c4'],['#2b8cff','#0b1a33','#dcecff','#a9d0ff'],['#ff3b3b','#2a0c0c','#ffe0e0','#ffb3b3'],['#ff6fcf','#2a0b22','#ffe3f6','#ffc2ea'],['#ffd84d','#1b1a2e','#fff7cc','#ffe680'],['#ffbf1f','#2a1d03','#fff2c4','#ffe28a'],['#59f0ff','#07192a','#e6fbff','#b9fbff'],['#b57cff','#150a2a','#f0e4ff','#dcc2ff'],['#ffffff','#000000','#ffffff','#ffffff']);
@@ -683,5 +678,144 @@ pollPrices=async function(){if(!READY||pBusy)return;pBusy=1;try{await sb.rpc('ma
 /* market tab shows the top 150 (search still finds everything) */
 const _mk=market;market=function(m){_mk(m);m.querySelectorAll('[data-m]').forEach((e,i)=>{if(i>=150)e.remove()})};
 
+/* ===== PACK LADDER + PLAYER TRADING ADD-ON ===== */
+
+/* ---- level discount on normal packs (same math as the database: 1% per level, max 25%, never free) ---- */
+const pDisc=()=>Math.min(25,Math.floor(Math.sqrt((S.xp||0)/40)));
+const packCost=(b,l)=>l?Math.max(1,Math.floor((b*(100-pDisc())+50)/100)):b;
+function ladderize(){Object.keys(P).forEach(k=>{const p=P[k];if(p._lx)return;let b=p.price;
+ Object.defineProperty(p,'_lx',{value:1,enumerable:false});
+ Object.defineProperty(p,'bp',{get:()=>b,enumerable:false,configurable:true});
+ Object.defineProperty(p,'price',{get:()=>packCost(b,p.ladder),set:v=>{b=v},enumerable:true,configurable:true})})}
+const _lcL=loadCatalog;loadCatalog=function(defs,prods){_lcL(defs,prods);
+ (prods||[]).forEach(r=>{const p=P[r.key];if(p)p.ladder=!!r.ladder});ladderize();
+ const ents=Object.entries(P).sort((a,b)=>a[1].bp-b[1].bp);ents.forEach(([k])=>delete P[k]);ents.forEach(([k,v])=>P[k]=v)};
+ladderize();
+
+/* buying uses the price the server actually charged */
+buy=async function(k,open){let r;try{r=await rpc('buy_product',{p_key:k})}catch(e){return}
+ S.money-=(r&&r.price!=null?+r.price:P[k].price);S.sealed[k]=(S.sealed[k]||0)+1;if(open)return openP(k);toast('Added to sealed stock');draw()};
+
+/* selling sealed packs now goes through the server too (pays 85% of today's price) */
+const _openTL=openT;openT=function(m){_openTL(m);
+ m.querySelectorAll('[data-s]').forEach(b=>{b.onclick=async()=>{const k=b.dataset.s;b.disabled=true;let v;
+  try{v=await rpc('sell_sealed',{p_key:k})}catch(e){b.disabled=false;return}
+  S.sealed[k]=Math.max(0,(S.sealed[k]||0)-1);S.money+=+v;toast('Sold sealed '+P[k].n+' for '+$$$(+v));draw()}})};
+
+/* store note about the level discount */
+const _shopL=shop;shop=function(m){_shopL(m);const d=pDisc();
+ if(d>0){const h=m.querySelector('h2');if(h)h.insertAdjacentHTML('afterend',`<div class="pn" style="padding:8px 12px">🏷 Level ${lvl()} discount: <b>−${d}%</b> on normal packs. Prices shown already include it.</div>`)}};
+
+/* ---- player-to-player trading ---- */
+const TR={d:null,at:0,n:0,busy:0},FN2=['','Holo','Rainbow'];
+const tm2=n=>n%1?m2(+n):$$$(+n);
+const tv=c=>c.val!=null?+c.val:val(c);
+const tTot=(cs,mny)=>(cs||[]).reduce((a,c)=>a+tv(c),0)+(+mny||0);
+const tTxt=(cs,mny)=>[...(cs||[]).map(c=>CARDS[c.cid]?CARDS[c.cid].n:'?'),+mny>0?tm2(+mny):null].filter(Boolean).join(' + ')||'nothing';
+function tcard(c){const d=CARDS[c.cid];if(!d)return'';
+ return`<div class="pv" style="--c:${FRM[d.r][0]};margin:4px 0"><div class="th">${scene(d)}</div><div style="flex:1;min-width:0"><b>${esc(d.n)}</b> <span style="color:${RC[d.r]}">${RN[d.r]}</span>${c.f?` <span class="tag">${FN2[c.f]||''}</span>`:''}<br><span class="mt">${c.pr?'#'+(+c.sr).toLocaleString()+' / '+(+c.pr).toLocaleString():'Unlimited'}${c.ed?' · '+EDN[c.ed]:''}</span></div><div style="text-align:right"><b>${tm2(tv(c))}</b></div></div>`}
+const tSide=(cs,mny)=>((cs||[]).map(tcard).join('')+(+mny>0?`<div class="pn" style="padding:8px 12px;margin:4px 0">💵 <b>${tm2(+mny)}</b> cash</div>`:''))||'<div class="mt">Nothing</div>';
+
+function trNavBadge(){const b=document.querySelector('#nav [data-t="trades"]');if(b)b.textContent=TR.n>0?'Trades ('+TR.n+')':'Trades'}
+async function trLoad(force){if(!READY)return;if(!force&&TR.d&&Date.now()-TR.at<8000)return;if(TR.busy&&!force)return;TR.busy=1;
+ try{TR.d=await rpc('trade_list',{},1);TR.at=Date.now();TR.n=TR.d.pending.filter(x=>!x.mine).length}catch(e){}
+ TR.busy=0;trNavBadge();if(tab=='trades'&&noModal())trades($$('m'),1)}
+const _drawT=draw;draw=function(){_drawT();trNavBadge()};
+setInterval(()=>{if(READY)trLoad(true)},20000);setTimeout(()=>{if(READY)trLoad(true)},4000);
+
+function trLeft(t){const ms=t.expires-cvNow();return ms>=36e5?Math.floor(ms/36e5)+'h left':Math.max(0,Math.ceil(ms/6e4))+'m left'}
+function trBody(d){
+ const inc=d.pending.filter(x=>!x.mine),out=d.pending.filter(x=>x.mine);
+ const st={accepted:'✅ Accepted',declined:'❌ Declined',cancelled:'↩ Cancelled',expired:'⏰ Expired'};
+ return`<h3>Offers for you (${inc.length})</h3>`+(inc.map(t=>`<div class="pn"><b>${esc(t.from)}</b> sent you an offer <span class="mt">· ${trLeft(t)}</span>
+  <div class="mt" style="margin-top:6px">THEY GIVE · worth ${$$$(tTot(t.oc,t.om))}</div>${tSide(t.oc,t.om)}
+  <div class="mt" style="margin-top:6px">THEY WANT FROM YOU · worth ${$$$(tTot(t.ac,t.am))}</div>${tSide(t.ac,t.am)}
+  <div class="row" style="margin-top:8px"><button data-ta="${t.id}">Review &amp; accept</button><button class="g" data-td="${t.id}">Decline</button></div></div>`).join('')||'<p class="mt">No offers right now.</p>')+
+ `<h3>Offers you sent (${out.length})</h3>`+(out.map(t=>`<div class="pn">To <b>${esc(t.to)}</b> <span class="mt">· waiting for them to confirm · ${trLeft(t)}</span>
+  <div class="mt" style="margin-top:6px">YOU GIVE · worth ${$$$(tTot(t.oc,t.om))}</div>${tSide(t.oc,t.om)}
+  <div class="mt" style="margin-top:6px">YOU ASKED FOR · worth ${$$$(tTot(t.ac,t.am))}</div>${tSide(t.ac,t.am)}
+  <div class="row" style="margin-top:8px"><button class="g" data-tc="${t.id}">Cancel offer</button></div></div>`).join('')||'<p class="mt">You have no pending offers.</p>')+
+ `<h3>Recent trades</h3>`+(d.history.map(t=>{const gave=t.mine?tTxt(t.oc,t.om):tTxt(t.ac,t.am),got=t.mine?tTxt(t.ac,t.am):tTxt(t.oc,t.om);
+  return`<div class="pn" style="padding:8px 12px"><b>${st[t.status]||t.status}</b> · ${t.mine?'to '+esc(t.to):'from '+esc(t.from)}<div class="mt" style="font-size:13px">You gave: ${esc(gave)}<br>You got: ${esc(got)}</div></div>`}).join('')||'<p class="mt">No finished trades yet.</p>')}
+
+trades=function(m,skip){
+ if(!READY){m.innerHTML=`<h2 style="margin-top:0">Trades</h2><p class="mt">Sign in to trade with other players.</p>`;return}
+ m.innerHTML=`<div class="row" style="justify-content:space-between"><h2 style="margin:0">Trades</h2><button id="tn">🤝 Make Trade</button></div>
+ <p class="mt">Trade cards and cash with another player. Both of you confirm before anything moves. Offers last 48 hours, and what you offer is held safely until then.</p>`+(TR.d?trBody(TR.d):'<p class="mt">Loading…</p>');
+ $$('tn').onclick=tbOpen;
+ m.querySelectorAll('[data-ta]').forEach(b=>b.onclick=()=>{const t=TR.d.pending.find(x=>x.id==b.dataset.ta);if(t)trConfirm(t)});
+ m.querySelectorAll('[data-td]').forEach(b=>b.onclick=()=>{b.disabled=true;trAct(+b.dataset.td,'decline')});
+ m.querySelectorAll('[data-tc]').forEach(b=>b.onclick=()=>{b.disabled=true;trAct(+b.dataset.tc,'cancel')});
+ if(!skip)trLoad()};
+
+function trConfirm(t){modal(`<h2 style="margin-top:0">Accept trade with ${esc(t.from)}?</h2>
+ <div class="mt">YOU GET · worth ${$$$(tTot(t.oc,t.om))}</div>${tSide(t.oc,t.om)}
+ <div class="mt" style="margin-top:8px">YOU GIVE · worth ${$$$(tTot(t.ac,t.am))}</div>${tSide(t.ac,t.am)}
+ <p class="mt">Values are estimates and move with the market. A finished trade cannot be undone.</p>
+ <div class="row"><button id="ty">Confirm trade</button><button class="g" id="tx">Not now</button></div>`);
+ $$('tx').onclick=closeM;$$('ty').onclick=()=>{$$('ty').disabled=true;trAct(t.id,'accept')}}
+async function trAct(id,a){closeM();let msg;try{msg=await rpc('trade_respond',{p_id:id,p_action:a})}catch(e){await trLoad(true);return}
+ toast(msg,3000);await resync();await trLoad(true)}
+
+/* ---- Make Trade window ---- */
+let TB={};
+function tbOpen(){TB={u:null,theirs:[],mine:[],give:new Set(),ask:new Set(),gm:0,am:0,f1:'',f2:''};tbSearch()}
+function tbSearch(){
+ modal(`<h2 style="margin-top:0">🤝 Make Trade</h2><p class="mt">Search for a player by username.</p>
+ <input id="tq" placeholder="Username (at least 2 letters)" autocomplete="off" style="width:100%"><div id="tres" style="margin-top:8px"></div>
+ <div class="row" style="margin-top:10px"><button class="g" id="tx">Close</button></div>`);
+ $$('tx').onclick=closeM;const q=$$('tq');let tmr;q.focus();
+ q.oninput=()=>{clearTimeout(tmr);tmr=setTimeout(async()=>{const v=q.value.trim(),r=$$('tres');if(!r)return;if(v.length<2){r.innerHTML='';return}
+  let u;try{u=await rpc('trade_find_user',{p_q:v},1)}catch(e){return}if(!$$('tq')||q.value.trim()!==v)return;
+  r.innerHTML=(u||[]).map(x=>`<button class="g" data-u="${x.id}" data-n="${esc(x.username)}" style="display:block;width:100%;margin:4px 0;text-align:left">👤 ${esc(x.username)}</button>`).join('')||'<p class="mt">No player found.</p>';
+  r.querySelectorAll('[data-u]').forEach(b=>b.onclick=()=>tbPick(b.dataset.u,b.dataset.n))},300)}}
+async function tbPick(id,name){modal(`<p class="mt">Loading ${esc(name)}'s cards…</p>`);let cs;
+ try{cs=await rpc('trade_user_cards',{p_user:id})}catch(e){return tbSearch()}
+ cs.forEach(c=>{c.m=+c.m;c.val=+c.val});TB.u={id,name};TB.theirs=cs;TB.give=new Set();TB.ask=new Set();TB.gm=0;TB.am=0;TB.f1='';TB.f2='';tbBuild()}
+function tbRows(arr,set,filt,k){const q=filt.toLowerCase();
+ return arr.filter(c=>CARDS[c.cid]&&(!q||CARDS[c.cid].n.toLowerCase().includes(q))).slice(0,150).map(c=>`<label style="display:flex;align-items:center;gap:6px;cursor:pointer"><input type="checkbox" data-k="${k}" data-u="${c.uid}" ${set.has(c.uid)?'checked':''}><div style="flex:1;min-width:0">${tcard(c)}</div></label>`).join('')||'<span class="mt">No cards to show.</span>'}
+function tbSum(){const g=TB.mine.filter(c=>TB.give.has(c.uid)),a=TB.theirs.filter(c=>TB.ask.has(c.uid)),gm=+($$('gm').value||0)||0,am=+($$('am').value||0)||0,
+  gv=tTot(g,gm),av=tTot(a,am),el=$$('tsum');
+ el.innerHTML=`You give about <b>${$$$(gv)}</b> · You get about <b>${$$$(av)}</b>`+(gv>0&&av>0?` <span class="${av>=gv?'up':'dn'}">(${av>=gv?'+':''}${((av/gv-1)*100).toFixed(0)}% for you)</span>`:'')}
+function tbBuild(){const avail=Math.max(0,S.money-(S.held||0));
+ TB.mine=S.inv.filter(i=>!i.lock&&!i.listed&&!i.tr&&!inSlot(i.uid)).sort((a,b)=>val(b)-val(a));
+ modal(`<h2 style="margin-top:0">Trade with ${esc(TB.u.name)}</h2>
+ <div class="pn"><b>YOU GIVE</b> <span class="mt">(up to 10 cards)</span>
+  <input id="f1" placeholder="Filter your cards" style="width:100%;margin:6px 0" value="${esc(TB.f1)}"><div id="l1" style="max-height:24vh;overflow:auto"></div>
+  <div class="row" style="margin-top:6px">💵 Cash <input id="gm" type="number" min="0" step="0.01" placeholder="0" style="width:130px" value="${TB.gm||''}"><span class="mt">available ${m2(avail)}</span></div></div>
+ <div class="pn"><b>YOU ASK FOR</b> <span class="mt">(up to 10 cards from ${esc(TB.u.name)})</span>
+  <input id="f2" placeholder="Filter their cards" style="width:100%;margin:6px 0" value="${esc(TB.f2)}"><div id="l2" style="max-height:24vh;overflow:auto"></div>
+  <div class="row" style="margin-top:6px">💵 Cash <input id="am" type="number" min="0" step="0.01" placeholder="0" style="width:130px" value="${TB.am||''}"></div></div>
+ <div id="tsum" class="mt" style="margin:8px 0"></div>
+ <div class="row"><button id="tgo">Review offer</button><button class="g" id="tback">Pick another player</button><button class="g" id="tx">Cancel</button></div>`);
+ const l1=$$('l1'),l2=$$('l2');l1.innerHTML=tbRows(TB.mine,TB.give,TB.f1,'g');l2.innerHTML=tbRows(TB.theirs,TB.ask,TB.f2,'a');tbSum();
+ const chg=e=>{const t=e.target;if(!t.dataset.u)return;const s=t.dataset.k=='g'?TB.give:TB.ask;
+  if(t.checked){if(s.size>=10){t.checked=false;return toast('Up to 10 cards per side')}s.add(t.dataset.u)}else s.delete(t.dataset.u);tbSum()};
+ l1.onchange=chg;l2.onchange=chg;
+ $$('f1').oninput=e=>{TB.f1=e.target.value;l1.innerHTML=tbRows(TB.mine,TB.give,TB.f1,'g')};
+ $$('f2').oninput=e=>{TB.f2=e.target.value;l2.innerHTML=tbRows(TB.theirs,TB.ask,TB.f2,'a')};
+ $$('gm').oninput=tbSum;$$('am').oninput=tbSum;
+ $$('tx').onclick=closeM;$$('tback').onclick=tbSearch;
+ $$('tgo').onclick=()=>{const gm=Math.max(0,+((+$$('gm').value||0).toFixed(2))),am=Math.max(0,+((+$$('am').value||0).toFixed(2)));
+  if(!TB.give.size&&gm<=0)return toast('Offer at least one card or some cash');
+  if(gm>avail)return toast('You only have '+m2(avail)+' available');
+  TB.gm=gm;TB.am=am;tbReview()}}
+function tbReview(){const g=TB.mine.filter(c=>TB.give.has(c.uid)),a=TB.theirs.filter(c=>TB.ask.has(c.uid)),nm=esc(TB.u.name);
+ modal(`<h2 style="margin-top:0">Send this offer to ${nm}?</h2>
+ <div class="mt">YOU GIVE · worth ${$$$(tTot(g,TB.gm))}</div>${tSide(g,TB.gm)}
+ <div class="mt" style="margin-top:8px">YOU GET · worth ${$$$(tTot(a,TB.am))}</div>${tSide(a,TB.am)}
+ ${!a.length&&!(TB.am>0)?'<p class="dn">⚠ You are asking for nothing in return.</p>':''}
+ <p class="mt">What you offer is held until ${nm} answers or 48 hours pass. ${nm} has to confirm before anything moves.</p>
+ <div class="row"><button id="tsend">Send offer</button><button class="g" id="tedit">Edit</button></div>`);
+ $$('tedit').onclick=tbBuild;
+ $$('tsend').onclick=async()=>{const b=$$('tsend');b.disabled=true;
+  try{await rpc('trade_create',{p_to:TB.u.id,p_offer:[...TB.give],p_offer_money:TB.gm,p_ask:[...TB.ask],p_ask_money:TB.am})}catch(e){b.disabled=false;return}
+  closeM();toast('Offer sent to '+TB.u.name,3000);await resync();await trLoad(true)}}
+
+/* cards held in a trade show a trade label instead of the auction label */
+const _cardHT=cardH;cardH=function(i,x,nc){const h=_cardHT(i,x,nc);return i.tr?h.replace('🏛 LISTED · ','🤝 IN TRADE · '):h};
+const _detailT=detail;detail=function(...a){_detailT(...a);const i=S.inv.find(x=>x.uid==a[0]);
+ if(i&&i.tr)$$('md').querySelectorAll('.tag').forEach(e=>{if(/LISTED ON AUCTION/.test(e.textContent))e.textContent='🤝 HELD IN A PENDING TRADE'})};
+
 </script></body></html>
- 
+
