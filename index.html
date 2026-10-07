@@ -656,7 +656,9 @@ function adminPg(m){if(!S.isAdmin){m.innerHTML='<p class="pn mt">Admins only.</p
  $$('ao_go').onclick=async()=>{const w=$$('ao_w').value.split(',').map(s=>+s.trim());if(w.some(isNaN))return toast('Weights must be numbers');try{await rpc('admin_set_odds',{p_key:$$('ao_k').value,p_w:w});toast('Odds saved')}catch(e){return}resync()};
  $$('ag_go').onclick=async()=>{try{await rpc('admin_grant',{p_username:$$('ag_u').value.trim(),p_id:+$$('ag_c').value});toast('Granted')}catch(e){}}}
 
- /* ===== BRAIN ROT ADD-ON (paste right before the line  </script></body></html> ) ===== */
+
+
+ 
 RN.push('Prism Green','Prism Blue','Prism Red','Prism Pink','Prism Rainbow','Prism Gold','Prism Diamond','Autograph','1 of 1');
 RC.push('#3ddc6f','#3b9cff','#ff4d4d','#ff7bd5','#ffe14d','#ffc933','#7df9ff','#c58bff','#ffffff');
 FRM.push(['#2fbf5b','#0e2a17','#d8ffe6','#a8f5c4'],['#2b8cff','#0b1a33','#dcecff','#a9d0ff'],['#ff3b3b','#2a0c0c','#ffe0e0','#ffb3b3'],['#ff6fcf','#2a0b22','#ffe3f6','#ffc2ea'],['#ffd84d','#1b1a2e','#fff7cc','#ffe680'],['#ffbf1f','#2a1d03','#fff2c4','#ffe28a'],['#59f0ff','#07192a','#e6fbff','#b9fbff'],['#b57cff','#150a2a','#f0e4ff','#dcc2ff'],['#ffffff','#000000','#ffffff','#ffffff']);
