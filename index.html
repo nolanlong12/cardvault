@@ -1348,7 +1348,7 @@ function binder(m,keepScroll){
   <select id="bf">${O('all','Show: all owned',BN.filter)}${O('equipped','Equipped',BN.filter)}${O('unequipped','Unequipped',BN.filter)}${O('sale','For sale',BN.filter)}${O('notsale','Not for sale',BN.filter)}${O('dups','Duplicates',BN.filter)}${O('numbered','Numbered',BN.filter)}${O('one','1/1',BN.filter)}${O('auto','Autograph',BN.filter)}${O('special','Special',BN.filter)}${O('fav','❤️ Favorites',BN.filter)}${O('lock','🔒 Locked',BN.filter)}${O('show','⭐ Showcase',BN.filter)}</select>
   <select id="bo">${O('rarity','Sort: rarity',BN.sort)}${O('value','Market value',BN.sort)}${O('income','Income / min',BN.sort)}${O('newest','Newest',BN.sort)}${O('oldest','Oldest',BN.sort)}${O('number','Card number',BN.sort)}${O('serial','Serial number',BN.sort)}${O('alpha','Alphabetical',BN.sort)}${O('high','Highest value',BN.sort)}${O('low','Lowest value',BN.sort)}</select></div>
  <div class="pn" style="padding:8px 12px">
-  <div class="row" style="justify-content:space-between"><div class="row" style="gap:6px"><button id="bsel" class="${BN.sel?'':'g'}">${BN.sel?'✔ Selecting cards':'Select Cards'}</button>${BN.sel?`<button class="g" id="ball">Select All (${sellable.length})</button><button class="g" id="bclr">Clear</button>`:''}</div>
+  <div class="row" style="justify-content:space-between"><div class="row" style="gap:6px"><button id="bsel" class="${BN.sel?'':'g'}">${BN.sel?'✔ Selecting cards':'Select Cards'}</button>${BN.sel?`<button class="g" id="ball">Select All (${Math.min(1000,sellable.length)})</button><button class="g" id="bclr">Clear</button>`:''}</div>
    <label style="font-size:13px"><input type="checkbox" id="bprot" ${BN.prot.on?'checked':''}> Protect rare cards</label></div>
   ${BN.prot.on?`<div class="row mt" style="font-size:13px;margin-top:6px">Never sell <select id="bpm">${RN.map((n,i)=>O(i,n+' and above',BN.prot.min)).join('')}</select></div>`:''}
   ${BN.sel?`<div style="margin-top:8px"><b>${picked.length.toLocaleString()} card${picked.length==1?'':'s'} selected</b>${blocked?` <span class="mt" style="font-size:12px">(${blocked} equipped, listed, locked or in a trade can't be sold)</span>`:''}<br>Market value: <b>${$$$(mv)}</b> · Quick-sell value: <b class="up">${$$$(qs)}</b>
@@ -1362,7 +1362,7 @@ function binder(m,keepScroll){
  $$('bx').onchange=e=>{BN.rarx=e.target.value;if(BN.rarx!=='')BN.rar='all';BN.n=BN_PAGE;re()};
  m.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>{BN.rar=b.dataset.rc;BN.rarx='';BN.n=BN_PAGE;re()});
  $$('bsel').onclick=()=>{BN.sel=!BN.sel;if(!BN.sel)BN.picked.clear();re()};
- const ba=$$('ball');if(ba)ba.onclick=()=>{sellable.forEach(i=>BN.picked.add(i.uid));re()};
+ const ba=$$('ball');if(ba)ba.onclick=()=>{sellable.slice(0,1000).forEach(i=>BN.picked.add(i.uid));if(sellable.length>1000)toast('Selected the first 1,000 cards. Sell them, then select more.',3500);re()};
  const bc=$$('bclr');if(bc)bc.onclick=()=>{BN.picked.clear();re()};
  $$('bprot').onchange=e=>{BN.prot.on=e.target.checked;lsSet('cvProt',BN.prot);if(BN.prot.on)S.inv.forEach(i=>{if(protectedBy(i))BN.picked.delete(i.uid)});re()};
  const bpm=$$('bpm');if(bpm)bpm.onchange=e=>{BN.prot.min=+e.target.value;lsSet('cvProt',BN.prot);S.inv.forEach(i=>{if(protectedBy(i))BN.picked.delete(i.uid)});re()};
@@ -1373,7 +1373,7 @@ function binder(m,keepScroll){
   if(!BN.sel)return detail(i.uid);
   if(!eligible(i))return toast(i.lock?'Locked cards can’t be sold':i.listed?'This card is listed on the Auction House':inSlot(i.uid)?'Remove it from its income slot first':'This card is in a trade');
   if(protectedBy(i))return toast('Protected: turn off “Protect rare cards” to sell this',2500);
-  BN.picked.has(i.uid)?BN.picked.delete(i.uid):BN.picked.add(i.uid);
+  if(!BN.picked.has(i.uid)&&BN.picked.size>=1000)return toast('You can sell up to 1,000 cards at once');BN.picked.has(i.uid)?BN.picked.delete(i.uid):BN.picked.add(i.uid);
   const w=e.closest('.cwx');if(w)w.classList.toggle('bnsel',BN.picked.has(i.uid));
   bnSummaryRefresh(m)});
  if(document.scrollingElement)document.scrollingElement.scrollTop=sc;
