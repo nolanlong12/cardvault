@@ -817,5 +817,75 @@ const _cardHT=cardH;cardH=function(i,x,nc){const h=_cardHT(i,x,nc);return i.tr?h
 const _detailT=detail;detail=function(...a){_detailT(...a);const i=S.inv.find(x=>x.uid==a[0]);
  if(i&&i.tr)$$('md').querySelectorAll('.tag').forEach(e=>{if(/LISTED ON AUCTION/.test(e.textContent))e.textContent='🤝 HELD IN A PENDING TRADE'})};
 
-</script></body></html>
+/* ===== FIRST-LOGIN TUTORIAL ADD-ON ===== */
+const TUT=[
+ ['👋','Welcome to CardVault!',`<p>CardVault is a trading-card game where your cards earn you money.</p>
+  <p><b>The goal:</b> open packs → build a collection → earn more <b>$ per minute</b> → save up → buy bigger packs.</p>
+  <p>You start with <b>$25</b> and <b>5 Pocket Packs</b>. This quick tour takes about a minute.</p>`],
+ ['🎁','Packs: Store and Packs tabs',`<p><b>Store</b> is where you buy packs. <b>Packs</b> is where you open the ones you own (your sealed stock).</p>
+  <p>Packs climb in price: <b>$1 → $5 → $10 → $50 → $100 → $500 → $1,500 → $5,000 → $15,000</b>.</p>
+  <ul><li>The cheap packs usually pay for themselves, so start there.</li><li>Bigger packs have rarer cards but cost more to afford.</li></ul>
+  <p>Tap any pack in the Store and choose <b>View pulls</b> to see exactly what can drop and the odds.</p>`],
+ ['🃏','Your cards',`<p>Every card has a <b>rarity</b>, from Common up to the rarest chase cards, and a <b>value</b> that moves with the market.</p>
+  <ul><li><b>Numbered cards</b> show a serial like #12 / 500. Low numbers and tiny print runs are worth more.</li><li><b>Holo</b> and <b>Rainbow</b> versions are worth extra.</li><li>Your <b>Binder</b> shows everything you own. Tap a card to see its details.</li></ul>`],
+ ['💰','Earn money while you play',`<p>Put cards in your <b>income slots</b> (the Income tab). You have 4 slots.</p>
+  <ul><li>Each card in a slot earns <b>$ per minute</b>.</li><li>Rarer cards earn <b>far more</b> per minute.</li><li>You keep earning while you're away. Up to <b>12 hours</b> of earnings are saved for you.</li></ul>
+  <p>Always put your best cards in the slots, and don't sell a card you're using.</p>`],
+ ['🏷️','Selling cards',`<p>Tap a card and choose <b>Sell</b> to turn it into cash. You get <b>95%</b> of its current value.</p>
+  <p>Good habit: sell duplicates and cards you don't need, then use the money for the next pack. Think twice before selling rare cards, because they also earn you money every minute.</p>`],
+ ['📈','Market and Auction House',`<p><b>Market</b> shows every card's price going up and down. Tap a card to see its fair value and <b>why</b> the price moved: sales, new copies found, and how many are listed versus selling.</p>
+  <p><b>Auction</b> is where players list cards for other players. You can bid, use Buy Now, or list your own cards. Money you've bid is held until the auction ends.</p>`],
+ ['🤝','Trading with other players',`<p>Open the <b>Trades</b> tab and tap <b>Make Trade</b>.</p>
+  <ol><li>Search for a player by username.</li><li>Pick the cards and/or cash you give, and what you want back.</li><li>Review and send the offer.</li></ol>
+  <p>The other player must confirm before anything changes hands. Your offered cards and cash are held safely while you wait, and offers expire after 48 hours. You can cancel any time before they accept.</p>`],
+ ['⭐','Levels, discounts and rewards',`<p>You gain <b>XP</b> by opening packs, selling cards and trading. Each level makes normal packs about <b>1% cheaper</b> (up to 25% off, never free).</p>
+  <p>On the <b>Packs</b> tab you'll also find <b>pity counters</b> (guaranteed rare pulls after enough packs) and <b>streak rewards</b> for opening lots of packs.</p>`],
+ ['🚀','Your game plan',`<ol><li>Open your 5 Pocket Packs.</li><li>Put your best cards in income slots.</li><li>Sell duplicates and buy more cheap packs.</li><li>Save up for the next pack tier as your $/min grows.</li><li>Trade and use the Auction House to chase the cards you want.</li></ol>
+  <p>You can open this guide again any time from <b>More → How to play</b>. Have fun!</p>`]];
+let tutI=0;
+function tutShow(i){tutI=Math.max(0,Math.min(TUT.length-1,i));const[ic,t,b]=TUT[tutI],last=tutI==TUT.length-1;
+ modal(`<div style="text-align:center;font-size:46px">${ic}</div><h2 style="margin:6px 0;text-align:center">${t}</h2>
+ <div style="font-size:15px;line-height:1.5">${b}</div>
+ <div class="mt" style="text-align:center;margin:10px 0">${TUT.map((_,k)=>k==tutI?'●':'○').join(' ')} &nbsp; ${tutI+1} / ${TUT.length}</div>
+ <div class="row" style="justify-content:center"><button class="g" id="tub" ${tutI?'':'disabled'}>Back</button><button id="tun">${last?"Let's play!":'Next'}</button>${last?'':'<button class="g" id="tus">Skip</button>'}</div>`);
+ $$('tub').onclick=()=>tutShow(tutI-1);$$('tun').onclick=()=>last?tutDone():tutShow(tutI+1);const s=$$('tus');if(s)s.onclick=tutDone}
+const tutKey=()=>'cv_tut_'+((S.prefs&&S.prefs.id)||S.name||'x');
+function tutDone(){try{localStorage.setItem(tutKey(),'1')}catch(e){}closeM()}
+function tutAuto(){let seen=false;try{seen=!!localStorage.getItem(tutKey())}catch(e){}if(seen)return;
+ const t=setInterval(()=>{if(noModal()){clearInterval(t);tutShow(0)}},500)}
+let tutChecked='';
+const _hydT=hydrate;hydrate=function(...a){_hydT(...a);if(tutChecked!==S.name){tutChecked=S.name;tutAuto()}};
+const _moreT=more;more=function(m){_moreT(m);m.insertAdjacentHTML('afterbegin','<button id="tuh" style="margin-bottom:10px">❓ How to play</button>');$$('tuh').onclick=()=>tutShow(0)};
 
+/* ===== LIVE MARKET ADD-ON ===== */
+const mkP=n=>n==null?'—':(+n<100?m2(+n):$$$(+n));
+const _mktM=mkt;
+function mkHtml(c,d){
+ const ch=d.chg24,chc=ch==null?'':ch>=0?'up':'dn',dm={High:'#4ade80',Medium:'#fbbf24',Low:'#f87171'}[d.demand]||'inherit',
+  ser=(d.series||[]).map(Number),live=(S.hi[c.id]||[]).slice(-60);
+ const st=(a,b)=>`<div><span class="mt">${a}</span><br><b>${b}</b></div>`;
+ return`<h2 style="margin:0">${c.ic} ${esc(c.n)}</h2><div class="mt">${RN[c.r]} · ${esc(c.set)}${d.one?' · 1 of 1':d.run?' · print run '+(+d.run).toLocaleString():' · unlimited'}</div>
+ <div class="row" style="justify-content:space-between;margin:10px 0;align-items:flex-end">
+  <div><div class="mt">Current Market</div><b style="font-size:26px">${mkP(d.price)}</b> <span class="${chc}" style="font-size:14px">${ch==null?'':(ch>=0?'+':'')+ch+'% (24h)'}</span></div>
+  <div style="text-align:right"><div class="mt">Fair Value</div><b style="font-size:20px">${mkP(d.fair)}</b><div class="mt" style="font-size:12px">Base value ${mkP(d.base)}</div></div></div>
+ ${ser.length>=3?`<div class="mt" style="font-size:12px">Last 7 days</div>${spark(ser)}<div class="mt" style="font-size:12px;display:flex;justify-content:space-between"><span>${mkP(ser[0])}</span><span>${mkP(Math.max(...ser))} high</span><span>${mkP(ser[ser.length-1])}</span></div>`:''}
+ ${live.length>=3?`<div class="mt" style="font-size:12px;margin-top:6px">Live</div>${spark(live,300,44)}`:''}
+ <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:10px 0;font-size:14px">
+  ${st('Recent sales (14 days)',d.lo!=null?mkP(d.lo)+' – '+mkP(d.hi):'No sales yet')}${st('Average sale',mkP(d.avg))}
+  ${st('Sales this week',(d.sales7||0)+' ('+(d.buyers7||0)+' buyers, '+(d.sellers7||0)+' sellers)')}${st('Volume this week',d.vol7>0?mkP(d.vol7):'—')}
+  ${st('Copies known',(+d.known).toLocaleString())}${st('Found so far',(+d.disc).toLocaleString())}
+  ${st('Copies listed',d.listed)}${st('Active bidders (7d)',d.bids7)}
+  ${st('Recent demand',`<span style="color:${dm}">${d.demand}</span>`)}${st('Player trades (7d)',d.trades7)}</div>
+ <b>Why is the price moving?</b>
+ <ul style="margin:6px 0 8px 18px;padding:0;font-size:14px;line-height:1.45">${(d.why||[]).map(w=>`<li>${esc(w)}</li>`).join('')}</ul>
+ ${(d.recent||[]).length?`<b>Latest sales</b><div style="font-size:13px;margin:4px 0">${d.recent.map(r=>`<div class="row" style="justify-content:space-between"><span>${mkP(r.p)}${r.f?' <span class="dn">⚠ unusual, little influence</span>':''}</span><span class="mt">${new Date(r.t).toLocaleString(undefined,{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'})}</span></div>`).join('')}</div>`:''}
+ <p class="mt" style="font-size:12px">Prices are for a standard copy. Numbered, Holo and Rainbow copies are worth more or less. Listings alone never move the price. Only completed sales do, and one sale only moves it part of the way.</p>
+ <button class="g" id="mc">Close</button>`}
+mkt=async function(id){if(!READY)return _mktM(id);const c=CARDS[id];
+ modal(`<h2 style="margin:0">${c.ic} ${esc(c.n)}</h2><div class="mt">${RN[c.r]} · ${esc(c.set)}</div><p class="mt">Loading market details…</p><button class="g" id="mc">Close</button>`);$$('mc').onclick=closeM;
+ let d=null;try{d=await rpc('market_info',{p_card:id},1)}catch(e){}
+ if(!$$('mc')||$$('md').style.display!='flex')return;
+ if(!d){closeM();return _mktM(id)}
+ modal(mkHtml(c,d));$$('mc').onclick=closeM};
+
+</script></body></html>
