@@ -106,7 +106,7 @@ sp:{n:'Cosmic Pack',price:300,packs:1,per:5,g:0,gm:0,t:1,art:[26,27],set:'Space'
 const MY=[[55,'Rare Pack ×4','p','rare',4],[25,'Mega Box','p','mega',1],[12,'Epic Card','c',4],[6,'Legendary Card','c',6],[1.8,'Mythic Card','c',7],[.2,'Secret Card','c',8]];
 const FM=[1,3,10],FN=['','Holo','Rainbow'];
 const $=s=>document.querySelector(s),$$=s=>document.getElementById(s);
-const $$$=n=>'$'+Math.round(n).toLocaleString();
+const $$$=n=>{n=+n;return'$'+(Math.abs(n)<10&&Math.abs(n%1)>1e-9?n.toFixed(2):Math.round(n).toLocaleString())};
 let S,tab='home',flt={set:'',r:'',sort:'v',sp:'',q:''},lastTab='home';
 function def(){const pr={},hi={},dm={};CARDS.forEach(c=>{pr[c.id]=c.base;hi[c.id]=[c.base];dm[c.id]=0});
 return{money:1000,xp:0,inv:[],sealed:{},slots:[null,null,null,null,null],minted:{},cr:{},disc:{},hist:[],feed:[],cl:{},name:'Collector',off:0,seen:Date.now(),earned:0,peak:0,hf:[],my:{d:0,g:0,done:0,streak:0,lw:-9},born:Date.now(),last:Date.now(),ser:1,pr,hi,dm,ev:null,trades:[],tAt:0,tick:Date.now(),
@@ -259,9 +259,9 @@ function acceptT(k){const t=S.trades[k],a=S.inv.find(i=>i.uid==t.u);if(!a)return
 S.inv=S.inv.filter(i=>i!==a);unslot(a.uid);mint(t.cid,0,0,'trade with '+t.who);S.money+=t.cash;S.trades.splice(k,1);S.st.trades++;S.ch.trade++;xp(15);save();toast('Trade complete');draw()}
 const CH=[['open','Open 3 packs',3,500],['sell','Sell 2 cards',2,250],['trade','Complete a trade',1,750],['coll','Collect income',1,300]];
 function draw(){document.body.classList.toggle('home',tab=='home');$$('mo').textContent=m2(S.money);$$('ih').textContent=fm(incMin())+'/min';$$('lv').textContent='Level '+lvl()+' · '+$$$(S.inv.reduce((a,i)=>a+val(i),0))+' collection';
-$$('nav').innerHTML=[['home','⌂ Home'],['shop','Store'],['open','Packs'],['binder','Binder'],['market','Market'],['trades','Trades'],['friends','👥 Friends'],['income','Income'],['auction','🏛 Auction'],['more','More']].map(([k,l])=>`<button class="${tab==k?'on':''}" data-t="${k}">${l}</button>`).join('');
+$$('nav').innerHTML=[['home','⌂ Home'],['shop','Store'],['open','Packs'],['binder','Binder'],['market','Market'],['trades','Trades'],['income','Income'],['auction','🏛 Auction'],['more','More']].map(([k,l])=>`<button class="${tab==k?'on':''}" data-t="${k}">${l}</button>`).join('');
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
-const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),quests,sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
+const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),ach:m=>achPg(m),quests,sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
 const K=n=>n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e4?'$'+Math.round(n/1e3)+'k':$$$(n);let SCN=['park','aquarium','mall'][Math.random()*3|0];
 const HS={park:`<defs><linearGradient id="hp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ecbff"/><stop offset="1" stop-color="#e8f8ff"/></linearGradient></defs><rect width="100" height="160" fill="url(#hp)"/><circle cx="78" cy="30" r="10" fill="#ffe27a"/><ellipse cx="30" cy="40" rx="14" ry="5" fill="#fff"/><ellipse cx="62" cy="52" rx="12" ry="4" fill="#fff"/><path d="M0 100Q30 80 60 98T100 90V160H0Z" fill="#5fbf63"/><path d="M0 120Q40 105 100 118V160H0Z" fill="#43a64f"/><path d="M40 160Q48 130 60 110" stroke="#e9d49b" stroke-width="10" fill="none"/><g fill="#2f8f46"><rect x="19" y="92" width="4" height="22" fill="#7a5230"/><circle cx="21" cy="88" r="11"/><circle cx="14" cy="95" r="8"/><circle cx="28" cy="95" r="8"/><rect x="79" y="100" width="3" height="16" fill="#7a5230"/><circle cx="80.5" cy="97" r="8"/></g>`,
 aquarium:`<defs><linearGradient id="ha" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46c2e8"/><stop offset="1" stop-color="#0a2f6b"/></linearGradient></defs><rect width="100" height="160" fill="url(#ha)"/><path d="M20 0L45 160H5ZM60 0L90 160H55Z" fill="#fff" opacity=".07"/><g fill="none" stroke="#fff" opacity=".5"><circle cx="20" cy="110" r="2"/><circle cx="26" cy="90" r="3"/><circle cx="70" cy="100" r="2"/><circle cx="76" cy="70" r="3"/></g><g fill="#ff9f43"><ellipse cx="30" cy="60" rx="7" ry="4"/><path d="M37 60l7-4v8z"/></g><g fill="#ffd166"><ellipse cx="70" cy="85" rx="6" ry="3.5"/><path d="M64 85l-6-4v8z"/></g><path d="M0 142Q30 132 60 142T100 140V160H0Z" fill="#e8d29a"/><path d="M12 145Q8 130 14 118M18 145Q22 132 17 122M86 145Q90 128 84 116" stroke="#2fb86a" stroke-width="3" fill="none"/>`,
@@ -980,5 +980,215 @@ async function showProfile(id){
  const a=$$('pra');if(a)a.onclick=async()=>{a.disabled=true;let r;try{r=await rpc('friend_request',{p_to:p.id})}catch(e){a.disabled=false;return}toast(r,2500);closeM();await frLoad(true)};
  const rm=$$('prm');if(rm)rm.onclick=async()=>{if(!confirm('Remove '+p.name+' from your friends?'))return;try{await rpc('friend_remove',{p_other:p.id})}catch(e){return}toast('Friend removed',2000);closeM();await frLoad(true);if(tab=='friends')friendsPg($$('m'),1)};
  const tr=$$('prt');if(tr)tr.onclick=()=>{TB={u:null,theirs:[],mine:[],give:new Set(),ask:new Set(),gm:0,am:0,f1:'',f2:''};tbPick(p.id,p.name)}}
+
+/* ===== CASE HITS, CARD EXPLORER AND NEW MORE MENU ADD-ON ===== */
+
+/* ---- show real pack text, card counts and odds from the server for the packs that use the new generator ---- */
+const _lcCH=loadCatalog;loadCatalog=function(defs,prods){_lcCH(defs,prods);
+ prods.forEach(r=>{const o=P[r.key];if(o&&r.v3){o.price=+r.price;o.per=r.per;o.packs=r.packs;o.g=r.g;o.gm=r.gm;o.desc=r.descr||o.desc;o.v3=true}})};
+
+/* ---- More menu: Friends and the other social pages now live here ---- */
+const _moreCH=more;more=function(m){_moreCH(m);
+ const g=m.querySelector('.tg');if(!g)return;
+ const set=(k,e,l)=>{const t=g.querySelector(`[data-g="${k}"]`);if(t){t.innerHTML=`<div style="font-size:40px">${e}</div><b>${l}</b>`}};
+ set('account','⚙️','Settings');
+ const acct=g.querySelector('[data-g="account"]');
+ const add=(id,e,l,fn,badge)=>{const t=document.createElement('div');t.className='tile';t.innerHTML=`<div style="font-size:40px">${e}</div><b>${l}${badge?` <span class="tag" style="background:#ef4444;color:#fff">${badge}</span>`:''}</b>`;t.onclick=fn;g.insertBefore(t,g.firstChild);return t};
+ /* inserted in reverse so they read: Friends, Friend Requests, Search Players, My Profile, Achievements */
+ add('ach','🏅','Achievements',()=>{tab='ach';draw()});
+ add('me','🙋','My Profile',()=>{if(!READY||!S.prefs)return toast('Sign in first');showProfile(S.prefs.id)});
+ add('srch','🔎','Search Players',()=>{FR.go='search';tab='friends';draw()});
+ add('req','📨','Friend Requests',()=>{FR.go='req';tab='friends';draw()},FR.n>0?FR.n:0);
+ add('fr','👥','Friends',()=>{FR.go='';tab='friends';draw()});
+ if(acct){const a=g.children[4];if(a&&a.nextSibling!==acct)g.insertBefore(acct,a.nextSibling)}};
+function frBadge(){const b=document.querySelector('#nav [data-t="more"]');if(b)b.textContent=FR.n>0?'More ('+FR.n+')':'More'}
+const _fpCH=friendsPg;friendsPg=function(m,skip){_fpCH(m,skip);
+ if(!FR.go)return;const w=FR.go;FR.go='';
+ if(w=='search'){const q=$$('fq');if(q){q.scrollIntoView({block:'center'});q.focus()}}
+ if(w=='req'){const h=[...m.querySelectorAll('h3')].find(x=>/Friend requests/.test(x.textContent));if(h)h.scrollIntoView({block:'start'});else toast('No pending friend requests',2500)}};
+async function achPg(m){
+ m.innerHTML='<h2 style="margin-top:0">🏅 Achievements</h2><p class="mt">Loading…</p>';
+ let p;try{p=await rpc('profile_get',{p_user:S.prefs.id},1)}catch(e){m.innerHTML='<h2 style="margin-top:0">🏅 Achievements</h2><p class="mt">Sign in to see your achievements.</p>';return}
+ if(tab!='ach')return;const n=p.badges.filter(b=>b.earned).length;
+ m.innerHTML=`<h2 style="margin-top:0">🏅 Achievements</h2><p class="mt">${n} of ${p.badges.length} earned. Everyone can see your badges on your profile.</p>
+ <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:8px">${p.badges.map(b=>`<div class="pn" style="padding:10px;margin:0;${b.earned?'':'opacity:.4;filter:grayscale(1)'}"><div style="font-size:28px">${b.icon}</div><b>${esc(b.name)}</b><div class="mt" style="font-size:13px">${esc(b.desc)}</div><div style="font-size:12px;margin-top:4px">${b.earned?'<span class="up">Earned</span>':'Locked'}</div></div>`).join('')}</div>`}
+
+/* =====================================================================
+   CARD EXPLORER (replaces the old Market tab)
+   ===================================================================== */
+const EX={q:'',rar:'',set:'',avail:'all',kind:'',min:'',max:'',sort:'value_desc',n:48,st:{},at:0,busy:0,find:null,findq:''};
+const kc=n=>n==null?'—':(+n<10?'$'+(+n).toFixed(2):'$'+Math.round(+n).toLocaleString());
+const TRN={rising:'📈 Rising',falling:'📉 Falling',hot:'🔥 Hot',cold:'❄️ Cold',stable:'➡️ Stable'};
+async function exLoad(force){if(!READY||EX.busy)return;if(!force&&Date.now()-EX.at<20000)return;EX.busy=1;
+ try{EX.st=await rpc('explorer_stats',{},1)||{};EX.at=Date.now()}catch(e){}
+ EX.busy=0;if(tab=='market'&&noModal()&&!(document.activeElement&&document.activeElement.id=='exq'))market($$('m'),1)}
+setInterval(()=>{if(READY&&tab=='market')exLoad(true)},25000);
+const exS=c=>EX.st[c.id]||{f:0,o:0,l:0,c:null,t:'stable',s:0,a:null,z:null,d:null};
+const exLeft=(c,s)=>c.pr>0?Math.max(0,c.pr-(s.f||0)):null;
+function exMatch(c){
+ if(c.sec&&!S.disc[c.id])return false;
+ const s=exS(c),q=EX.q.trim().toLowerCase(),left=exLeft(c,s),v=S.pr[c.id]||0;
+ if(EX.rar!==''&&c.r!=+EX.rar)return false;
+ if(EX.set&&c.set!=EX.set)return false;
+ if(EX.kind=='limited'&&!(c.pr>1))return false;
+ if(EX.kind=='one'&&!c.one&&c.pr!=1)return false;
+ if(EX.kind=='unlimited'&&c.pr>0)return false;
+ if(EX.min!==''&&v<+EX.min)return false;
+ if(EX.max!==''&&v>+EX.max)return false;
+ if(EX.avail=='undiscovered'&&s.f>0)return false;
+ if(EX.avail=='discovered'&&!(s.f>0))return false;
+ if(EX.avail=='available'&&!(c.pr==0||left>0))return false;
+ if(EX.avail=='soldout'&&!(c.pr>0&&left==0))return false;
+ if(EX.avail=='listed'&&!(s.l>0))return false;
+ if(EX.avail=='owned'&&!S.inv.some(i=>i.cid==c.id))return false;
+ if(q){
+  const hay=(c.n+' '+c.set+' '+RN[c.r]+' '+(c.ab||'')+' '+(c.pr==1||c.one?'1 of 1 one of one':'')).toLowerCase();
+  const byNo=/^\d{1,4}$/.test(q)&&(c.id+1==+q||c.id==+q);
+  const byFind=EX.find&&EX.find.has(c.id);
+  if(!(hay.includes(q)||byNo||byFind))return false}
+ return true}
+const EXSORT={value_desc:['Highest value',(a,b)=>b.v-a.v],value_asc:['Lowest value',(a,b)=>a.v-b.v],name:['Name A-Z',(a,b)=>a.c.n.localeCompare(b.c.n)],
+ rarity:['Rarest first',(a,b)=>b.c.r-a.c.r||b.v-a.v],scarce:['Fewest copies left',(a,b)=>(a.left==null?1e12:a.left)-(b.left==null?1e12:b.left)],
+ newest:['Newest discoveries',(a,b)=>(b.s.d||0)-(a.s.d||0)],owners:['Most owners',(a,b)=>b.s.o-a.s.o],gain:['Biggest 24h gain',(a,b)=>(b.s.c==null?-1e9:b.s.c)-(a.s.c==null?-1e9:a.s.c)],
+ loss:['Biggest 24h drop',(a,b)=>(a.s.c==null?1e9:a.s.c)-(b.s.c==null?1e9:b.s.c)],income:['Highest $/min',(a,b)=>b.rate-a.rate],active:['Most sales this week',(a,b)=>b.s.s-a.s.s],listed:['Most listed',(a,b)=>b.s.l-a.s.l]};
+function exRow(c){
+ const s=exS(c),v=S.pr[c.id]||0,left=exLeft(c,s),rate=(FAIR[c.id]!=null?FAIR[c.id]:v)*.02,ch=s.c;
+ const tags=[];
+ if(c.pr>0&&s.f==0)tags.push('<span class="tag" style="background:#7c3aed;color:#fff">NOT YET DISCOVERED</span>');
+ if(c.pr>0&&left==0)tags.push('<span class="tag" style="background:#6b7280;color:#fff">SOLD OUT</span>');
+ if(c.pr==1||c.one)tags.push('<span class="tag" style="background:#b45309;color:#fff">1 OF 1</span>');
+ if(S.inv.some(i=>i.cid==c.id))tags.push('<span class="tag">own '+S.inv.filter(i=>i.cid==c.id).length+'</span>');
+ if(s.l>0)tags.push('<span class="tag">'+s.l+' listed</span>');
+ return`<div class="pv" data-x="${c.id}" style="--c:${FRM[c.r]?FRM[c.r][0]:'#888'};margin:4px 0;cursor:pointer"><div class="th">${scene(c)}</div>
+ <div style="flex:1;min-width:0"><b>${esc(c.n)}</b> <span style="color:${RC[c.r]}">${RN[c.r]}</span> <span class="mt" style="font-size:12px">${esc(c.set)} · #${String(c.id+1).padStart(3,'0')}</span><br>
+ <span class="mt" style="font-size:13px">${c.pr>0?(s.f.toLocaleString()+' / '+c.pr.toLocaleString()+' found'+(left!=null?' · '+left.toLocaleString()+' left':'')):'Unlimited · '+s.f.toLocaleString()+' found'} · ${s.o} owner${s.o==1?'':'s'}</span> ${tags.join(' ')}</div>
+ <div style="text-align:right;min-width:92px"><b>${kc(v)}</b><br><span class="${ch==null?'mt':ch>=0?'up':'dn'}" style="font-size:12px">${ch==null?'new':(ch>=0?'+':'')+ch+'%'} ${({rising:'📈',falling:'📉',hot:'🔥',cold:'❄️'})[s.t]||''}</span><br><span class="mt" style="font-size:12px">${kc(rate)}/min</span></div></div>`}
+market=function(m,skip){
+ if(!skip)exLoad();
+ const all=CARDS.filter(c=>c&&exMatch(c)),rows=all.map(c=>{const s=exS(c);return{c,s,v:S.pr[c.id]||0,left:exLeft(c,s),rate:(FAIR[c.id]!=null?FAIR[c.id]:(S.pr[c.id]||0))*.02}});
+ rows.sort(EXSORT[EX.sort][1]);
+ const nUnd=CARDS.filter(c=>c&&c.pr>0&&!(c.sec&&!S.disc[c.id])&&exS(c).f==0).length,sets=Object.keys(SETS),rars=[...new Set(CARDS.filter(c=>c).map(c=>c.r))].sort((a,b)=>a-b);
+ const sel=(id,opts,val)=>`<select id="${id}" style="background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:6px;font:inherit">${opts.map(([k,l])=>`<option value="${k}" ${String(val)===String(k)?'selected':''}>${l}</option>`).join('')}</select>`;
+ const chip=(k,l)=>`<button class="${EX.avail==k?'':'g'}" data-av="${k}" style="padding:4px 10px;font-size:13px">${l}</button>`;
+ const keep=document.activeElement&&document.activeElement.id=='exq';
+ m.innerHTML=`<h2 style="margin-top:0">Card Market</h2>
+ <div class="row" style="margin-bottom:8px"><input id="exq" value="${esc(EX.q)}" placeholder="Search name, set, rarity, card number, #serial or owner" style="flex:1;min-width:170px;background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:8px;font:inherit" autocomplete="off"><button id="exs">Search</button>${EX.q?'<button class="g" id="exc">Clear</button>':''}</div>
+ <div class="row" style="margin-bottom:8px;gap:6px">${chip('all','All')}${chip('available','Available')}${chip('undiscovered','🔍 Undiscovered ('+nUnd+')')}${chip('discovered','Discovered')}${chip('soldout','Sold out')}${chip('listed','Listed')}${chip('owned','Mine')}</div>
+ <div class="row" style="margin-bottom:10px;gap:6px">${sel('exr',[['','Any rarity'],...rars.map(r=>[r,RN[r]])],EX.rar)}${sel('exst',[['','Any set'],...sets.map(s=>[s,s])],EX.set)}${sel('exk',[['','Any type'],['limited','Limited'],['unlimited','Unlimited'],['one','1 of 1']],EX.kind)}
+  <input id="exmin" value="${esc(EX.min)}" placeholder="Min $" inputmode="decimal" style="width:80px;background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:6px;font:inherit"><input id="exmax" value="${esc(EX.max)}" placeholder="Max $" inputmode="decimal" style="width:80px;background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:6px;font:inherit">
+  ${sel('exso',Object.entries(EXSORT).map(([k,v])=>[k,v[0]]),EX.sort)}</div>
+ <p class="mt" style="font-size:13px">${all.length.toLocaleString()} card${all.length==1?'':'s'}. Tap a card for its full history, owners, sales and price chart. Prices move every few seconds.</p>
+ ${rows.slice(0,EX.n).map(r=>exRow(r.c)).join('')||'<p class="pn mt">No cards match those filters.</p>'}
+ ${rows.length>EX.n?`<div class="row" style="justify-content:center"><button class="g" id="exmore">Show ${Math.min(48,rows.length-EX.n)} more (${(rows.length-EX.n).toLocaleString()} left)</button></div>`:''}`;
+ m.querySelectorAll('[data-x]').forEach(e=>e.onclick=()=>cardPage(+e.dataset.x));
+ m.querySelectorAll('[data-av]').forEach(b=>b.onclick=()=>{EX.avail=b.dataset.av;EX.n=48;market(m,1)});
+ const bind=(id,k)=>{const e=$$(id);if(e)e.onchange=()=>{EX[k]=e.value;EX.n=48;market(m,1)}};
+ bind('exr','rar');bind('exst','set');bind('exk','kind');bind('exso','sort');bind('exmin','min');bind('exmax','max');
+ const go=async()=>{EX.q=$$('exq').value;EX.n=48;EX.find=null;const q=EX.q.trim();
+  if((q.length>=2&&!/^\d+$/.test(q))||/^#\d+$/.test(q)){try{const ids=await rpc('explorer_find',{p_q:q},1);EX.find=new Set(ids||[]);EX.findq=q}catch(e){}}
+  market(m,1);if($$('exq')){$$('exq').focus();$$('exq').setSelectionRange($$('exq').value.length,$$('exq').value.length)}};
+ $$('exs').onclick=go;$$('exq').onkeydown=e=>{if(e.key=='Enter')go()};
+ const cl=$$('exc');if(cl)cl.onclick=()=>{EX.q='';EX.find=null;market(m,1)};
+ const mo=$$('exmore');if(mo)mo.onclick=()=>{EX.n+=48;market(m,1)};
+ if(keep){const q=$$('exq');q.focus();q.setSelectionRange(q.value.length,q.value.length)}};
+
+/* ---------- the card page ---------- */
+function chartSvg(pts,w,h){
+ if(pts.length<2)return'<p class="mt" style="font-size:13px">Not enough price history yet.</p>';
+ const ys=pts.map(p=>+p[1]),mn=Math.min(...ys),mx=Math.max(...ys),r=mx-mn||1,t0=pts[0][0],t1=pts[pts.length-1][0]||t0+1,pad=4;
+ const xy=pts.map(p=>`${((p[0]-t0)/Math.max(1,t1-t0)*w).toFixed(1)},${(h-pad-(+p[1]-mn)/r*(h-2*pad)).toFixed(1)}`).join(' ');
+ const up=ys[ys.length-1]>=ys[0];
+ return`<svg viewBox="0 0 ${w} ${h}" width="100%" height="${h}" preserveAspectRatio="none"><polyline points="${xy}" fill="none" stroke="${up?'#4ade80':'#f87171'}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>
+ <div class="mt" style="font-size:12px;display:flex;justify-content:space-between"><span>${kc(ys[0])}</span><span>High ${kc(mx)}</span><span>Low ${kc(mn)}</span><span>${kc(ys[ys.length-1])}</span></div>`}
+const agoT=t=>{const m=Math.max(1,Math.round((cvNow()-t)/6e4));return m<60?m+'m ago':m<1440?Math.round(m/60)+'h ago':Math.round(m/1440)+'d ago'};
+const pc=(v)=>v==null?'<span class="mt">—</span>':`<span class="${v>=0?'up':'dn'}">${v>=0?'+':''}${v}%</span>`;
+async function cardPage(id){
+ const c=CARDS[id];if(!c)return;
+ modal(`<h2 style="margin:0">${esc(c.n)}</h2><p class="mt">Loading card page…</p><button class="g" id="mc">Close</button>`);$$('mc').onclick=closeM;
+ let d=null,mi=null;
+ try{[d,mi]=await Promise.all([rpc('card_detail',{p_card:id},1),rpc('market_info',{p_card:id},1).catch(()=>null)])}catch(e){}
+ if(!$$('md')||$$('md').style.display!='flex')return;
+ if(!d){modal(`<h2 style="margin:0">${esc(c.n)}</h2><p class="mt">Could not load this card. Try again in a moment.</p><button class="g" id="mc">Close</button>`);$$('mc').onclick=closeM;return}
+ const left=c.pr>0?Math.max(0,c.pr-d.found):null,und=d.found==0,rate=d.rate,st=(a,b)=>`<div><span class="mt">${a}</span><br><b>${b}</b></div>`;
+ let range=7;
+ const series=()=>{const cut=Date.now()-range*864e5;const p=d.series.filter(x=>x[0]>=cut);return p.length>=2?p:d.series.slice(-2)};
+ const chartBox=()=>`<div class="row" style="gap:6px;margin-bottom:4px">${[[1,'24h'],[7,'7d'],[30,'30d']].map(([k,l])=>`<button class="${range==k?'':'g'}" data-rg="${k}" style="padding:2px 10px;font-size:12px">${l}</button>`).join('')}</div>${chartSvg(series(),300,90)}`;
+ const hist=e=>{const t=`<span class="mt" style="font-size:12px">${agoT(e.t)}</span>`;
+  if(e.k=='found')return`🎁 Discovered by <b>${esc(e.who)}</b>${e.sr?' as #'+(+e.sr).toLocaleString():''} from ${esc(e.src||'a pack')} ${t}`;
+  if(e.k=='hit')return`🎰 <b>CASE HIT</b> opened by <b>${esc(e.who)}</b>${e.sr?' (#'+(+e.sr).toLocaleString()+')':''} ${t}`;
+  if(e.k=='sale')return`💰 ${esc(e.from||'?')} → ${esc(e.to||'?')} for <b>${kc(e.price)}</b>${e.sr?' (#'+(+e.sr).toLocaleString()+')':''} ${t}`;
+  return`🤝 Traded: ${esc(e.from||'?')} → ${esc(e.to||'?')} ${t}`};
+ const grid=()=>{
+  if(!(c.pr>1&&c.pr<=50))return'';
+  const by={};d.copies.forEach(x=>by[x.sr]=x);
+  return`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(54px,1fr));gap:4px;margin:6px 0">${Array.from({length:c.pr},(_,i)=>{const x=by[i+1];return x?`<div class="pn" data-pv="${x.owner}" style="margin:0;padding:4px;text-align:center;cursor:pointer;border:1px solid var(--ac)"><b style="font-size:12px">#${i+1}</b><div class="mt" style="font-size:10px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(x.name)}</div></div>`:`<div class="pn mt" style="margin:0;padding:4px;text-align:center;opacity:.45"><b style="font-size:12px">#${i+1}</b><div style="font-size:10px">?</div></div>`}).join('')}</div>`};
+ const paint=()=>{modal(`<div style="max-height:86vh;overflow:auto;text-align:left;padding-right:4px">
+  <div class="row" style="align-items:flex-start;gap:12px"><div class="pv" style="--c:${FRM[c.r]?FRM[c.r][0]:'#888'};width:130px;flex:none;display:block;padding:0"><div class="th" style="width:100%;height:auto">${scene(c)}</div></div>
+   <div style="flex:1;min-width:180px"><h2 style="margin:0">${esc(c.n)}</h2><div style="color:${RC[c.r]}">${RN[c.r]}</div><div class="mt" style="font-size:13px">${esc(c.set)} · Card #${String(c.id+1).padStart(3,'0')}${c.pr>0?' · print run '+c.pr.toLocaleString():' · unlimited'}</div>
+   <div style="margin-top:4px">${und?'<span class="tag" style="background:#7c3aed;color:#fff">NOT YET DISCOVERED</span> ':''}${c.pr>0&&left==0?'<span class="tag" style="background:#6b7280;color:#fff">SOLD OUT</span> ':''}${(c.pr==1||c.one)?'<span class="tag" style="background:#b45309;color:#fff">1 OF 1</span> ':''}<span class="tag">${TRN[d.trend]||TRN.stable}</span></div></div></div>
+  <div class="row" style="justify-content:space-between;align-items:flex-end;margin:12px 0"><div><div class="mt">Market price</div><b style="font-size:28px">${kc(d.price)}</b></div><div style="text-align:right"><div class="mt">Fair value</div><b style="font-size:20px">${kc(d.fair)}</b><div class="mt" style="font-size:12px">Earns ${kc(rate)}/min in a slot</div></div></div>
+  <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;font-size:14px;margin-bottom:8px">${st('24h',pc(d.c24))}${st('7 days',pc(d.c7))}${st('30 days',pc(d.c30))}${st('All-time high',kc(d.ath))}${st('All-time low',kc(d.atl))}${st('Base value',kc(d.base))}</div>
+  <div id="chb">${chartBox()}</div>
+  <h3 style="margin:14px 0 6px">Copies</h3>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:14px">${st('Found',c.pr>0?d.found.toLocaleString()+' of '+c.pr.toLocaleString():d.found.toLocaleString()+' (unlimited)')}${st('Left to find',left==null?'Unlimited':left.toLocaleString())}${st('Owners',d.owners_n)}${st('Currently listed',d.listed)}${st('In income slots',d.facts.in_slots)}${st('Case hits found',d.facts.hits)}</div>
+  ${und?`<div class="pn" style="margin-top:8px;text-align:center"><b style="color:#a78bfa">NOT YET DISCOVERED</b><div class="mt">${c.pr>0?'0 of '+c.pr.toLocaleString()+' Found':'No copies found yet'}</div><div class="mt" style="font-size:12px">Open packs to find it. The first player to pull it will be recorded here.</div></div>`:''}
+  ${c.pr>0&&c.pr<=50?`<div class="mt" style="font-size:13px;margin-top:8px">${d.found} of ${c.pr} found</div>${grid()}`:''}
+  ${d.owners.length?`<h3 style="margin:14px 0 6px">Current owners</h3>${d.owners.map(o=>`<div class="pn row" data-pv="${o.id}" style="justify-content:space-between;padding:6px 12px;margin:3px 0;cursor:pointer"><b>${esc(o.name)}</b><span class="mt">${o.n} cop${o.n==1?'y':'ies'}${o.best?' · lowest serial #'+(+o.best).toLocaleString():''}</span></div>`).join('')}`:''}
+  <h3 style="margin:14px 0 6px">Recent sales</h3>
+  ${d.sales.length?`<div class="mt" style="font-size:13px;margin-bottom:4px">30 days: ${d.sales30.n} sale${d.sales30.n==1?'':'s'} · average ${kc(d.sales30.avg)} · high ${kc(d.sales30.hi)} · low ${kc(d.sales30.lo)}</div>`+d.sales.slice(0,10).map(s=>`<div class="row" style="justify-content:space-between;font-size:13px"><span>${kc(s.p)}${s.sr?' <span class="mt">#'+(+s.sr).toLocaleString()+'</span>':''} <span class="mt">${esc(s.from||'?')} → ${esc(s.to||'?')}</span></span><span class="mt">${agoT(s.t)}</span></div>`).join(''):'<p class="mt" style="font-size:13px">No player has sold this card yet.</p>'}
+  <h3 style="margin:14px 0 6px">Ownership history</h3>
+  ${d.history.length?d.history.slice(0,20).map(e=>`<div style="font-size:13px;margin:3px 0">${hist(e)}</div>`).join(''):'<p class="mt" style="font-size:13px">Nobody has owned this card yet.</p>'}
+  <h3 style="margin:14px 0 6px">Statistics and fun facts</h3>
+  <ul style="margin:4px 0 8px 18px;padding:0;font-size:14px;line-height:1.5">
+   ${d.facts.first_who?`<li>First discovered by <b>${esc(d.facts.first_who)}</b> ${new Date(d.facts.first_at).toLocaleDateString()}.</li>`:'<li>Nobody has discovered this card yet.</li>'}
+   ${d.facts.top_sale?`<li>Highest sale ever: <b>${kc(d.facts.top_sale)}</b> (${d.facts.sales_total} sale${d.facts.sales_total==1?'':'s'} in total).</li>`:''}
+   <li>Traded between players ${d.facts.trades} time${d.facts.trades==1?'':'s'}.</li>
+   ${d.facts.hits?`<li>${d.facts.hits} cop${d.facts.hits==1?'y was':'ies were'} found as a hidden case hit.</li>`:''}
+   ${c.pr>0&&d.found>0?`<li>${Math.round(d.found/c.pr*100)}% of the print run has been discovered.</li>`:''}</ul>
+  ${mi&&mi.why?`<h3 style="margin:14px 0 6px">Why is the price moving?</h3><ul style="margin:4px 0 8px 18px;padding:0;font-size:14px;line-height:1.45">${mi.why.map(w=>`<li>${esc(w)}</li>`).join('')}</ul>`:''}
+  <p class="mt" style="font-size:12px">Prices are for a standard copy. Numbered, Holo and Rainbow copies are worth more. Listings alone never move the price: only completed sales do, and one sale only moves it part of the way.</p>
+  <button class="g" id="mc">Close</button></div>`);
+  $$('mc').onclick=closeM;
+  $$('md').querySelectorAll('[data-pv]').forEach(b=>b.onclick=e=>{e.stopPropagation();showProfile(b.dataset.pv)});
+  $$('md').querySelectorAll('[data-rg]').forEach(b=>b.onclick=()=>{range=+b.dataset.rg;paint()})};
+ paint()}
+mkt=function(id){return cardPage(id)};
+
+/* =====================================================================
+   CASE HIT ANIMATION
+   ===================================================================== */
+function chValueText(v){
+ if(v>=1e6){const f=Math.floor(v/5e5)*5e5;return'$'+f.toLocaleString()+'+'}
+ if(v>=1e4){const f=Math.floor(v/1e3)*1e3;return'$'+f.toLocaleString()+'+'}
+ return'$'+Math.round(v).toLocaleString()}
+function caseHitShow(hit,done){
+ const ov=$$('ov'),c=card(hit),r=c.r,one=hit.pr==1,nm=RN[r]||'',special=one?'1 OF 1':/autograph/i.test(nm)?'AUTOGRAPH':/prism gold/i.test(nm)?'PRISM GOLD':nm.toUpperCase();
+ const v=val(hit);ov.style.display='flex';ov.className='';ov.style.background='#000';
+ ov.innerHTML=`<div class="box" style="background:transparent;box-shadow:none;border:0;text-align:center"><div id="chs"></div></div>`;
+ const s=$$('chs'),put=h=>{s.innerHTML=h};
+ put('<div style="color:#444;letter-spacing:8px;font-size:14px">THE CASE IS OPENING</div>');
+ try{sfx('tear')}catch(e){}
+ setTimeout(()=>put('<div class="shake" style="color:#777;letter-spacing:6px;font-size:16px">…something is different…</div>'),900);
+ setTimeout(()=>{
+  try{sfx('rev',8)}catch(e){}
+  ov.style.background='radial-gradient(circle,#7f1d1d 0%,#000 70%)';
+  put(`<div class="shake" style="font-size:clamp(40px,12vw,84px);font-weight:900;color:#ffd166;text-shadow:0 0 30px #ef4444,0 0 60px #ef4444;letter-spacing:4px">CASE HIT</div>`);
+  const b=ov.querySelector('.box');if(b)b.classList.add('shake')},2000);
+ setTimeout(()=>{
+  ov.style.background=one?'radial-gradient(circle,#ffd166dd,#000 72%)':`radial-gradient(circle,${RC[r]||'#ffd166'}88,#000 72%)`;
+  put(`<div style="color:#ffd166;font-size:20px;letter-spacing:5px;margin-bottom:6px">CASE HIT</div>
+   <div class="fl on" id="chf"><div class="fi"><div class="fb">${cardH(hit,'',1)}</div></div></div>
+   <div style="font-size:clamp(22px,6vw,34px);font-weight:900;color:#fff;margin-top:10px">${hit.pr?'#'+(+hit.sr).toLocaleString()+' / '+(+hit.pr).toLocaleString():'UNLIMITED'}</div>
+   <div style="font-size:clamp(20px,5.5vw,30px);font-weight:900;color:#ffd166;letter-spacing:3px;text-shadow:0 0 18px #ffd166">${esc(special)}</div>
+   <div style="font-size:clamp(16px,4.5vw,24px);font-weight:800;color:#4ade80;margin-top:6px">${chValueText(v)} ESTIMATED VALUE</div>
+   <div style="margin-top:14px"><button id="chn">Continue</button></div>`);
+  try{fxAt($$('chf'),8);setTimeout(()=>fxAt($$('chf'),8),500)}catch(e){}
+  $$('chn').onclick=()=>{ov.style.background='';ov.className='';done()}},3600)}
+const _flowCH=flow;
+flow=function(k,packs){
+ const hit=[].concat(...packs).find(c=>c&&c.ch);
+ if(!hit)return _flowCH(k,packs);
+ const rest=packs.map(pk=>pk.filter(c=>c!==hit)).filter(pk=>pk.length);
+ caseHitShow(hit,()=>{if(rest.length)_flowCH(k,rest);else{$$('ov').style.display='none';draw()}})};
 
 </script></body></html>
