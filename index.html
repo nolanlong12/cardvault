@@ -366,7 +366,7 @@ function archive(m){const L=CARDS.filter(c=>c.sec);m.innerHTML=`<h2 style="margi
 return S.disc[c.id]?(it?cardH(it,`data-u="${it.uid}"`):`<div class="pn" style="text-align:center">${c.ic}<br><b>${c.n}</b><br><span class="mt">discovered</span></div>`):`<div class="pn" style="text-align:center"><div style="font-size:40px">❓</div><b>???</b><br><span class="mt">SECRET</span></div>`}).join('')+`</div>`+L.filter(c=>S.disc[c.id]).map(c=>`<div class="pn">🔓 <b>${c.n}</b>: ${SECM[c.n]}</div>`).join('');m.querySelectorAll('[data-u]').forEach(e=>e.onclick=()=>detail(e.dataset.u))}
 $$('bg').innerHTML=homeScene();$$('mu').onclick=e=>{mute=!mute;e.target.textContent=mute?'🔇':'🔊'};load();{let n=Math.min(150,Math.floor((Date.now()-S.tick)/5000));while(n-->0)tickMarket();S.tick=Date.now()}
 tick();draw();setInterval(()=>{tick();const e=$$('mo'),h=$$('hm');if(e)e.textContent=m2(S.money);if(h)h.textContent=m2(S.money)},200);document.addEventListener('visibilitychange',save);
-setInterval(()=>{tickMarket();S.tick=Date.now();if(['market','home','feed'].includes(tab)&&!(document.activeElement&&document.activeElement.id=='mq')&&$$('ov').style.display!='flex'&&$$('md').style.display!='flex')draw();else{$$('mo').textContent=$$$(S.money)}},5000);
+setInterval(()=>{tickMarket();S.tick=Date.now();if(['market','home','feed'].includes(tab)&&!(document.activeElement&&document.activeElement.id=='mq')&&$$('ov').style.display!='flex'&&$$('md').style.display!='flex')draw();else{$$('mo').textContent=$$$(S.money)}},20000);
 setInterval(()=>{const l=$$('lt');if(l&&tab=='shop'){const v=Math.ceil((avail()?18e5-Date.now()%36e5:36e5-Date.now()%36e5)/6e4);l.textContent=v}},1000);
 
 /* ================= CARDVAULT ONLINE LAYER =================
@@ -608,7 +608,7 @@ preview=async function(k){const p=P[k];
  const pt=(p.pity||[]).map(r=>`${RN[r.min]}+ every ${r.every} packs`).join(' · '),cnt=S.pity[k]||0;
  const row=x=>`<div class="pv" style="--c:${FRM[x.c.r][0]}"><div class="th">${scene(x.c)}</div><div style="flex:1"><b>${esc(x.c.n)}</b> <span style="color:${RC[x.c.r]}">${RN[x.c.r]}</span>${x.c.one?' <span class="chs2">1 / 1</span>':x.c.chase?' <span class="chs2">CHASE</span>':''}<br><span class="mt">${x.c.pr?(x.c.one?'Only one exists':'Supply '+x.c.pr.toLocaleString()):'Unlimited'}</span></div><div style="text-align:right"><b>${$$$(S.pr[x.c.id])}</b><br><span class="mt">${oddsT(x.pp)}</span></div></div>`;
  modal(`<h2 style="margin:0">${esc(p.n)}</h2><div class="mt">${esc(p.desc)}</div><div class="row" style="gap:4px;margin:8px 0">${tags}</div>
- ${pt?`<div class="pn">🎯 <b>Pity</b> (saved to your account): guaranteed ${pt}.<br><span class="mt">Your counter: ${cnt} packs opened</span></div>`:''}
+ 
  ${chase.length?`<b>CHASE CARDS</b>${chase.map(row).join('')}`:''}<b style="display:block;margin-top:8px">All possible pulls (${rows.length})</b>
  <div style="max-height:36vh;overflow:auto">${rows.sort((a,b)=>b.c.r-a.c.r||b.c.base-a.c.base).map(row).join('')}</div>
  <div class="row" style="margin-top:10px"><button id="pb">Buy ${$$$(p.price)}</button><button class="g" id="pc2">Close</button></div>`);
@@ -618,8 +618,7 @@ preview=async function(k){const p=P[k];
 const STREAK=[[5,'$500'],[10,'1 Rare Pack'],[25,'$5,000'],[50,'1 Epic Pack'],[100,'1 Legendary Pack']];
 const _openT=openT;openT=function(m){_openT(m);const opens=S.prefs?S.prefs.opens:0;
  const ks=Object.keys(P).filter(k=>P[k].pity&&P[k].pity.length);
- m.insertAdjacentHTML('beforeend',`<h2>Pity counters</h2><div class="pn">${ks.map(k=>`<div><b>${esc(P[k].n)}</b> ${P[k].pity.map(r=>{const c=(S.pity[k]||0)%r.every;return`<span class="tag">${RN[r.min]}+ ${c} / ${r.every}</span>`}).join(' ')}</div>`).join('')||'<span class="mt">No pity packs yet.</span>'}<div class="mt" style="font-size:12px;margin-top:4px">At 10 / 10 your next pack is guaranteed that rarity or better. Counters are saved to your account.</div></div>
- <h2>Pack streak rewards <span class="mt" style="font-size:13px">(${opens} packs opened)</span></h2>${STREAK.map(([n,r])=>{const done=S.streaks.includes(n);return`<div class="pn row" style="justify-content:space-between"><span>Open ${n} packs → <b>${r}</b></span><button data-sk="${n}" ${opens<n||done?'disabled':''}>${done?'Claimed':'Claim'}</button></div>`}).join('')}`);
+ m.insertAdjacentHTML('beforeend',`<h2>Pack streak rewards <span class="mt" style="font-size:13px">(${opens} packs opened)</span></h2>${STREAK.map(([n,r])=>{const done=S.streaks.includes(n);return`<div class="pn row" style="justify-content:space-between"><span>Open ${n} packs → <b>${r}</b></span><button data-sk="${n}" ${opens<n||done?'disabled':''}>${done?'Claimed':'Claim'}</button></div>`}).join('')}`);
  m.querySelectorAll('[data-sk]').forEach(b=>b.onclick=async()=>{try{toast('🎁 '+await rpc('claim_streak',{p_n:+b.dataset.sk}),3000)}catch(e){return}resync()})};
 
 /* ---------- base value vs market value, Active Cards wording ---------- */
@@ -840,10 +839,10 @@ const TUT=[
  ['🤝','Trading with other players',`<p>Open the <b>Trades</b> tab and tap <b>Make Trade</b>.</p>
   <ol><li>Search for a player by username.</li><li>Pick the cards and/or cash you give, and what you want back.</li><li>Review and send the offer.</li></ol>
   <p>The other player must confirm before anything changes hands. Your offered cards and cash are held safely while you wait, and offers expire after 48 hours. You can cancel any time before they accept.</p>`],
- ['👥','Friends and profiles',`<p>Open the <b>Friends</b> tab to search for players, send friend requests and see who is online.</p>
+ ['👥','Friends and profiles',`<p>Open <b>More → Friends</b> to search for players, send friend requests and see who is online.</p>
   <ul><li>Tap a friend to see their <b>profile</b>: level, collection value, top 5 cards, badges and more.</li><li>You choose what others can see under <b>Who can see what</b>. Your email and account details are never shown.</li></ul>`],
  ['⭐','Levels, discounts and rewards',`<p>You gain <b>XP</b> by opening packs, selling cards and trading. Each level makes normal packs about <b>1% cheaper</b> (up to 25% off, never free).</p>
-  <p>On the <b>Packs</b> tab you'll also find <b>pity counters</b> (guaranteed rare pulls after enough packs) and <b>streak rewards</b> for opening lots of packs.</p>`],
+  <p>Before you open a pack you choose <b>Normal</b> or <b>Hard</b> risk. They cost the same: Normal is steadier, Hard can pay off big or leave you short. The <b>Packs</b> tab also has <b>streak rewards</b> for opening lots of packs. In the <b>Binder</b>, tap <b>Select Cards</b> to bulk-sell.</p>`],
  ['🚀','Your game plan',`<ol><li>Open your 5 Pocket Packs.</li><li>Put your best cards in income slots.</li><li>Sell duplicates and buy more cheap packs.</li><li>Save up for the next pack tier as your $/min grows.</li><li>Trade and use the Auction House to chase the cards you want.</li></ol>
   <p>You can open this guide again any time from <b>More → How to play</b>. Have fun!</p>`]];
 let tutI=0;
@@ -956,20 +955,20 @@ async function showProfile(id){
  try{p=await rpc('profile_get',{p_user:id})}catch(e){closeM();return}
  if(!$$('md')||$$('md').style.display!='flex')return;
  const st=(a,b)=>`<div><span class="mt">${a}</span><br><b>${b}</b></div>`,cn=x=>x&&CARDS[x.cid]?esc(CARDS[x.cid].n)+(x.pr?' #'+(+x.sr).toLocaleString()+'/'+(+x.pr).toLocaleString():''):'—';
- const bt=p.battles,since=new Date(p.since).toLocaleDateString(undefined,{month:'short',year:'numeric'}),me=p.rel=='self';
+ const since=new Date(p.since).toLocaleDateString(undefined,{month:'short',year:'numeric'}),me=p.rel=='self';
  const slotTotal=(p.slots||[]).reduce((a,s)=>a+(+s.rate||0),0);
  modal(`<div class="row" style="justify-content:space-between;align-items:flex-start"><div><h2 style="margin:0">${esc(p.name)}</h2><div class="mt">Level ${p.level} · Player since ${since}<br><span style="color:${p.online?'#4ade80':'#9ca3af'}">● ${p.online?'Online':frAgo(p.seen)}</span></div></div>
   <div class="row">${me?'':p.rel=='friend'?'<button class="g" id="prm">Remove friend</button>':p.rel=='sent'?'<button class="g" disabled>Request sent</button>':p.rel=='incoming'?'<button id="pra">Accept request</button>':'<button id="pra">Add friend</button>'}${me?'':'<button class="g" id="prt">🤝 Trade</button>'}</div></div>
  <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;font-size:14px">
   ${st('Total cards owned',p.cards.toLocaleString())}${st('Collection value',(p.value_exact?'':'~')+mkP(p.value))}
   ${st('Income',mkP(p.income)+'/min')}${st('Collection',p.owned_unique+' / '+p.total_cards+' · '+p.complete+'%')}
-  ${st('Battles',bt.live?bt.wins+'W / '+bt.losses+'L':'Coming soon')}${st('Trades completed',p.trades)}
+  ${st('Trades completed',p.trades)}
   ${st('Auctions won',p.won)}${st('Auctions sold',p.sold)}
   ${st('Cards discovered',p.discovered.toLocaleString())}${st('Packs opened',(+p.opens).toLocaleString())}
   ${st('Rarest pull',cn(p.rarest))}${st('Best pull',p.best?cn(p.best)+' · '+mkP(p.best.val):'—')}
   ${st('Highest card value',mkP(p.highest))}${st('Lifetime income',mkP(p.lifetime))}
   ${st('Biggest auction win',p.big_win>0?mkP(p.big_win):'—')}${st('Biggest sale',p.big_sale>0?mkP(p.big_sale):'—')}
-  ${st('Spent on packs',mkP(p.spent))}${st('Battle rating',bt.live&&bt.rating!=null?bt.rating:'—')}</div>
+  ${st('Spent on packs',mkP(p.spent))}</div>
  <b>Top 5 cards</b>${p.top.map(prCard).join('')||'<p class="mt">No cards yet.</p>'}
  <b style="display:block;margin-top:10px">Income slots</b>${p.slots?p.slots.map((s,i)=>s.cid!=null?`<div class="pn row" style="justify-content:space-between;padding:6px 12px;margin:3px 0"><span>Slot ${i+1}: ${esc(CARDS[s.cid]?CARDS[s.cid].n:'?')}</span><b class="up">${mkP(s.rate)}/min</b></div>`:`<div class="pn mt" style="padding:6px 12px;margin:3px 0">Slot ${i+1}: empty</div>`).join('')+`<div class="pn row" style="justify-content:space-between;padding:6px 12px"><b>Total</b><b class="up">${mkP(slotTotal)}/min</b></div>`:'<p class="mt">This player keeps their income slots private.</p>'}
  <b style="display:block;margin-top:10px">Badges</b><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin:6px 0">${p.badges.map(b=>`<div class="pn" style="padding:8px;margin:0;${b.earned?'':'opacity:.4;filter:grayscale(1)'}"><div style="font-size:22px">${b.icon}</div><b style="font-size:13px">${esc(b.name)}</b><div class="mt" style="font-size:12px">${esc(b.desc)}</div></div>`).join('')}</div>
@@ -1023,7 +1022,7 @@ async function exLoad(force){if(!READY||EX.busy)return;if(!force&&Date.now()-EX.
  try{EX.st=await rpc('explorer_stats',{},1)||{};EX.at=Date.now()}catch(e){}
  EX.busy=0;if(tab=='market'&&noModal()&&!(document.activeElement&&document.activeElement.id=='exq'))market($$('m'),1)}
 setInterval(()=>{if(READY&&tab=='market')exLoad(true)},25000);
-const exS=c=>EX.st[c.id]||{f:0,o:0,l:0,c:null,t:'stable',s:0,a:null,z:null,d:null};
+const exS=c=>{const s=EX.st&&EX.st[c.id];return s&&typeof s=='object'?s:{f:0,o:0,l:0,c:null,t:'stable',s:0,a:null,z:null,d:null}};
 const exLeft=(c,s)=>c.pr>0?Math.max(0,c.pr-(s.f||0)):null;
 function exMatch(c){
  if(c.sec&&!S.disc[c.id])return false;
@@ -1190,5 +1189,225 @@ flow=function(k,packs){
  if(!hit)return _flowCH(k,packs);
  const rest=packs.map(pk=>pk.filter(c=>c!==hit)).filter(pk=>pk.length);
  caseHitShow(hit,()=>{if(rest.length)_flowCH(k,rest);else{$$('ov').style.display='none';draw()}})};
+
+/* ===== UPDATE 3: BINDER SELL MODE, SIMPLE CARDS, BACK BUTTONS, RISK MODE, SPEED ===== */
+
+/* ---------- small helpers ---------- */
+const lsGet=(k,d)=>{try{const v=localStorage.getItem(k);return v==null?d:JSON.parse(v)}catch(e){return d}};
+const lsSet=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}};
+const kabbr=n=>{n=+n;return n>=1e9?'$'+(n/1e9).toFixed(1).replace(/\.0$/,'')+'B':n>=1e6?'$'+(n/1e6).toFixed(1).replace(/\.0$/,'')+'M':n>=1e5?'$'+Math.round(n/1e3)+'k':n<10&&n%1?'$'+n.toFixed(2):'$'+Math.round(n).toLocaleString()};
+
+/* =====================================================================
+   SIMPLER CARD: art, name, rarity, value, income per minute, serial
+   ===================================================================== */
+{const st=document.createElement('style');st.textContent=`
+.card.v2 .aw{flex:1;min-height:0;aspect-ratio:auto;margin-top:1cqw}
+.card.v2 .nm{font-size:10.5cqw}
+.card.v2 .rb{font-size:5.4cqw}
+.fv2{display:grid;grid-template-columns:1fr 1fr 1.25fr;gap:1.5cqw;margin-top:2cqw;padding-top:1.8cqw;border-top:.4cqw solid #0003;text-align:center}
+.fv2 small{display:block;font-size:3.1cqw;letter-spacing:.3cqw;opacity:.75}
+.fv2 b{display:block;font-size:6cqw;line-height:1.15;white-space:nowrap}
+.fv2 .sn2{font-size:5.4cqw}
+.backb{margin:0 0 10px 0;padding:6px 14px;font-size:14px}
+.bnsel{outline:3px solid #4ade80;outline-offset:-3px;border-radius:12px}
+.bnno{opacity:.45}
+.cwx{position:relative}
+.cwx .ck{position:absolute;top:4px;right:4px;z-index:5;width:24px;height:24px;border-radius:50%;background:#000a;border:2px solid #fff;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center}
+.cwx.bnsel .ck{background:#16a34a;border-color:#4ade80}
+.riskc{flex:1;min-width:190px;border-radius:14px;padding:14px;border:2px solid var(--pn2);text-align:left}
+.riskc.n{border-color:#22c55e;background:#06240f55}.riskc.h{border-color:#ef4444;background:#2a080855}
+.riskc h3{margin:0 0 4px}
+`;document.head.appendChild(st)}
+cardH=function(i,x,nc){
+ const c=card(i),F=FRM[c.r]||FRM[0],sp=i.pr&&(i.pr==1||i.sr==1||i.sr==i.pr),rate=rateOf(i);
+ const sl=inSlot(i.uid);
+ return`<div class="cw" ${x||''}><div class="card v2 ${['','holo','rain'][i.f]||''}${sp?' sp':''}" style="--f:${F[0]};--b:${F[1]};--tx:${F[2]};--nc:${F[3]}">
+ <div class="ct"><b class="nm">${esc(c.n)}</b><span class="ty">${c.ic}</span></div>
+ <span class="rb">${RN[c.r]}${i.f?' · '+FN[i.f]:''}${c.ex?' · Collector':''}${i.ed?' · '+EDN[i.ed]:''}</span>
+ <div class="aw">${scene(c)}${specLabel(i)?`<span class="bdg">${specLabel(i)}</span>`:''}</div>
+ <div class="fv2"><span><small>VALUE</small><b>${kabbr(val(i))}</b></span><span><small>PER MIN</small><b>${rate<10&&rate%1?'$'+rate.toFixed(2):kabbr(rate)}</b></span><span><small>SERIAL</small><b class="sn2">${i.pr?(i.pr==1?'1 OF 1':'#'+(+i.sr).toLocaleString()+'/'+(+i.pr).toLocaleString()):'Unnumbered'}</b></span></div></div>
+ ${nc?'':`<div class="cap">${sl?'🖼 ':''}${i.fav?'❤️ ':''}${i.lock?'🔒 ':''}${i.show?'⭐ ':''}${i.listed?'🏷 ':''}</div>`}</div>`};
+
+/* =====================================================================
+   BACK BUTTONS EVERYWHERE
+   ===================================================================== */
+const NAVH={stack:[],cur:'home',skip:0};
+function goBack(){
+ const md=$$('md');if(md&&md.style.display=='flex'){closeM();return}
+ const ov=$$('ov');if(ov&&ov.style.display=='flex')return;
+ const prev=NAVH.stack.pop();tab=prev||'home';NAVH.skip=1;draw()}
+function backBtn(){const b=document.createElement('button');b.className='g backb';b.textContent='← Back';b.onclick=e=>{e.stopPropagation();goBack()};return b}
+const _drawBK=draw;draw=function(){
+ if(tab!=NAVH.cur){if(!NAVH.skip){NAVH.stack.push(NAVH.cur);if(NAVH.stack.length>40)NAVH.stack.shift();try{history.pushState({cv:1},'')}catch(e){}}NAVH.cur=tab}NAVH.skip=0;
+ _drawBK();ensureBack($$('m'),tab!='home')};
+function ensureBack(host,want){if(!host)return;const has=host.firstElementChild&&host.firstElementChild.classList.contains('backb');
+ if(want&&!has)host.insertBefore(backBtn(),host.firstChild);if(!want&&has)host.firstElementChild.remove()}
+function ensureBackModal(){const md=$$('md');if(!md||md.style.display!='flex')return;const bx=md.querySelector('.box');if(bx)ensureBack(bx,true)}
+try{history.replaceState({cv:0},'')}catch(e){}
+window.addEventListener('popstate',()=>{
+ const md=$$('md'),ov=$$('ov');
+ if(md&&md.style.display=='flex'){closeM();try{history.pushState({cv:1},'')}catch(e){}return}
+ if(ov&&ov.style.display=='flex'){try{history.pushState({cv:1},'')}catch(e){}return}
+ const prev=NAVH.stack.pop();if(prev==null){return}tab=prev;NAVH.skip=1;draw()});
+new MutationObserver(()=>{ensureBack($$('m'),tab!='home');ensureBackModal()}).observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
+
+/* =====================================================================
+   RISK MODE
+   ===================================================================== */
+let RISKNEXT=null,PM='normal';
+const stars=n=>'⭐'.repeat(n)+'<span style="opacity:.25">'+'⭐'.repeat(5-n)+'</span>';
+function riskChoose(k,buyFirst){
+ const p=P[k],price=p.price;
+ modal(`<h2 style="margin:0">${esc(p.n)}</h2><div class="mt">Choose your risk. <b>Both modes cost the same.</b> Only the odds change.</div>
+ <div class="row" style="gap:12px;align-items:stretch;margin:12px 0">
+  <div class="riskc n"><h3 style="color:#4ade80">NORMAL</h3><div style="font-size:13px;line-height:1.5">Safer opening<br>Normal odds<br>More consistent value<br>Lower chance of a big loss</div>
+   <div style="margin:8px 0;font-size:13px">Risk ${stars(2)}<br>Reward potential ${stars(3)}</div><button id="rn" style="width:100%">${buyFirst?'Buy & open':'Open'} Normal — ${$$$(price)}</button></div>
+  <div class="riskc h"><h3 style="color:#f87171">HARD</h3><div style="font-size:13px;line-height:1.5">Higher risk<br>Better odds at the big cards<br>Much higher potential rewards<br>But a bad opening is more likely</div>
+   <div style="margin:8px 0;font-size:13px">Risk ${stars(4)}<br>Reward potential ${stars(5)}</div><button id="rh" style="width:100%;background:#dc2626;border-color:#dc2626;color:#fff">${buyFirst?'Buy & open':'Open'} Hard — ${$$$(price)}</button></div></div>
+ <div class="row"><button class="g" id="ro">See odds</button><button class="g" id="rc">Cancel</button></div>`);
+ const go=m=>{closeM();RISKNEXT=m;if(buyFirst)buy(k,1);else openP(k,m)};
+ $$('rn').onclick=()=>go('normal');$$('rh').onclick=()=>go('hard');$$('rc').onclick=closeM;$$('ro').onclick=()=>{PM='normal';preview(k)}}
+openP=function(k,mode){
+ if(!S.sealed[k]||P[k].myst)return soon();
+ const md=mode||RISKNEXT;RISKNEXT=null;
+ if(!md)return riskChoose(k,false);
+ return openReal(k,md)};
+async function openReal(k,mode){
+ let packs;try{packs=await rpc('open_product',{p_key:k,p_mode:mode})}catch(e){return}
+ S.sealed[k]--;SRC=P[k].n;packs.forEach(pk=>pk.forEach(c=>{c.h=c.h||[];c.m=+c.m;S.inv.push(c);S.disc[c.cid]=1}));
+ logH(packs,P[k].n);S.xp+=10;S.st.open++;flow(k,packs);lazySync()}
+/* the Store's "Buy & open" asks for the risk mode BEFORE any money is spent */
+const _shopU3=shop;shop=function(m){_shopU3(m);
+ m.querySelectorAll('[data-o]').forEach(b=>b.onclick=e=>{e.stopPropagation();const k=b.closest('.prod').dataset.k;if(P[k].myst)return buy(k,1);riskChoose(k,true)})};
+
+/* ---------- odds preview with a Normal / Hard switch, no pity ---------- */
+const oddsT3=p=>p>=1?'about '+p.toFixed(1)+' per pack':p>0?'1 in '+Math.round(1/p).toLocaleString()+' packs':'—';
+preview=async function(k){const p=P[k];
+ if(p.myst){return modal(`<h2 style="margin-top:0">${esc(p.n)}</h2><p class="mt">Not available in the online version yet.</p><button class="g" id="pc2">Close</button>`),$$('pc2').onclick=closeM}
+ let odds;try{odds=await rpc('product_odds',{p_key:k,p_mode:PM})}catch(e){return}
+ const rows=odds.filter(o=>CARDS[o.cid]).map(o=>({c:CARDS[o.cid],pp:+o.pp})),tot=rows.reduce((a,x)=>a+x.pp,0)||1;
+ const byR={};rows.forEach(x=>byR[x.c.r]=(byR[x.c.r]||0)+x.pp);
+ const tags=Object.keys(byR).sort((a,b)=>a-b).map(r=>{const v=byR[r]/tot;return`<span class="tag" style="color:${RC[r]}">${RN[r]} ${(v*100).toFixed(v<.001?3:v<.01?2:1)}%</span>`}).join(' ');
+ const chase=rows.filter(x=>x.c.r>=6||x.c.one||x.c.ex||x.c.chase).sort((a,b)=>b.c.base-a.c.base).slice(0,6);
+ const row=x=>`<div class="pv" style="--c:${FRM[x.c.r]?FRM[x.c.r][0]:'#888'}"><div class="th">${scene(x.c)}</div><div style="flex:1"><b>${esc(x.c.n)}</b> <span style="color:${RC[x.c.r]}">${RN[x.c.r]}</span>${x.c.one?' <span class="chs2">1 / 1</span>':x.c.chase?' <span class="chs2">CHASE</span>':''}<br><span class="mt">${x.c.pr?(x.c.one?'Only one exists':'Supply '+x.c.pr.toLocaleString()):'Unlimited'}</span></div><div style="text-align:right"><b>${$$$(S.pr[x.c.id])}</b><br><span class="mt">${oddsT3(x.pp)}</span></div></div>`;
+ modal(`<h2 style="margin:0">${esc(p.n)}</h2><div class="mt">${esc(p.desc)}</div>
+ <div class="row" style="gap:6px;margin:8px 0"><button class="${PM=='normal'?'':'g'}" id="pmn">Normal odds</button><button class="${PM=='hard'?'':'g'}" id="pmh" style="${PM=='hard'?'background:#dc2626;border-color:#dc2626;color:#fff':''}">Hard odds</button></div>
+ <div class="mt" style="font-size:13px">${PM=='hard'?'Hard mode costs the same but gives more bad openings AND more big ones.':'Normal mode: steadier value from pack to pack.'} Each pack also has a hidden case hit that nobody can see coming.</div>
+ <div class="row" style="gap:4px;margin:8px 0">${tags}</div>
+ ${chase.length?`<b>CHASE CARDS</b>${chase.map(row).join('')}`:''}<b style="display:block;margin-top:8px">All possible pulls (${rows.length})</b>
+ <div style="max-height:36vh;overflow:auto">${rows.sort((a,b)=>b.c.r-a.c.r||b.c.base-a.c.base).map(row).join('')}</div>
+ <div class="row" style="margin-top:10px"><button id="pb">Buy ${$$$(P[k].price)}</button><button class="g" id="pc2">Close</button></div>`);
+ $$('pc2').onclick=closeM;$$('pb').onclick=()=>{closeM();buy(k)};
+ $$('pmn').onclick=()=>{PM='normal';preview(k)};$$('pmh').onclick=()=>{PM='hard';preview(k)}};
+
+/* =====================================================================
+   BINDER: sorting, filters, Sell Mode, 50 cards at a time
+   ===================================================================== */
+const BN={sel:false,picked:new Set(),rar:'all',rarx:'',filter:'all',sort:'rarity',q:'',set:'',n:50,
+ prot:lsGet('cvProt',{on:false,min:6})};
+const BN_PAGE=50;
+const isSpecial=i=>{const c=card(i);return !!(c.chase||c.ex||c.one||c.r>=7||i.pr==1||(i.pr>1&&(i.sr==1||i.sr==i.pr)))};
+const isAuto=i=>/autograph/i.test(RN[card(i).r]||'');
+const eligible=i=>!i.lock&&!i.listed&&!i.tr&&!i.trade_id&&!inSlot(i.uid);
+const protectedBy=i=>BN.prot.on&&card(i).r>=BN.prot.min;
+function bnFilter(){
+ const q=BN.q.trim().toLowerCase(),cnt={};S.inv.forEach(i=>cnt[i.cid]=(cnt[i.cid]||0)+1);
+ return S.inv.filter(i=>{const c=card(i);
+  if(BN.set&&c.set!=BN.set)return false;
+  if(BN.rar=='special'){if(!isSpecial(i))return false}else if(BN.rar!='all'&&c.r!=+BN.rar)return false;
+  if(BN.rarx!==''&&c.r!=+BN.rarx)return false;
+  const f=BN.filter;
+  if(f=='equipped'&&!inSlot(i.uid))return false;if(f=='unequipped'&&inSlot(i.uid))return false;
+  if(f=='sale'&&!i.listed)return false;if(f=='notsale'&&i.listed)return false;
+  if(f=='dups'&&cnt[i.cid]<2)return false;if(f=='numbered'&&!i.pr)return false;if(f=='one'&&i.pr!=1)return false;
+  if(f=='auto'&&!isAuto(i))return false;if(f=='special'&&!isSpecial(i))return false;
+  if(f=='fav'&&!i.fav)return false;if(f=='lock'&&!i.lock)return false;if(f=='show'&&!i.show)return false;
+  if(q){const mt=q.match(/#?\s*([\d,]+)\s*\/\s*([\d,]+)/);if(mt){if(!(i.sr==+mt[1].replace(/,/g,'')&&i.pr==+mt[2].replace(/,/g,'')))return false}else if(!(c.n.toLowerCase().includes(q)||c.set.toLowerCase().includes(q)||String(c.id+1)==q))return false}
+  return true})}
+const BNSORT={rarity:(a,b)=>card(b).r-card(a).r||val(b)-val(a),value:(a,b)=>val(b)-val(a),income:(a,b)=>rateOf(b)-rateOf(a),newest:(a,b)=>b.t-a.t,oldest:(a,b)=>a.t-b.t,
+ number:(a,b)=>a.cid-b.cid,serial:(a,b)=>(a.pr?a.sr:1e12)-(b.pr?b.sr:1e12),alpha:(a,b)=>card(a).n.localeCompare(card(b).n),
+ high:(a,b)=>Math.max(...S.hi[b.cid])*FM[b.f]*(b.m||1)-Math.max(...S.hi[a.cid])*FM[a.f]*(a.m||1),low:(a,b)=>val(a)-val(b)};
+function bnWarn(list){
+ const w=[];const n1=list.filter(i=>i.pr==1).length,nl=list.filter(i=>card(i).r>=6&&i.pr!=1).length,na=list.filter(isAuto).length,nv=list.filter(i=>val(i)>=10000).length;
+ if(n1)w.push(n1+' one-of-one card'+(n1>1?'s':''));if(nl)w.push(nl+' Legendary or better');if(na)w.push(na+' Autograph'+(na>1?'s':''));if(nv)w.push(nv+' worth $10,000+');return w}
+function binder(m,keepScroll){
+ const all=bnFilter();all.sort(BNSORT[BN.sort]||BNSORT.rarity);
+ const shown=all.slice(0,BN.n),sd=setsDone(),sh=S.inv.filter(i=>i.show);
+ const picked=S.inv.filter(i=>BN.picked.has(i.uid)&&eligible(i)),mv=picked.reduce((a,i)=>a+val(i),0),qs=picked.reduce((a,i)=>a+Math.round(val(i)*.95*100)/100,0),warn=bnWarn(picked);
+ const sellable=all.filter(i=>eligible(i)&&!protectedBy(i)),blocked=all.length-all.filter(eligible).length;
+ const O=(v,l,cur)=>`<option value="${v}" ${String(cur)==String(v)?'selected':''}>${l}</option>`;
+ const chip=(k,l)=>`<button class="${BN.rar==k&&BN.rarx===''?'':'g'}" data-rc="${k}" style="padding:3px 10px;font-size:13px">${l}</button>`;
+ const sc=document.scrollingElement?document.scrollingElement.scrollTop:0;
+ m.innerHTML=`<h2 style="margin-top:0">Binder <span class="mt" style="font-size:14px">${all.length.toLocaleString()} of ${S.inv.length.toLocaleString()} cards</span></h2>
+ ${sh.length&&!BN.sel?`<h3 style="margin:0 0 6px">⭐ Trophy shelf</h3><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(100px,1fr));margin-bottom:12px">${sh.map(i=>cardH(i,`data-u="${i.uid}"`)).join('')}</div>`:''}
+ <div class="row" style="margin-bottom:8px">${Object.keys(SETS).map(s=>{const n=CARDS.filter(c=>c&&c.set==s&&!c.sec&&S.inv.some(i=>i.cid==c.id)).length;return`<span class="tag">${SETS[s][0]} ${s} ${n}/${CARDS.filter(c=>c&&c.set==s&&!c.sec).length}${sd.includes(s)?' ✔ +5%':''}</span>`}).join('')}</div>
+ <div class="row" style="gap:6px;margin-bottom:8px">${chip('all','All')}${chip('0','Common')}${chip('1','Uncommon')}${chip('2','Rare')}${chip('5','Ultra Rare')}${chip('4','Epic')}${chip('6','Legendary')}${chip('special','Special / Chase')}
+  <select id="bx">${O('','More rarities…',BN.rarx)}${RN.map((n,i)=>O(i,n,BN.rarx))}</select></div>
+ <div class="row" style="gap:6px;margin-bottom:8px"><input id="bq" value="${esc(BN.q)}" placeholder="Search name, set, card # or #12/500" style="background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:6px;width:190px">
+  <select id="bs">${O('','All sets',BN.set)}${Object.keys(SETS).map(s=>O(s,s,BN.set))}</select>
+  <select id="bf">${O('all','Show: all owned',BN.filter)}${O('equipped','Equipped',BN.filter)}${O('unequipped','Unequipped',BN.filter)}${O('sale','For sale',BN.filter)}${O('notsale','Not for sale',BN.filter)}${O('dups','Duplicates',BN.filter)}${O('numbered','Numbered',BN.filter)}${O('one','1/1',BN.filter)}${O('auto','Autograph',BN.filter)}${O('special','Special',BN.filter)}${O('fav','❤️ Favorites',BN.filter)}${O('lock','🔒 Locked',BN.filter)}${O('show','⭐ Showcase',BN.filter)}</select>
+  <select id="bo">${O('rarity','Sort: rarity',BN.sort)}${O('value','Market value',BN.sort)}${O('income','Income / min',BN.sort)}${O('newest','Newest',BN.sort)}${O('oldest','Oldest',BN.sort)}${O('number','Card number',BN.sort)}${O('serial','Serial number',BN.sort)}${O('alpha','Alphabetical',BN.sort)}${O('high','Highest value',BN.sort)}${O('low','Lowest value',BN.sort)}</select></div>
+ <div class="pn" style="padding:8px 12px">
+  <div class="row" style="justify-content:space-between"><div class="row" style="gap:6px"><button id="bsel" class="${BN.sel?'':'g'}">${BN.sel?'✔ Selecting cards':'Select Cards'}</button>${BN.sel?`<button class="g" id="ball">Select All (${sellable.length})</button><button class="g" id="bclr">Clear</button>`:''}</div>
+   <label style="font-size:13px"><input type="checkbox" id="bprot" ${BN.prot.on?'checked':''}> Protect rare cards</label></div>
+  ${BN.prot.on?`<div class="row mt" style="font-size:13px;margin-top:6px">Never sell <select id="bpm">${RN.map((n,i)=>O(i,n+' and above',BN.prot.min)).join('')}</select></div>`:''}
+  ${BN.sel?`<div style="margin-top:8px"><b>${picked.length.toLocaleString()} card${picked.length==1?'':'s'} selected</b>${blocked?` <span class="mt" style="font-size:12px">(${blocked} equipped, listed, locked or in a trade can't be sold)</span>`:''}<br>Market value: <b>${$$$(mv)}</b> · Quick-sell value: <b class="up">${$$$(qs)}</b>
+   ${warn.length?`<div style="color:#fbbf24;font-size:13px;margin-top:4px">⚠ Includes ${warn.join(', ')}. Tap those cards to deselect them.</div>`:''}
+   <div class="row" style="margin-top:6px"><button id="bgo" ${picked.length?'':'disabled'}>Sell ${picked.length} Card${picked.length==1?'':'s'}</button></div></div>`:''}</div>
+ <div class="grid" id="bgrid">${shown.map(i=>bnCell(i)).join('')||'<p class="mt">No cards match.</p>'}</div>
+ ${all.length>BN.n?`<div class="row" style="justify-content:center;margin-top:10px"><button class="g" id="bmore">Show ${Math.min(BN_PAGE,all.length-BN.n)} more (${(all.length-BN.n).toLocaleString()} left)</button></div><div id="bsent" style="height:1px"></div>`:''}`;
+ const re=()=>binder(m);
+ $$('bq').onchange=e=>{BN.q=e.target.value;BN.n=BN_PAGE;re()};$$('bs').onchange=e=>{BN.set=e.target.value;BN.n=BN_PAGE;re()};
+ $$('bf').onchange=e=>{BN.filter=e.target.value;BN.n=BN_PAGE;re()};$$('bo').onchange=e=>{BN.sort=e.target.value;re()};
+ $$('bx').onchange=e=>{BN.rarx=e.target.value;if(BN.rarx!=='')BN.rar='all';BN.n=BN_PAGE;re()};
+ m.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>{BN.rar=b.dataset.rc;BN.rarx='';BN.n=BN_PAGE;re()});
+ $$('bsel').onclick=()=>{BN.sel=!BN.sel;if(!BN.sel)BN.picked.clear();re()};
+ const ba=$$('ball');if(ba)ba.onclick=()=>{sellable.forEach(i=>BN.picked.add(i.uid));re()};
+ const bc=$$('bclr');if(bc)bc.onclick=()=>{BN.picked.clear();re()};
+ $$('bprot').onchange=e=>{BN.prot.on=e.target.checked;lsSet('cvProt',BN.prot);if(BN.prot.on)S.inv.forEach(i=>{if(protectedBy(i))BN.picked.delete(i.uid)});re()};
+ const bpm=$$('bpm');if(bpm)bpm.onchange=e=>{BN.prot.min=+e.target.value;lsSet('cvProt',BN.prot);S.inv.forEach(i=>{if(protectedBy(i))BN.picked.delete(i.uid)});re()};
+ const go=$$('bgo');if(go)go.onclick=()=>bnConfirm(picked,mv,qs,warn);
+ const mo=$$('bmore');if(mo)mo.onclick=()=>{BN.n+=BN_PAGE;re()};
+ m.querySelectorAll('[data-u]').forEach(e=>e.onclick=ev=>{
+  const i=S.inv.find(x=>x.uid==e.dataset.u);if(!i)return;
+  if(!BN.sel)return detail(i.uid);
+  if(!eligible(i))return toast(i.lock?'Locked cards can’t be sold':i.listed?'This card is listed on the Auction House':inSlot(i.uid)?'Remove it from its income slot first':'This card is in a trade');
+  if(protectedBy(i))return toast('Protected: turn off “Protect rare cards” to sell this',2500);
+  BN.picked.has(i.uid)?BN.picked.delete(i.uid):BN.picked.add(i.uid);
+  const w=e.closest('.cwx');if(w)w.classList.toggle('bnsel',BN.picked.has(i.uid));
+  bnSummaryRefresh(m)});
+ if(document.scrollingElement)document.scrollingElement.scrollTop=sc;
+ /* load the next batch automatically when the end of the list scrolls into view */
+ const se=$$('bsent');if(se&&'IntersectionObserver' in window){const io=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)){io.disconnect();BN.n+=BN_PAGE;if(tab=='binder'&&noModal())binder(m)}},{rootMargin:'400px'});io.observe(se)}}
+function bnCell(i){
+ const ok=eligible(i)&&!protectedBy(i),on=BN.picked.has(i.uid);
+ return`<div class="cwx ${on?'bnsel':''} ${BN.sel&&!ok?'bnno':''}">${BN.sel?`<span class="ck">${on?'✔':''}</span>`:''}${cardH(i,`data-u="${i.uid}"`)}</div>`}
+function bnSummaryRefresh(m){binder(m)}
+function bnConfirm(list,mv,qs,warn){
+ const need=list.length>=10||qs>=1000||warn.length;
+ const doit=async()=>{
+  const ids=list.map(i=>i.uid);let r;
+  try{r=await rpc('sell_bulk',{p_uids:ids})}catch(e){closeM();resync();return}
+  const gone=new Set(ids);S.inv=S.inv.filter(i=>!gone.has(i.uid));ids.forEach(u=>unslot(u));BN.picked.clear();
+  S.money=+r.money;S.st.sold+=r.n;closeM();toast('Sold '+r.n+' card'+(r.n==1?'':'s')+' for '+$$$(r.total),3500);draw();resync()};
+ if(!need)return doit();
+ modal(`<h2 style="margin:0">Sell ${list.length.toLocaleString()} card${list.length==1?'':'s'}?</h2>
+ <p>Market value <b>${$$$(mv)}</b><br>You will receive <b class="up">${$$$(qs)}</b></p>
+ ${warn.length?`<p style="color:#fbbf24">⚠ This includes ${warn.join(', ')}. This cannot be undone.</p>`:'<p class="mt">This cannot be undone.</p>'}
+ <div class="row"><button id="bcy" style="background:#dc2626;border-color:#dc2626;color:#fff">Yes, sell them</button><button class="g" id="bcn">Go back</button></div>`);
+ $$('bcn').onclick=closeM;$$('bcy').onclick=()=>{$$('bcy').disabled=true;doit()}}
+
+/* =====================================================================
+   SPEED: fetch only the prices that changed, and poll every 20 seconds
+   ===================================================================== */
+let PSINCE=null;
+pollPrices=async function(){if(!READY||pBusy)return;pBusy=1;
+ try{await sb.rpc('market_tick');
+  let q=sb.from('prices').select('card_id,price,upd').order('upd',{ascending:true}).limit(1000);
+  if(PSINCE)q=q.gt('upd',PSINCE);
+  const{data}=await q;
+  (data||[]).forEach(r=>{const p=+r.price,h=S.hi[r.card_id]||(S.hi[r.card_id]=[p]);S.pr[r.card_id]=p;if(h[h.length-1]!==p){h.push(p);if(h.length>80)h.shift()}if(!PSINCE||r.upd>PSINCE)PSINCE=r.upd});
+ }catch(e){}pBusy=0};
+const _rsU3=resync;resync=async function(){S.pity=S.pity||{};await _rsU3();try{const{data}=await sb.from('prices').select('upd').order('upd',{ascending:false}).limit(1);if(data&&data[0]&&data[0].upd)PSINCE=data[0].upd}catch(e){}};
 
 </script></body></html>
