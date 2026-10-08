@@ -1428,18 +1428,92 @@ frame=function(s,k){const it=s&&S.inv.find(i=>i.uid==s.uid);
  return`<div class="sc"><div class="rt">${cmoney(s.rate)}/min</div>${cardH(it,`data-u="${it.uid}"`,1)}<div class="sb2"><button data-r="${k}" title="Refresh rate">↻</button><button class="g" data-x="${k}" ${lk?'disabled':''} title="Remove">✕</button></div><div class="lk ${nr>=s.rate?'up':'dn'}">${lk?'🔒 '+Math.ceil(left/6e4)+'m':'🔓'}<br>${cmoney(nr)} now</div></div>`};
 {const _homeH2=home;home=function(m){_homeH2(m);const u=m.querySelector('.side .pf b.up');if(u)u.textContent='+'+cmoney(incMin())+'/min'}}
 
-/* ===== compact generated card art: the 16 Prime cards and the 200 new cards draw their own artwork ===== */
-{const GENPAL={"Crystal Fauna": ["#0ea5e9", "#082f49", "#7dd3fc"], "Storm Titans": ["#6366f1", "#1e1b4b", "#c7d2fe"], "Neon City": ["#ec4899", "#500724", "#fbcfe8"], "Ancient Ruins": ["#b45309", "#451a03", "#fcd34d"], "Toxic Swamp": ["#65a30d", "#1a2e05", "#bef264"], "Frost Realm": ["#38bdf8", "#0c4a6e", "#e0f2fe"], "Sky Pirates": ["#0d9488", "#042f2e", "#99f6e4"], "Dream Garden": ["#a855f7", "#3b0764", "#e9d5ff"], "Mecha Forge": ["#64748b", "#0f172a", "#e2e8f0"], "Cosmic Zoo": ["#f43f5e", "#2e1065", "#fecdd3"]},GENID={"1163": ["#1d4ed8", "#0b1b4d", "#7dd3fc"], "1164": ["#0891b2", "#082f49", "#67e8f9"], "1165": ["#7c3aed", "#2e1065", "#c4b5fd"], "1166": ["#c026d3", "#4a044e", "#f0abfc"], "1167": ["#d97706", "#451a03", "#fde68a"], "1168": ["#ea580c", "#431407", "#fdba74"], "1169": ["#0d9488", "#042f2e", "#5eead4"], "1170": ["#eab308", "#422006", "#fef08a"], "1171": ["#dc2626", "#450a0a", "#fca5a5"], "1172": ["#9333ea", "#3b0764", "#d8b4fe"], "1173": ["#2563eb", "#172554", "#93c5fd"], "1174": ["#4f46e5", "#0f0a3c", "#a5b4fc"], "1175": ["#06b6d4", "#083344", "#a5f3fc"], "1176": ["#f59e0b", "#451a03", "#fde047"], "1177": ["#e11d48", "#4c0519", "#fda4af"], "1178": ["#8b5cf6", "#020617", "#f5d0fe"]};
-const _a=art,_s=scene,cache={};
- const rnd=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
- const spec=c=>c&&(typeof c.img==='string'&&c.img.startsWith('gen:')?c.img.slice(4).split(','):GENID[c.id]||GENPAL[c.set]),isG=c=>!!(c&&spec(c));
- const gen=c=>{const k=c.id+'|'+c.set;if(cache[k])return cache[k];
-  const[c1,c2,g]=spec(c),R=rnd(c.id*7919+13),n=10+c.id%5,q='g'+c.id;let rays='',sp='';
-  for(let i=0;i<n;i++){const a=i*(2*Math.PI/n);rays+=`<path d="M60 40L${(60+110*Math.cos(a)).toFixed(1)} ${(40+110*Math.sin(a)).toFixed(1)}L${(60+110*Math.cos(a+.09)).toFixed(1)} ${(40+110*Math.sin(a+.09)).toFixed(1)}Z" fill="${g}" opacity="${(.1+.1*R()).toFixed(2)}"/>`}
-  for(let i=0;i<26;i++)sp+=`<circle cx="${4+R()*112|0}" cy="${4+R()*72|0}" r="${(.5+R()*1.3).toFixed(1)}" fill="#fff" opacity="${(.4+R()*.6).toFixed(2)}"/>`;
-  return cache[k]=`<defs><radialGradient id="b${q}" cx=".5" cy=".5" r=".75"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient><radialGradient id="h${q}" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${g}" stop-opacity=".95"/><stop offset="1" stop-color="${g}" stop-opacity="0"/></radialGradient></defs><rect width="120" height="80" fill="url(#b${q})"/>${rays}<circle cx="60" cy="40" r="34" fill="url(#h${q})"/><circle cx="60" cy="40" r="27" fill="none" stroke="${g}" stroke-width="1.2" opacity=".8"/><circle cx="60" cy="40" r="31" fill="none" stroke="#fff" stroke-width=".5" opacity=".6" stroke-dasharray="2 3"/>${sp}<text x="60" y="55" font-size="38" text-anchor="middle">${c.ic}</text><rect x="1.5" y="1.5" width="117" height="77" rx="5" fill="none" stroke="${g}" stroke-width="1.5" opacity=".9"/>`};
- const under=(c,f)=>c&&c.img&&typeof c.img==='string'&&!c.img.startsWith('gen:')?f({...c,img:null}):'';
- art=c=>isG(c)?`<svg viewBox="20 0 80 80">${gen(c)}</svg>`:c&&c.img?`<svg viewBox="0 0 80 80"><g>${(under(c,_a).match(/<svg[^>]*>([\s\S]*)<\/svg>/)||[])[1]||''}</g><image href="${c.img}" width="80" height="80" preserveAspectRatio="xMidYMid slice"/></svg>`:_a(c);
- scene=c=>isG(c)?`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice">${gen(c)}</svg>`:c&&c.img?`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice"><g>${(under(c,_s).match(/<svg[^>]*>([\s\S]*)<\/svg>/)||[])[1]||''}</g><image href="${c.img}" width="120" height="80" preserveAspectRatio="xMidYMid slice"/></svg>`:_s(c)}
+
+/* ===== UNIQUE ART: every card, pack and box gets its own look; real leaderboard ===== */
+{
+const GP={set:{"Crystal Fauna": ["#0ea5e9", "#082f49", "#7dd3fc"], "Storm Titans": ["#6366f1", "#1e1b4b", "#c7d2fe"], "Neon City": ["#ec4899", "#500724", "#fbcfe8"], "Ancient Ruins": ["#b45309", "#451a03", "#fcd34d"], "Toxic Swamp": ["#65a30d", "#1a2e05", "#bef264"], "Frost Realm": ["#38bdf8", "#0c4a6e", "#e0f2fe"], "Sky Pirates": ["#0d9488", "#042f2e", "#99f6e4"], "Dream Garden": ["#a855f7", "#3b0764", "#e9d5ff"], "Mecha Forge": ["#64748b", "#0f172a", "#e2e8f0"], "Cosmic Zoo": ["#f43f5e", "#2e1065", "#fecdd3"]},id:{"1163": ["#1d4ed8", "#0b1b4d", "#7dd3fc"], "1164": ["#0891b2", "#082f49", "#67e8f9"], "1165": ["#7c3aed", "#2e1065", "#c4b5fd"], "1166": ["#c026d3", "#4a044e", "#f0abfc"], "1167": ["#d97706", "#451a03", "#fde68a"], "1168": ["#ea580c", "#431407", "#fdba74"], "1169": ["#0d9488", "#042f2e", "#5eead4"], "1170": ["#eab308", "#422006", "#fef08a"], "1171": ["#dc2626", "#450a0a", "#fca5a5"], "1172": ["#9333ea", "#3b0764", "#d8b4fe"], "1173": ["#2563eb", "#172554", "#93c5fd"], "1174": ["#4f46e5", "#0f0a3c", "#a5b4fc"], "1175": ["#06b6d4", "#083344", "#a5f3fc"], "1176": ["#f59e0b", "#451a03", "#fde047"], "1177": ["#e11d48", "#4c0519", "#fda4af"], "1178": ["#8b5cf6", "#020617", "#f5d0fe"]}};
+const rnd=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+const h2=(h,s,l)=>{s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return'#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('')};
+const hue=hx=>{const r=parseInt(hx.slice(1,3),16)/255,g=parseInt(hx.slice(3,5),16)/255,b=parseInt(hx.slice(5,7),16)/255,M=Math.max(r,g,b),m=Math.min(r,g,b),d=M-m;if(!d)return 0;let h=M==r?((g-b)/d)%6:M==g?(b-r)/d+2:(r-g)/d+4;return(h*60+360)%360};
+const strH=s=>{let x=7;for(const ch of String(s))x=(x*31+ch.charCodeAt(0))%360;return x};
+const MON=new Set(['Fire','Ocean','Space','Ancient','Void','Shadow']);
+const baseHue=c=>{const k=GP.id[c.id]||GP.set[c.set];if(k)return hue(k[0]);if(SC[c.set]&&c.set!='Space'||c.set=='Space'&&MON.has(c.set))return hue(SC[c.set][0]);return strH(c.set)};
+const cache={};
+const gen=c=>{const k=c.id+'|'+c.set+'|'+c.r;if(cache[k])return cache[k];
+ const R=rnd(c.id*7919+13),q='u'+c.id,r=c.r||0,H=(baseHue(c)+(R()*70-35)+360)%360,H2=(H+(R()<.5?35:-35)+360)%360,
+ c1=h2(H,70,48),c2=h2(H2,65,14+R()*8),c3=h2(H,90,78),c4=h2(H2,85,62),st=Math.floor(R()*9);let bg='',fx='',top='';
+ const P=(n,f)=>{let s='';for(let i=0;i<n;i++)s+=f(i);return s};
+ if(st==0)bg=P(12+(c.id%6),i=>{const a=i*2*Math.PI/(12+(c.id%6));return`<path d="M60 40L${(60+110*Math.cos(a)).toFixed(1)} ${(40+110*Math.sin(a)).toFixed(1)}L${(60+110*Math.cos(a+.1)).toFixed(1)} ${(40+110*Math.sin(a+.1)).toFixed(1)}Z" fill="${c3}" opacity=".16"/>`});
+ else if(st==1)bg=P(7,i=>`<circle cx="60" cy="40" r="${6+i*9}" fill="none" stroke="${c3}" stroke-width="${1+(i%2)}" opacity="${(.32-i*.03).toFixed(2)}"/>`);
+ else if(st==2)bg=P(70,i=>{const x=(i%10)*13+(Math.floor(i/10)%2)*6,y=Math.floor(i/10)*12;return`<circle cx="${x}" cy="${y}" r="2.2" fill="${c3}" opacity=".2"/>`});
+ else if(st==3)bg=P(14,i=>`<rect x="${i*10-30}" y="-10" width="5" height="120" fill="${c3}" opacity=".13" transform="rotate(28 60 40)"/>`);
+ else if(st==4)bg=P(5,i=>`<path d="M0 ${44+i*9}Q15 ${34+i*9} 30 ${44+i*9}T60 ${44+i*9}T90 ${44+i*9}T120 ${44+i*9}V90H0Z" fill="${i%2?c4:c3}" opacity=".15"/>`);
+ else if(st==5)bg=P(30,i=>{const x=(i%6)*24-6,y=Math.floor(i/6)*18-4;return`<path d="M${x} ${y+9}L${x+12} ${y}L${x+24} ${y+9}L${x+12} ${y+18}Z" fill="none" stroke="${c3}" stroke-width="1" opacity=".22"/>`});
+ else if(st==6)bg=P(40,i=>`<circle cx="${R()*120|0}" cy="${R()*80|0}" r="${(.4+R()*1.5).toFixed(1)}" fill="#fff" opacity="${(.3+R()*.7).toFixed(2)}"/>`)+`<ellipse cx="${30+R()*60}" cy="${20+R()*40}" rx="40" ry="10" fill="${c4}" opacity=".18" transform="rotate(${R()*60-30|0} 60 40)"/>`;
+ else if(st==7){let x=R()*20+40,y=-4,d='M'+x+' '+y;while(y<84){x+=R()*18-9;y+=10+R()*8;d+='L'+x.toFixed(1)+' '+y.toFixed(1)}bg=`<path d="${d}" fill="none" stroke="${c3}" stroke-width="2.4" opacity=".6"/><path d="${d}" fill="none" stroke="${c4}" stroke-width="7" opacity=".18"/>`+P(10,i=>`<circle cx="${R()*120|0}" cy="${R()*80|0}" r="${.6+R()}" fill="${c3}" opacity=".5"/>`)}
+ else bg=P(16,i=>`<circle cx="${R()*120|0}" cy="${R()*80|0}" r="${(2+R()*8).toFixed(1)}" fill="none" stroke="${c3}" stroke-width="1" opacity="${(.15+R()*.3).toFixed(2)}"/>`);
+ if(r>=2)fx+=`<circle cx="60" cy="40" r="${26+r*2}" fill="url(#h${q})"/>`;
+ if(r>=4)fx+=P(6+r,i=>`<path d="M${(R()*110+5)|0} ${(R()*70+5)|0}l1.4 3.6 3.6 1.4-3.6 1.4-1.4 3.6-1.4-3.6-3.6-1.4 3.6-1.4z" fill="#fff" opacity=".85"/>`);
+ if(r>=6)top+=`<path d="M44 7l5 6 5-8 6 8 5-8 5 8 5-6-2 9H46Z" fill="#fde047" stroke="#a16207" stroke-width=".8" opacity=".95"/>`;
+ if(r>=7)top+=`<rect x="2" y="2" width="116" height="76" rx="3" fill="none" stroke="${c3}" stroke-width="1.6" opacity=".8"/><rect x="5" y="5" width="110" height="70" rx="2" fill="none" stroke="#fff" stroke-width=".5" opacity=".6"/>`;
+ let fg;
+ if(MON.has(c.set)&&!GP.id[c.id])fg=mon(c,R,c1,c3,c4,H);
+ else fg=`<ellipse cx="60" cy="68" rx="22" ry="4" fill="#0006"/><text x="60" y="53" font-size="${34+r*1.2}" text-anchor="middle" style="filter:drop-shadow(0 2px 3px #000a)">${c.ic||'⭐'}</text>`;
+ return cache[k]=`<defs><radialGradient id="b${q}" cx=".5" cy=".4" r=".85"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient><radialGradient id="h${q}"><stop offset="0" stop-color="${c3}" stop-opacity=".9"/><stop offset="1" stop-color="${c3}" stop-opacity="0"/></radialGradient></defs><rect width="120" height="80" fill="url(#b${q})"/>${bg}${fx}${fg}${top}`};
+function mon(c,R,c1,c3,c4,H){const r=c.r||0,A=h2(H,75,52),B=h2((H+40)%360,80,66),D=h2(H,60,28),sh=Math.floor(R()*4),bw=17+R()*10,bh=15+R()*10,hy=sh==1?36:44;let o='';
+ o+=`<ellipse cx="60" cy="71" rx="${bw+4}" ry="4" fill="#0006"/>`;
+ if(R()<.6||r>=4)o+=`<path d="M${60+bw-4} 58Q${60+bw+14+R()*8} ${48+R()*8} ${60+bw+8} ${28+R()*10}" stroke="${A}" stroke-width="${5+R()*3}" fill="none" stroke-linecap="round"/>`;
+ if(r>=3||R()<.3){const w=9+r*2;o+=`<path d="M${60-bw+4} 50Q${60-bw-w} ${26-R()*8} ${60-bw-4} 64Z" fill="${B}" stroke="#0005"/><path d="M${60+bw-4} 50Q${60+bw+w} ${26-R()*8} ${60+bw+4} 64Z" fill="${B}" stroke="#0005"/>`}
+ o+=`<rect x="${60-bw*.6}" y="62" width="8" height="10" rx="3" fill="${D}" stroke="#0006"/><rect x="${60+bw*.6-8}" y="62" width="8" height="10" rx="3" fill="${D}" stroke="#0006"/>`;
+ if(sh==0)o+=`<ellipse cx="60" cy="52" rx="${bw}" ry="${bh}" fill="${A}" stroke="#0007" stroke-width="1.5"/>`;
+ else if(sh==1)o+=`<rect x="${60-bw}" y="${hy}" width="${bw*2}" height="${bh+16}" rx="${8+R()*8}" fill="${A}" stroke="#0007" stroke-width="1.5"/>`;
+ else if(sh==2)o+=`<path d="M${60-bw} 66Q${60-bw} 30 60 28Q${60+bw} 30 ${60+bw} 66Z" fill="${A}" stroke="#0007" stroke-width="1.5"/>`;
+ else o+=`<path d="M60 26L${60+bw} 52L60 68L${60-bw} 52Z" fill="${A}" stroke="#0007" stroke-width="1.5"/>`;
+ const pt=Math.floor(R()*4);
+ if(pt==0)for(let i=0;i<4;i++)o+=`<circle cx="${50+R()*20}" cy="${50+R()*14}" r="${2+R()*2.5}" fill="${D}" opacity=".5"/>`;
+ else if(pt==1)for(let i=0;i<3;i++)o+=`<path d="M${50+i*5} 44q-4 12 0 22" stroke="${D}" stroke-width="2.4" fill="none" opacity=".55"/>`;
+ else if(pt==2)o+=`<ellipse cx="60" cy="58" rx="${bw*.55}" ry="${bh*.6}" fill="${B}" opacity=".7"/>`;
+ const hn=Math.floor(R()*4),nh=1+Math.floor(r/3);
+ if(hn==1)for(let i=0;i<nh;i++){const x=60+(i-(nh-1)/2)*11;o+=`<path d="M${x-4} 32L${x} ${14-r}L${x+4} 32Z" fill="${B}" stroke="#0005"/>`}
+ else if(hn==2)o+=`<path d="M48 32Q40 16 34 18Q40 26 44 34Z" fill="${B}" stroke="#0005"/><path d="M72 32Q80 16 86 18Q80 26 76 34Z" fill="${B}" stroke="#0005"/>`;
+ else if(hn==3)o+=`<circle cx="45" cy="30" r="6" fill="${A}" stroke="#0006"/><circle cx="75" cy="30" r="6" fill="${A}" stroke="#0006"/>`;
+ const ey=Math.floor(R()*4),y0=sh==1?46:42;
+ const eye=(x,y,s)=>`<circle cx="${x}" cy="${y}" r="${s}" fill="#fff" stroke="#0007"/><circle cx="${x+1}" cy="${y+1}" r="${s*.5}" fill="#111"/>`;
+ if(ey==0)o+=eye(52,y0,4.4)+eye(68,y0,4.4);else if(ey==1)o+=eye(60,y0-3,7);else if(ey==2)o+=eye(48,y0+2,3.4)+eye(60,y0-3,3.4)+eye(72,y0+2,3.4);else o+=`<path d="M46 ${y0}l12 3-12 3z" fill="${c3}"/><path d="M74 ${y0}l-12 3 12 3z" fill="${c3}"/>`;
+ const mo=Math.floor(R()*3);
+ o+=mo==0?`<path d="M52 ${y0+10}Q60 ${y0+17} 68 ${y0+10}" stroke="#000a" stroke-width="2" fill="none"/>`:mo==1?`<path d="M50 ${y0+10}h20" stroke="#000a" stroke-width="2"/><path d="M54 ${y0+10}l2 4 2-4M62 ${y0+10}l2 4 2-4" fill="#fff"/>`:`<ellipse cx="60" cy="${y0+12}" rx="4" ry="3" fill="#300"/>`;
+ return o}
+const GCARD=c=>`<g>${gen(c)}</g>`;
+const _a0=art,_s0=scene;
+const under=c=>gen(c);
+art=c=>{if(!c)return _a0(c);return c.img?`<svg viewBox="20 0 80 80"><g>${under(c)}</g><image href="${c.img}" x="20" width="80" height="80" preserveAspectRatio="xMidYMid slice"/></svg>`:`<svg viewBox="20 0 80 80">${gen(c)}</svg>`};
+scene=c=>{if(!c)return _s0(c);return c.img?`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice"><g>${under(c)}</g><image href="${c.img}" width="120" height="80" preserveAspectRatio="xMidYMid slice"/></svg>`:`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice">${gen(c)}</svg>`};
+
+/* ----- packs and boxes ----- */
+const css=document.createElement('style');css.textContent=`.pk>div:not(.flap):not(.pt):not(.pbg),.bx>div:not(.flap):not(.pt):not(.pbg){position:relative;z-index:1}.pbg{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}.pk>div:not(.pbg)>svg,.bx>div:not(.pbg)>svg{display:inline-block;margin:2px 3px;border-radius:50%;border:2px solid #fffc;box-shadow:0 3px 8px #000a;background:#000}.pk>div:not(.pbg)>svg{width:56%!important}.bx>div:not(.pbg)>svg{width:30%!important}.pbg svg{width:100%!important;height:100%!important}.shn{position:absolute;inset:0;pointer-events:none;background:linear-gradient(115deg,transparent 35%,#fff6 50%,transparent 65%);background-size:250% 100%;animation:shn 3.2s linear infinite}@keyframes shn{from{background-position:150% 0}to{background-position:-100% 0}}.pk .pt,.bx .pt{z-index:2}@media(prefers-reduced-motion:reduce){.shn{animation:none}}`;document.head.appendChild(css);
+const SHP=['M50 8L61 38 93 38 67 57 77 88 50 69 23 88 33 57 7 38 39 38Z','M50 6L90 50 50 94 10 50Z','M50 8Q90 14 86 50Q82 84 50 94Q18 84 14 50Q10 14 50 8Z','M12 78L20 30 36 52 50 20 64 52 80 30 88 78Z','M50 6Q80 36 74 62Q70 90 50 94Q30 90 26 62Q20 36 50 6Z','M50 10L84 30 84 70 50 90 16 70 16 30Z'];
+prodH=function(k){const p=P[k],keys=Object.keys(P),ix=Math.max(0,keys.indexOf(k)),N=keys.length,R=rnd(strH(k)+ix*13),tier=ix/Math.max(1,N-1),H=(ix*53+strH(k))%360,
+ top=tier>.85,mid=tier>.5,c1=h2(H,70,42),c2=h2((H+40)%360,75,16),c3=h2(H,90,75),c4=h2((H+180)%360,80,60),pat=ix%7,q='pd'+ix;let bg='';
+ const I=(n,f)=>{let s='';for(let i=0;i<n;i++)s+=f(i);return s};
+ if(pat==0)bg=I(14,i=>`<rect x="${i*14-20}" y="-20" width="5" height="160" fill="${c3}" opacity=".16" transform="rotate(24 50 50)"/>`);
+ else if(pat==1)bg=I(8,i=>`<circle cx="50" cy="50" r="${i*9+4}" fill="none" stroke="${c3}" stroke-width="1.4" opacity="${(.3-i*.03).toFixed(2)}"/>`);
+ else if(pat==2)bg=I(64,i=>`<circle cx="${(i%8)*14+(Math.floor(i/8)%2)*7}" cy="${Math.floor(i/8)*14}" r="2.4" fill="${c3}" opacity=".22"/>`);
+ else if(pat==3)bg=I(40,i=>`<path d="M${(i%5)*24-6} ${Math.floor(i/5)*14+7}l12-7 12 7-12 7z" fill="none" stroke="${c3}" opacity=".26"/>`);
+ else if(pat==4)bg=I(6,i=>`<path d="M0 ${20+i*16}Q25 ${8+i*16} 50 ${20+i*16}T100 ${20+i*16}V120H0Z" fill="${i%2?c4:c3}" opacity=".13"/>`);
+ else if(pat==5)bg=I(36,i=>`<circle cx="${R()*100|0}" cy="${R()*100|0}" r="${(.5+R()*1.6).toFixed(1)}" fill="#fff" opacity="${(.3+R()*.7).toFixed(2)}"/>`);
+ else bg=I(18,i=>{const a=i*Math.PI/9;return`<path d="M50 50L${(50+120*Math.cos(a)).toFixed(0)} ${(50+120*Math.sin(a)).toFixed(0)}L${(50+120*Math.cos(a+.1)).toFixed(0)} ${(50+120*Math.sin(a+.1)).toFixed(0)}Z" fill="${c3}" opacity=".15"/>`});
+ const em=`<path d="${SHP[ix%6]}" fill="${top?'#fde047':c3}" opacity="${top?.9:.5}" stroke="${top?'#a16207':'#fff'}" stroke-width="1.5" transform="translate(${p.box?28:14} ${p.box?10:12}) scale(${p.box?.44:.72})"/>`;
+ const svg=`<svg class="pbgs" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid slice"><defs><linearGradient id="${q}" x1="0" y1="0" x2=".7" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient></defs><rect width="100" height="100" fill="url(#${q})"/>${bg}${em}${top?`<rect x="3" y="3" width="94" height="94" fill="none" stroke="#fde047" stroke-width="2.4" opacity=".9"/>`:mid?`<rect x="4" y="4" width="92" height="92" fill="none" stroke="${c3}" stroke-width="1.2" opacity=".6"/>`:''}</svg>`;
+ return`<div class="${p.box?'bx':'pk'} t${p.t}" style="background:linear-gradient(160deg,${c1},${c2})"><div class="pbg">${svg}</div><div class="flap"></div><div class="pl">CardVault</div><div>${art(CARDS[p.art[0]])}${p.box?art(CARDS[p.art[1]]):''}</div><div class="pt">${p.n}</div>${mid?'<div class="shn"></div>':''}</div>`};
+
+/* ----- real leaderboard ----- */
+const RKK=['money','collection','income','unique','opens','sets','trades'];let LB={},LBT={};
+ranks=function(m){const k=rk,key=RKK[k],bt=`<h2 style="margin-top:0">Leaderboards</h2><div class="row" style="margin-bottom:10px">${RKN.map((l,i)=>`<button class="${rk==i?'':'g'}" data-r="${i}" style="font-size:12px;padding:6px 9px">${l}</button>`).join('')}</div>`;
+ const fo=v=>v==null?'Hidden':k<2?$$$(v):k==2?m2(v)+'/min':Math.floor(v).toLocaleString();
+ const paint=rows=>{m.innerHTML=bt+(rows&&rows.length?`<p class="mt" style="margin:0 0 8px">Real players only · <span style="color:#3ddc84">●</span> online now</p>`+rows.map(r=>`<div class="pn row lbr" data-id="${r.id}" style="justify-content:space-between;cursor:pointer;${r.you?'border:2px solid var(--ac)':''}"><span>${['🥇','🥈','🥉'][r.rank-1]||r.rank+'.'} ${r.online?'<span style="color:#3ddc84">●</span> ':''}<b>${esc(r.name)}${r.you?' (you)':''}</b></span><b>${fo(r.hidden?null:r.v)}</b></div>`).join(''):`<p class="mt">${rows?'No players on this board yet.':'Loading the real leaderboard…'}</p>`);
+  m.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{rk=+b.dataset.r;draw()});m.querySelectorAll('.lbr').forEach(e=>e.onclick=()=>{try{showProfile(e.dataset.id)}catch(_){}})};
+ paint(LB[key]);
+ if(!LBT[key]||Date.now()-LBT[key]>15000){LBT[key]=Date.now();rpc('leaderboard',{p_kind:key},1).then(d=>{if(!Array.isArray(d))return;LB[key]=d;if(rk==k&&tab=='ranks')paint(d)}).catch(()=>{LBT[key]=0})}};
+}
 
 </script></body></html>
