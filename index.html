@@ -1301,9 +1301,9 @@ preview=async function(k){const p=P[k];
  $$('pmn').onclick=()=>{PM='normal';preview(k)};$$('pmh').onclick=()=>{PM='hard';preview(k)}};
 
 /* =====================================================================
-   BINDER: sorting, filters, Sell Mode, 50 cards at a time
+   BINDER: sorting, filters, Sell Mode, 80 cards per page
    ===================================================================== */
-const BN={sel:false,picked:new Set(),rar:'all',rarx:'',filter:'all',sort:'rarity',q:'',set:'',n:80,
+const BN={sel:false,picked:new Set(),rar:'all',rarx:'',filter:'all',sort:'rarity',q:'',set:'',pg:0,
  prot:lsGet('cvProt',{on:false,min:6})};
 const BN_PAGE=80;
 const isSpecial=i=>{const c=card(i);return !!(c.chase||c.ex||c.one||c.r>=7||i.pr==1||(i.pr>1&&(i.sr==1||i.sr==i.pr)))};
@@ -1332,7 +1332,7 @@ function bnWarn(list){
  if(n1)w.push(n1+' one-of-one card'+(n1>1?'s':''));if(nl)w.push(nl+' Legendary or better');if(na)w.push(na+' Autograph'+(na>1?'s':''));if(nv)w.push(nv+' worth $10,000+');return w}
 function binder(m,keepScroll){
  const all=bnFilter();all.sort(BNSORT[BN.sort]||BNSORT.rarity);
- const shown=all.slice(0,BN.n),sd=setsDone(),sh=S.inv.filter(i=>i.show);
+ const pages=Math.max(1,Math.ceil(all.length/BN_PAGE));if(BN.pg>=pages)BN.pg=pages-1;if(BN.pg<0)BN.pg=0;const shown=all.slice(BN.pg*BN_PAGE,(BN.pg+1)*BN_PAGE),sd=setsDone(),sh=S.inv.filter(i=>i.show);
  const picked=S.inv.filter(i=>BN.picked.has(i.uid)&&eligible(i)),mv=picked.reduce((a,i)=>a+val(i),0),qs=picked.reduce((a,i)=>a+Math.round(val(i)*.95*100)/100,0),warn=bnWarn(picked);
  const sellable=all.filter(i=>eligible(i)&&!protectedBy(i)),blocked=all.length-all.filter(eligible).length;
  const O=(v,l,cur)=>`<option value="${v}" ${String(cur)==String(v)?'selected':''}>${l}</option>`;
@@ -1355,19 +1355,19 @@ function binder(m,keepScroll){
    ${warn.length?`<div style="color:#fbbf24;font-size:13px;margin-top:4px">⚠ Includes ${warn.join(', ')}. Tap those cards to deselect them.</div>`:''}
    <div class="row" style="margin-top:6px"><button id="bgo" ${picked.length?'':'disabled'}>Sell ${picked.length} Card${picked.length==1?'':'s'}</button></div></div>`:''}</div>
  <div class="grid" id="bgrid">${shown.map(i=>bnCell(i)).join('')||'<p class="mt">No cards match.</p>'}</div>
- ${all.length>BN.n?`<div class="row" style="justify-content:center;margin-top:10px"><button class="g" id="bmore">Show ${Math.min(BN_PAGE,all.length-BN.n)} more (${(all.length-BN.n).toLocaleString()} left)</button></div><div id="bsent" style="height:1px"></div>`:''}`;
+ ${pages>1?`<div class="row" style="justify-content:center;align-items:center;gap:10px;margin-top:12px"><button class="g" id="bprev" ${BN.pg?'':'disabled'}>← Previous 80</button><span class="mt">Page ${BN.pg+1} of ${pages} · ${all.length.toLocaleString()} cards</span><button class="g" id="bnext" ${BN.pg<pages-1?'':'disabled'}>Next 80 →</button></div>`:''}`;
  const re=()=>binder(m);
- $$('bq').onchange=e=>{BN.q=e.target.value;BN.n=BN_PAGE;re()};$$('bs').onchange=e=>{BN.set=e.target.value;BN.n=BN_PAGE;re()};
- $$('bf').onchange=e=>{BN.filter=e.target.value;BN.n=BN_PAGE;re()};$$('bo').onchange=e=>{BN.sort=e.target.value;re()};
- $$('bx').onchange=e=>{BN.rarx=e.target.value;if(BN.rarx!=='')BN.rar='all';BN.n=BN_PAGE;re()};
- m.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>{BN.rar=b.dataset.rc;BN.rarx='';BN.n=BN_PAGE;re()});
+ $$('bq').onchange=e=>{BN.q=e.target.value;BN.pg=0;re()};$$('bs').onchange=e=>{BN.set=e.target.value;BN.pg=0;re()};
+ $$('bf').onchange=e=>{BN.filter=e.target.value;BN.pg=0;re()};$$('bo').onchange=e=>{BN.sort=e.target.value;BN.pg=0;re()};
+ $$('bx').onchange=e=>{BN.rarx=e.target.value;if(BN.rarx!=='')BN.rar='all';BN.pg=0;re()};
+ m.querySelectorAll('[data-rc]').forEach(b=>b.onclick=()=>{BN.rar=b.dataset.rc;BN.rarx='';BN.pg=0;re()});
  $$('bsel').onclick=()=>{BN.sel=!BN.sel;if(!BN.sel)BN.picked.clear();re()};
  const ba=$$('ball');if(ba)ba.onclick=()=>{sellable.slice(0,1000).forEach(i=>BN.picked.add(i.uid));if(sellable.length>1000)toast('Selected the first 1,000 cards. Sell them, then select more.',3500);re()};
  const bc=$$('bclr');if(bc)bc.onclick=()=>{BN.picked.clear();re()};
  $$('bprot').onchange=e=>{BN.prot.on=e.target.checked;lsSet('cvProt',BN.prot);if(BN.prot.on)S.inv.forEach(i=>{if(protectedBy(i))BN.picked.delete(i.uid)});re()};
  const bpm=$$('bpm');if(bpm)bpm.onchange=e=>{BN.prot.min=+e.target.value;lsSet('cvProt',BN.prot);S.inv.forEach(i=>{if(protectedBy(i))BN.picked.delete(i.uid)});re()};
  const go=$$('bgo');if(go)go.onclick=()=>bnConfirm(picked,mv,qs,warn);
- const mo=$$('bmore');if(mo)mo.onclick=()=>{BN.n+=BN_PAGE;re()};
+ const pv=$$('bprev'),nx=$$('bnext');if(pv)pv.onclick=()=>{BN.pg--;re();scrollTo(0,0)};if(nx)nx.onclick=()=>{BN.pg++;re();scrollTo(0,0)};
  m.querySelectorAll('[data-u]').forEach(e=>e.onclick=ev=>{
   const i=S.inv.find(x=>x.uid==e.dataset.u);if(!i)return;
   if(!BN.sel)return detail(i.uid);
@@ -1377,8 +1377,7 @@ function binder(m,keepScroll){
   const w=e.closest('.cwx');if(w)w.classList.toggle('bnsel',BN.picked.has(i.uid));
   bnSummaryRefresh(m)});
  if(document.scrollingElement)document.scrollingElement.scrollTop=sc;
- /* load the next batch automatically when the end of the list scrolls into view */
- const se=$$('bsent');if(se&&'IntersectionObserver' in window){const io=new IntersectionObserver(es=>{if(es.some(x=>x.isIntersecting)){io.disconnect();BN.n+=BN_PAGE;if(tab=='binder'&&noModal())binder(m)}},{rootMargin:'400px'});io.observe(se)}}
+}
 function bnCell(i){
  const ok=eligible(i)&&!protectedBy(i),on=BN.picked.has(i.uid);
  return`<div class="cwx ${on?'bnsel':''} ${BN.sel&&!ok?'bnno':''}">${BN.sel?`<span class="ck">${on?'✔':''}</span>`:''}${cardH(i,`data-u="${i.uid}"`)}</div>`}
@@ -1428,5 +1427,17 @@ frame=function(s,k){const it=s&&S.inv.find(i=>i.uid==s.uid);
  const nr=rateOf(it),left=s.t+LOCK-Date.now(),lk=left>0;
  return`<div class="sc"><div class="rt">${cmoney(s.rate)}/min</div>${cardH(it,`data-u="${it.uid}"`,1)}<div class="sb2"><button data-r="${k}" title="Refresh rate">↻</button><button class="g" data-x="${k}" ${lk?'disabled':''} title="Remove">✕</button></div><div class="lk ${nr>=s.rate?'up':'dn'}">${lk?'🔒 '+Math.ceil(left/6e4)+'m':'🔓'}<br>${cmoney(nr)} now</div></div>`};
 {const _homeH2=home;home=function(m){_homeH2(m);const u=m.querySelector('.side .pf b.up');if(u)u.textContent='+'+cmoney(incMin())+'/min'}}
+
+/* ===== compact generated card art: the 16 Prime cards and the 200 new cards draw their own artwork ===== */
+{const _a=art,_s=scene,cache={};
+ const rnd=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
+ const isG=c=>c&&typeof c.img==='string'&&c.img.startsWith('gen:');
+ const gen=c=>{const k=c.id+c.img;if(cache[k])return cache[k];
+  const[c1,c2,g]=c.img.slice(4).split(','),R=rnd(c.id*7919+13),n=10+c.id%5,q='g'+c.id;let rays='',sp='';
+  for(let i=0;i<n;i++){const a=i*(2*Math.PI/n);rays+=`<path d="M60 40L${(60+110*Math.cos(a)).toFixed(1)} ${(40+110*Math.sin(a)).toFixed(1)}L${(60+110*Math.cos(a+.09)).toFixed(1)} ${(40+110*Math.sin(a+.09)).toFixed(1)}Z" fill="${g}" opacity="${(.1+.1*R()).toFixed(2)}"/>`}
+  for(let i=0;i<26;i++)sp+=`<circle cx="${4+R()*112|0}" cy="${4+R()*72|0}" r="${(.5+R()*1.3).toFixed(1)}" fill="#fff" opacity="${(.4+R()*.6).toFixed(2)}"/>`;
+  return cache[k]=`<defs><radialGradient id="b${q}" cx=".5" cy=".5" r=".75"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient><radialGradient id="h${q}" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${g}" stop-opacity=".95"/><stop offset="1" stop-color="${g}" stop-opacity="0"/></radialGradient></defs><rect width="120" height="80" fill="url(#b${q})"/>${rays}<circle cx="60" cy="40" r="34" fill="url(#h${q})"/><circle cx="60" cy="40" r="27" fill="none" stroke="${g}" stroke-width="1.2" opacity=".8"/><circle cx="60" cy="40" r="31" fill="none" stroke="#fff" stroke-width=".5" opacity=".6" stroke-dasharray="2 3"/>${sp}<text x="60" y="55" font-size="38" text-anchor="middle">${c.ic}</text><rect x="1.5" y="1.5" width="117" height="77" rx="5" fill="none" stroke="${g}" stroke-width="1.5" opacity=".9"/>`};
+ art=c=>isG(c)?`<svg viewBox="20 0 80 80">${gen(c)}</svg>`:_a(c);
+ scene=c=>isG(c)?`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice">${gen(c)}</svg>`:_s(c)}
 
 </script></body></html>
