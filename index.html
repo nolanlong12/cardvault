@@ -1292,7 +1292,7 @@ preview=async function(k){const p=P[k];
  const row=x=>`<div class="pv" style="--c:${FRM[x.c.r]?FRM[x.c.r][0]:'#888'}"><div class="th">${scene(x.c)}</div><div style="flex:1"><b>${esc(x.c.n)}</b> <span style="color:${RC[x.c.r]}">${RN[x.c.r]}</span>${x.c.one?' <span class="chs2">1 / 1</span>':x.c.chase?' <span class="chs2">CHASE</span>':''}<br><span class="mt">${x.c.pr?(x.c.one?'Only one exists':'Supply '+x.c.pr.toLocaleString()):'Unlimited'}</span></div><div style="text-align:right"><b>${$$$(S.pr[x.c.id])}</b><br><span class="mt">${oddsT3(x.pp)}</span></div></div>`;
  modal(`<h2 style="margin:0">${esc(p.n)}</h2><div class="mt">${esc(p.desc)}</div>
  <div class="row" style="gap:6px;margin:8px 0"><button class="${PM=='normal'?'':'g'}" id="pmn">Normal odds</button><button class="${PM=='hard'?'':'g'}" id="pmh" style="${PM=='hard'?'background:#dc2626;border-color:#dc2626;color:#fff':''}">Hard odds</button></div>
- <div class="mt" style="font-size:13px">${PM=='hard'?'Hard mode costs the same but gives more bad openings AND more big ones.':'Normal mode: steadier value from pack to pack.'} Each pack also has a hidden case hit that nobody can see coming.</div>
+ <div class="mt" style="font-size:13px">${PM=='hard'?'Hard mode costs the same but gives more bad openings AND more big ones.':'Normal mode: steadier value from pack to pack.'} The fewer copies a card has, the harder it is to pull.</div>
  <div class="row" style="gap:4px;margin:8px 0">${tags}</div>
  ${chase.length?`<b>CHASE CARDS</b>${chase.map(row).join('')}`:''}<b style="display:block;margin-top:8px">All possible pulls (${rows.length})</b>
  <div style="max-height:36vh;overflow:auto">${rows.sort((a,b)=>b.c.r-a.c.r||b.c.base-a.c.base).map(row).join('')}</div>
@@ -1429,15 +1429,17 @@ frame=function(s,k){const it=s&&S.inv.find(i=>i.uid==s.uid);
 {const _homeH2=home;home=function(m){_homeH2(m);const u=m.querySelector('.side .pf b.up');if(u)u.textContent='+'+cmoney(incMin())+'/min'}}
 
 /* ===== compact generated card art: the 16 Prime cards and the 200 new cards draw their own artwork ===== */
-{const _a=art,_s=scene,cache={};
+{const GENPAL={"Crystal Fauna": ["#0ea5e9", "#082f49", "#7dd3fc"], "Storm Titans": ["#6366f1", "#1e1b4b", "#c7d2fe"], "Neon City": ["#ec4899", "#500724", "#fbcfe8"], "Ancient Ruins": ["#b45309", "#451a03", "#fcd34d"], "Toxic Swamp": ["#65a30d", "#1a2e05", "#bef264"], "Frost Realm": ["#38bdf8", "#0c4a6e", "#e0f2fe"], "Sky Pirates": ["#0d9488", "#042f2e", "#99f6e4"], "Dream Garden": ["#a855f7", "#3b0764", "#e9d5ff"], "Mecha Forge": ["#64748b", "#0f172a", "#e2e8f0"], "Cosmic Zoo": ["#f43f5e", "#2e1065", "#fecdd3"]},GENID={"1163": ["#1d4ed8", "#0b1b4d", "#7dd3fc"], "1164": ["#0891b2", "#082f49", "#67e8f9"], "1165": ["#7c3aed", "#2e1065", "#c4b5fd"], "1166": ["#c026d3", "#4a044e", "#f0abfc"], "1167": ["#d97706", "#451a03", "#fde68a"], "1168": ["#ea580c", "#431407", "#fdba74"], "1169": ["#0d9488", "#042f2e", "#5eead4"], "1170": ["#eab308", "#422006", "#fef08a"], "1171": ["#dc2626", "#450a0a", "#fca5a5"], "1172": ["#9333ea", "#3b0764", "#d8b4fe"], "1173": ["#2563eb", "#172554", "#93c5fd"], "1174": ["#4f46e5", "#0f0a3c", "#a5b4fc"], "1175": ["#06b6d4", "#083344", "#a5f3fc"], "1176": ["#f59e0b", "#451a03", "#fde047"], "1177": ["#e11d48", "#4c0519", "#fda4af"], "1178": ["#8b5cf6", "#020617", "#f5d0fe"]};
+const _a=art,_s=scene,cache={};
  const rnd=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
- const isG=c=>c&&typeof c.img==='string'&&c.img.startsWith('gen:');
- const gen=c=>{const k=c.id+c.img;if(cache[k])return cache[k];
-  const[c1,c2,g]=c.img.slice(4).split(','),R=rnd(c.id*7919+13),n=10+c.id%5,q='g'+c.id;let rays='',sp='';
+ const spec=c=>c&&(typeof c.img==='string'&&c.img.startsWith('gen:')?c.img.slice(4).split(','):GENID[c.id]||GENPAL[c.set]),isG=c=>!!(c&&spec(c));
+ const gen=c=>{const k=c.id+'|'+c.set;if(cache[k])return cache[k];
+  const[c1,c2,g]=spec(c),R=rnd(c.id*7919+13),n=10+c.id%5,q='g'+c.id;let rays='',sp='';
   for(let i=0;i<n;i++){const a=i*(2*Math.PI/n);rays+=`<path d="M60 40L${(60+110*Math.cos(a)).toFixed(1)} ${(40+110*Math.sin(a)).toFixed(1)}L${(60+110*Math.cos(a+.09)).toFixed(1)} ${(40+110*Math.sin(a+.09)).toFixed(1)}Z" fill="${g}" opacity="${(.1+.1*R()).toFixed(2)}"/>`}
   for(let i=0;i<26;i++)sp+=`<circle cx="${4+R()*112|0}" cy="${4+R()*72|0}" r="${(.5+R()*1.3).toFixed(1)}" fill="#fff" opacity="${(.4+R()*.6).toFixed(2)}"/>`;
   return cache[k]=`<defs><radialGradient id="b${q}" cx=".5" cy=".5" r=".75"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></radialGradient><radialGradient id="h${q}" cx=".5" cy=".5" r=".5"><stop offset="0" stop-color="${g}" stop-opacity=".95"/><stop offset="1" stop-color="${g}" stop-opacity="0"/></radialGradient></defs><rect width="120" height="80" fill="url(#b${q})"/>${rays}<circle cx="60" cy="40" r="34" fill="url(#h${q})"/><circle cx="60" cy="40" r="27" fill="none" stroke="${g}" stroke-width="1.2" opacity=".8"/><circle cx="60" cy="40" r="31" fill="none" stroke="#fff" stroke-width=".5" opacity=".6" stroke-dasharray="2 3"/>${sp}<text x="60" y="55" font-size="38" text-anchor="middle">${c.ic}</text><rect x="1.5" y="1.5" width="117" height="77" rx="5" fill="none" stroke="${g}" stroke-width="1.5" opacity=".9"/>`};
- art=c=>isG(c)?`<svg viewBox="20 0 80 80">${gen(c)}</svg>`:_a(c);
- scene=c=>isG(c)?`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice">${gen(c)}</svg>`:_s(c)}
+ const under=(c,f)=>c&&c.img&&typeof c.img==='string'&&!c.img.startsWith('gen:')?f({...c,img:null}):'';
+ art=c=>isG(c)?`<svg viewBox="20 0 80 80">${gen(c)}</svg>`:c&&c.img?`<svg viewBox="0 0 80 80"><g>${(under(c,_a).match(/<svg[^>]*>([\s\S]*)<\/svg>/)||[])[1]||''}</g><image href="${c.img}" width="80" height="80" preserveAspectRatio="xMidYMid slice"/></svg>`:_a(c);
+ scene=c=>isG(c)?`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice">${gen(c)}</svg>`:c&&c.img?`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice"><g>${(under(c,_s).match(/<svg[^>]*>([\s\S]*)<\/svg>/)||[])[1]||''}</g><image href="${c.img}" width="120" height="80" preserveAspectRatio="xMidYMid slice"/></svg>`:_s(c)}
 
 </script></body></html>
