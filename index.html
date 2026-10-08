@@ -117,7 +117,7 @@ function save(){try{localStorage.setItem('cardvault3',JSON.stringify(S))}catch(e
 const val=i=>S.pr[i.cid]*FM[i.f]*(i.m||1),card=i=>CARDS[i.cid];
 const setsDone=()=>Object.keys(SETS).filter(s=>CARDS.filter(c=>c.set==s&&!c.sec).every(c=>S.inv.some(i=>i.cid==c.id)));
 const LOCK=6e5,rate=v=>+(Math.pow(v,.97)*.0165/60).toFixed(2),m2=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}),fm=n=>'$'+n.toFixed(2),inSlot=u=>S.slots.some(s=>s&&s.uid==u),unslot=u=>S.slots.forEach((s,k)=>{if(s&&s.uid==u)S.slots[k]=null});
-const incMin=()=>S.slots.reduce((a,s)=>a+(s?s.rate:0),0)*(1+.05*setsDone().length);
+const incMin=()=>S.slots.reduce((a,s)=>{if(!s)return a;const it=S.inv.find(i=>i.uid==s.uid);return a+(it?Math.min(s.rate,rateOf(it)):s.rate)},0)*(1+.05*setsDone().length);
 const lvl=()=>Math.floor(Math.sqrt(S.xp/40))+1;
 const avail=()=>Date.now()%36e5<18e5;
 function toast(t,ms){const e=$$('toast');e.textContent=t;e.style.display='block';clearTimeout(toast.t);toast.t=setTimeout(()=>e.style.display='none',ms||1800)}
@@ -188,8 +188,8 @@ if(low||sp){fxAt(f,7);$$('bx0').classList.add('shake')}
 if(one){ov.style.background='radial-gradient(circle,#ffd166dd,#000 70%)';$$('bn').innerHTML='<h2 style="color:#ffd166;margin:0">ONE OF ONE</h2>';setTimeout(()=>fxAt(f,7),400)}
 news(c);setTimeout(go,one?2200:low||sp?1300:600)},1700)}}
 function summary(){const all=[].concat(...packs),sl=all.filter(c=>S.inv.includes(c)&&card(c).r<2);ov.className='';ov.style.background='';
-ov.innerHTML=`<div class="box"><h2 style="margin-top:0">You pulled ${all.length} cards</h2><div class="grid">${all.map(c=>cardH(c)).join('')}</div><div class="row" style="justify-content:center;margin-top:12px"><button id="d">Done</button>${sl.length?`<button class="g" id="sc">Sell ${sl.length} Common/Uncommon (${$$$(sl.reduce((a,c)=>a+val(c)*.95,0))})</button>`:''}</div></div>`;
-$$('d').onclick=()=>{ov.style.display='none';draw()};const b=$$('sc');if(b)b.onclick=()=>{sl.forEach(c=>sell(c,1));toast('Sold');ov.style.display='none';draw()}}
+ov.innerHTML=`<div class="box"><h2 style="margin-top:0">You pulled ${all.length} cards</h2><div class="grid">${all.map(c=>cardH(c)).join('')}</div><div class="row" style="justify-content:center;margin-top:12px"><button id="d">Done</button>${typeof againBtn=="function"?againBtn(k):""}${sl.length?`<button class="g" id="sc">Sell ${sl.length} Common/Uncommon (${$$$(sl.reduce((a,c)=>a+val(c)*.95,0))})</button>`:''}</div></div>`;
+$$('d').onclick=()=>{ov.style.display='none';draw()};const ag=$$('ag');if(ag)ag.onclick=()=>againGo(k);const b=$$('sc');if(b)b.onclick=()=>{sl.forEach(c=>sell(c,1));toast('Sold');ov.style.display='none';draw()}}
 p.box?boxStage():tearStage(0)}
 const SC={Fire:['#ff7a3d','#ffd166'],Ocean:['#2ec4b6','#a0e7ff'],Space:['#7b5cff','#e0c3ff'],Ancient:['#c8a24a','#fff1b8']},SG=['●','◆','◆◆','★','★★','✦','✦✦','❖','✧'];
 const FRM=[['#aeb2bc','#d9dbe0','#23252b','#111'],['#3fbf3d','#a6e58a','#12330f','#0b2a08'],['#2b95ee','#8fd3fb','#07263f','#05223a'],['#14b8a6','#8fe6d8','#06302b','#05302a'],['#f57a24','#ff9d6c','#3d1405','#3d1405'],['#8a3ff0','#b680ff','#220a45','#1d0840'],['#f2c230','#14141c','#f4efe0','#ffe9a0'],['#ff4d8d','#14101c','#fbe9f3','#ffd1e6'],['#e5e7eb','#0b0b10','#f0f0ff','#fff']];
@@ -593,7 +593,7 @@ function loadCatalog(defs,prods){
   else{o.pity=r.pity;if(!r.ltd)o.price=+r.price}});
  const ents=Object.entries(P).sort((a,b)=>a[1].price-b[1].price);ents.forEach(([k])=>delete P[k]);ents.forEach(([k,v])=>P[k]=v)}
 const FAIR={},TREND={};
-const rateOf=i=>{const f=FAIR[i.cid]!=null?FAIR[i.cid]:S.pr[i.cid];return +(f*FM[i.f||0]*(i.m||1)*.02).toFixed(2)};
+const rateOf=i=>{const f=S.pr[i.cid];return +(f*FM[i.f||0]*(i.m||1)*.02).toFixed(2)};
 const _info=info;info=function(c){const d=_info(c);if(d.hp==null||isNaN(d.hp))d.hp=300+(c.r-8)*50;if(c.hp!=null)d.hp=c.hp;
  if(c.atk!=null){d.a[0][2]=c.atk;d.a[1][2]=c.atk*2}if(c.ab)d.a[1][1]=c.ab;return d};
 
@@ -1051,7 +1051,7 @@ const EXSORT={value_desc:['Highest value',(a,b)=>b.v-a.v],value_asc:['Lowest val
  newest:['Newest discoveries',(a,b)=>(b.s.d||0)-(a.s.d||0)],owners:['Most owners',(a,b)=>b.s.o-a.s.o],gain:['Biggest 24h gain',(a,b)=>(b.s.c==null?-1e9:b.s.c)-(a.s.c==null?-1e9:a.s.c)],
  loss:['Biggest 24h drop',(a,b)=>(a.s.c==null?1e9:a.s.c)-(b.s.c==null?1e9:b.s.c)],income:['Highest $/min',(a,b)=>b.rate-a.rate],active:['Most sales this week',(a,b)=>b.s.s-a.s.s],listed:['Most listed',(a,b)=>b.s.l-a.s.l]};
 function exRow(c){
- const s=exS(c),v=S.pr[c.id]||0,left=exLeft(c,s),rate=(FAIR[c.id]!=null?FAIR[c.id]:v)*.02,ch=s.c;
+ const s=exS(c),v=S.pr[c.id]||0,left=exLeft(c,s),rate=v*.02,ch=s.c;
  const tags=[];
  if(c.pr>0&&s.f==0)tags.push('<span class="tag" style="background:#7c3aed;color:#fff">NOT YET DISCOVERED</span>');
  if(c.pr>0&&left==0)tags.push('<span class="tag" style="background:#6b7280;color:#fff">SOLD OUT</span>');
@@ -1064,7 +1064,7 @@ function exRow(c){
  <div style="text-align:right;min-width:92px"><b>${kc(v)}</b><br><span class="${ch==null?'mt':ch>=0?'up':'dn'}" style="font-size:12px">${ch==null?'new':(ch>=0?'+':'')+ch+'%'} ${({rising:'📈',falling:'📉',hot:'🔥',cold:'❄️'})[s.t]||''}</span><br><span class="mt" style="font-size:12px">${kc(rate)}/min</span></div></div>`}
 market=function(m,skip){
  if(!skip)exLoad();
- const all=CARDS.filter(c=>c&&exMatch(c)),rows=all.map(c=>{const s=exS(c);return{c,s,v:S.pr[c.id]||0,left:exLeft(c,s),rate:(FAIR[c.id]!=null?FAIR[c.id]:(S.pr[c.id]||0))*.02}});
+ const all=CARDS.filter(c=>c&&exMatch(c)),rows=all.map(c=>{const s=exS(c);return{c,s,v:S.pr[c.id]||0,left:exLeft(c,s),rate:(S.pr[c.id]||0)*.02}});
  rows.sort(EXSORT[EX.sort][1]);
  const nUnd=CARDS.filter(c=>c&&c.pr>0&&!(c.sec&&!S.disc[c.id])&&exS(c).f==0).length,sets=Object.keys(SETS),rars=[...new Set(CARDS.filter(c=>c).map(c=>c.r))].sort((a,b)=>a-b);
  const sel=(id,opts,val)=>`<select id="${id}" style="background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:6px;font:inherit">${opts.map(([k,l])=>`<option value="${k}" ${String(val)===String(k)?'selected':''}>${l}</option>`).join('')}</select>`;
@@ -1383,7 +1383,7 @@ function bnCell(i){
  return`<div class="cwx ${on?'bnsel':''} ${BN.sel&&!ok?'bnno':''}">${BN.sel?`<span class="ck">${on?'✔':''}</span>`:''}${cardH(i,`data-u="${i.uid}"`)}</div>`}
 function bnSummaryRefresh(m){binder(m)}
 function bnConfirm(list,mv,qs,warn){
- const need=list.length>=10||qs>=1000||warn.length;
+ const need=window.BNFORCE||list.length>=10||qs>=1000||warn.length;window.BNFORCE=false;
  const doit=async()=>{
   const ids=list.map(i=>i.uid);let r;
   try{r=await rpc('sell_bulk',{p_uids:ids})}catch(e){closeM();resync();return}
@@ -1425,7 +1425,7 @@ const cmoney=n=>n>=1e9?'$'+(n/1e9).toFixed(1)+'B':n>=1e6?'$'+(n/1e6).toFixed(1)+
 frame=function(s,k){const it=s&&S.inv.find(i=>i.uid==s.uid);
  if(!it){S.slots[k]=null;return`<div class="sc"><div class="rt">&nbsp;</div><div class="cw" data-p="${k}"><div class="card" style="--f:#fff7;--b:#0005;--tx:#fff;border-style:dashed"><b style="margin:auto;font-size:30cqw">+</b></div></div></div>`}
  const nr=rateOf(it),left=s.t+LOCK-Date.now(),lk=left>0;
- return`<div class="sc"><div class="rt">${cmoney(s.rate)}/min</div>${cardH(it,`data-u="${it.uid}"`,1)}<div class="sb2"><button data-r="${k}" title="Refresh rate">↻</button><button class="g" data-x="${k}" ${lk?'disabled':''} title="Remove">✕</button></div><div class="lk ${nr>=s.rate?'up':'dn'}">${lk?'🔒 '+Math.ceil(left/6e4)+'m':'🔓'}<br>${cmoney(nr)} now</div></div>`};
+ return`<div class="sc"><div class="rt">${cmoney(Math.min(s.rate,nr))}/min</div>${cardH(it,`data-u="${it.uid}"`,1)}<div class="sb2"><button data-r="${k}" title="Refresh rate" style="${nr>s.rate+.004?'background:#16a34a;border-color:#16a34a;color:#fff':''}">↻</button><button class="g" data-x="${k}" ${lk?'disabled':''} title="Remove">✕</button></div><div class="lk ${nr>=s.rate?'up':'dn'}">${lk?'🔒 '+Math.ceil(left/6e4)+'m':'🔓'}<br>${nr>s.rate+.004?'↑ tap ↻ → '+cmoney(nr):cmoney(nr)+' now'}</div></div>`};
 {const _homeH2=home;home=function(m){_homeH2(m);const u=m.querySelector('.side .pf b.up');if(u)u.textContent='+'+cmoney(incMin())+'/min'}}
 
 
@@ -1514,6 +1514,65 @@ ranks=function(m){const k=rk,key=RKK[k],bt=`<h2 style="margin-top:0">Leaderboard
   m.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{rk=+b.dataset.r;draw()});m.querySelectorAll('.lbr').forEach(e=>e.onclick=()=>{try{showProfile(e.dataset.id)}catch(_){}})};
  paint(LB[key]);
  if(!LBT[key]||Date.now()-LBT[key]>15000){LBT[key]=Date.now();rpc('leaderboard',{p_kind:key},1).then(d=>{if(!Array.isArray(d))return;LB[key]=d;if(rk==k&&tab=='ranks')paint(d)}).catch(()=>{LBT[key]=0})}};
+}
+
+/* ===== QUALITY OF LIFE: fewer taps ===== */
+{
+let LASTMODE='normal';
+const _rpcQ=rpc;rpc=function(fn,a,q){if(fn=='open_product'&&a&&a.p_mode)LASTMODE=a.p_mode;return _rpcQ(fn,a,q)};
+const BNC=(a,b,c,d)=>{window.BNFORCE=true;bnConfirm(a,b,c,d)};
+const cm=n=>'$'+(+n).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+
+/* --- "Open again" on the pack summary --- */
+againBtn=function(k){const p=P[k];if(!p||p.myst||p.ltd&&typeof avail=='function'&&!avail())return'';const have=S.sealed[k]>0;
+ if(!have&&S.money<p.price)return'';return`<button class="g" id="ag">🔁 Open another ${p.n} (${LASTMODE})${have?'':' · '+$$$(p.price)}</button>`};
+againGo=function(k){const ov=$$('ov');ov.style.display='none';RISKNEXT=LASTMODE;if(S.sealed[k]>0)openP(k,LASTMODE);else buy(k,1)};
+
+/* --- Home: one-tap Refresh all + Fill empty slots --- */
+const _homeQ=home;home=function(m){_homeQ(m);
+ const sl=m.querySelector('.sl');if(!sl)return;
+ let gain=0,empty=0;S.slots.forEach(s=>{if(!s){empty++;return}const it=S.inv.find(i=>i.uid==s.uid);if(it){const nr=rateOf(it);if(nr>s.rate+.004)gain+=nr-s.rate}else empty++});
+ sl.insertAdjacentHTML('beforebegin',`<div class="row" style="gap:8px;margin:8px 0;justify-content:center"><button id="rfa" ${gain?'style="background:#16a34a;border-color:#16a34a;color:#fff"':'class="g"'}>↻ Refresh all${gain?' (+'+cm(gain)+'/min)':''}</button>${empty?`<button class="g" id="fls">⚡ Fill ${empty} empty slot${empty>1?'s':''} with my best</button>`:''}</div>`);
+ const r=$$('rfa');if(r)r.onclick=async()=>{let d;try{d=await rpc('refresh_all_slots')}catch(_){return}toast('Locked in '+cm(d.rate)+'/min on '+d.n+' slot'+(d.n==1?'':'s'),3000);resync()};
+ const f=$$('fls');if(f)f.onclick=async()=>{let n;try{n=await rpc('fill_slots')}catch(_){return}toast(n?'Filled '+n+' slot'+(n>1?'s':'')+' with your best cards':'No free cards to use',3000);resync()}};
+
+/* --- Store: buy & open x5 / x10 in one go --- */
+const _shopQ=shop;shop=function(m){_shopQ(m);
+ m.querySelectorAll('.prod[data-k]').forEach(e=>{const k=e.dataset.k,p=P[k];if(!p||p.myst)return;const row=e.querySelector('.row:last-child');if(!row)return;
+  [5,10].forEach(n=>{const b=document.createElement('button');b.className='g';b.textContent='×'+n;b.title='Buy and open '+n+' quickly';b.onclick=ev=>{ev.stopPropagation();quickOpen(k,n)};row.appendChild(b)})})};
+function quickOpen(k,n){const p=P[k],have=S.sealed[k]||0,cost=Math.max(0,n-have)*p.price;
+ if(S.money<cost)return toast('You need '+$$$(cost)+' to open '+n+' (you have '+$$$(S.money)+')',3500);
+ modal(`<h2 style="margin:0">Open ${n} × ${p.n}</h2><p>${have?`Uses ${Math.min(have,n)} you already own. `:''}Cost: <b>${$$$(cost)}</b>. All cards go straight to your binder and you see one summary.</p>
+ <div class="row"><button id="qn">Normal</button><button id="qh" style="background:#dc2626;border-color:#dc2626;color:#fff">Hard</button><button class="g" id="qc">Cancel</button></div>`);
+ $$('qc').onclick=closeM;$$('qn').onclick=()=>runQuick(k,n,'normal');$$('qh').onclick=()=>runQuick(k,n,'hard')}
+async function runQuick(k,n,mode){const p=P[k];modal(`<h2 style="margin:0">Opening…</h2><p class="mt" id="qp">0 / ${n}</p>`);LASTMODE=mode;
+ const got=[];let done=0;
+ try{for(let i=0;i<n;i++){
+   if(!(S.sealed[k]>0)){await rpc('buy_product',{p_key:k});S.money-=p.price;S.sealed[k]=(S.sealed[k]||0)+1}
+   const packs=await rpc('open_product',{p_key:k,p_mode:mode});S.sealed[k]--;
+   packs.forEach(pk=>pk.forEach(c=>{c.h=c.h||[];c.m=+c.m;S.inv.push(c);S.disc[c.cid]=1;got.push(c)}));
+   logH(packs,p.n);S.xp+=10;S.st.open++;done++;const q=$$('qp');if(q)q.textContent=done+' / '+n}}catch(e){}
+ try{await resync()}catch(_){}
+ const top=[...got].sort((a,b)=>val(b)-val(a)),tv=got.reduce((a,c)=>a+val(c),0),sell=got.filter(c=>S.inv.includes(c)&&card(c).r<2);
+ modal(`<h2 style="margin:0">Opened ${done} × ${p.n}</h2><p>${got.length} cards · worth <b>${$$$(tv)}</b>${done<n?` <span style="color:#fbbf24">(stopped early: ${n-done} not opened)</span>`:''}</p>
+  <h3 style="margin:6px 0">Best pulls</h3><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(100px,1fr))">${top.slice(0,12).map(c=>cardH(c)).join('')}</div>
+  <div class="row" style="margin-top:12px"><button id="qd">Done</button><button class="g" id="qa">🔁 Open ${n} more</button>${sell.length?`<button class="g" id="qs">Sell ${sell.length} Common/Uncommon (${$$$(sell.reduce((a,c)=>a+val(c)*.95,0))})</button>`:''}</div>`);
+ $$('qd').onclick=()=>{closeM();draw()};$$('qa').onclick=()=>{closeM();quickOpen(k,n)};
+ const qs=$$('qs');if(qs)qs.onclick=()=>{const ids=sell.map(c=>c.uid);closeM();BNC(sell,sell.reduce((a,c)=>a+val(c),0),sell.reduce((a,c)=>a+Math.round(val(c)*.95*100)/100,0),bnWarn(sell))}}
+
+/* --- Binder: Sell duplicates / Sell under $X --- */
+const _bnQ=binder;binder=function(m,k){_bnQ(m,k);
+ const bar=$$('bsel');if(!bar)return;const host=bar.parentElement;
+ host.insertAdjacentHTML('beforeend','<button class="g" id="bdup">♻ Sell duplicates</button><button class="g" id="bund">💲 Sell under $…</button>');
+ const ok=i=>eligible(i)&&!protectedBy(i)&&!i.show&&!i.fav;
+ $$('bdup').onclick=()=>{const by={};S.inv.forEach(i=>{(by[i.cid]=by[i.cid]||[]).push(i)});const list=[];
+  Object.values(by).forEach(g=>{if(g.length<2)return;g.sort((a,b)=>val(b)-val(a)||((a.sr||9e9)-(b.sr||9e9)));g.slice(1).forEach(i=>{if(ok(i))list.push(i)})});
+  if(!list.length)return toast('No duplicates to sell (protected, equipped or locked cards are kept)',3500);
+  BNC(list,list.reduce((a,i)=>a+val(i),0),list.reduce((a,i)=>a+Math.round(val(i)*.95*100)/100,0),bnWarn(list))};
+ $$('bund').onclick=()=>{modal(`<h2 style="margin:0">Sell cards worth less than…</h2><p class="mt">Keeps protected, equipped, locked and trophy cards.</p><div class="row"><input id="bux" type="number" min="1" value="100" style="background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:8px;width:130px"><button id="buk">Review</button><button class="g" id="buc">Cancel</button></div>`);
+  $$('buc').onclick=closeM;$$('buk').onclick=()=>{const x=+$$('bux').value;closeM();if(!(x>0))return;const list=S.inv.filter(i=>ok(i)&&val(i)<x).slice(0,1000);
+   if(!list.length)return toast('No cards under '+$$$(x)+' that can be sold',3000);
+   BNC(list,list.reduce((a,i)=>a+val(i),0),list.reduce((a,i)=>a+Math.round(val(i)*.95*100)/100,0),bnWarn(list))}}};
 }
 
 </script></body></html>
