@@ -1303,9 +1303,9 @@ preview=async function(k){const p=P[k];
 /* =====================================================================
    BINDER: sorting, filters, Sell Mode, 50 cards at a time
    ===================================================================== */
-const BN={sel:false,picked:new Set(),rar:'all',rarx:'',filter:'all',sort:'rarity',q:'',set:'',n:50,
+const BN={sel:false,picked:new Set(),rar:'all',rarx:'',filter:'all',sort:'rarity',q:'',set:'',n:80,
  prot:lsGet('cvProt',{on:false,min:6})};
-const BN_PAGE=50;
+const BN_PAGE=80;
 const isSpecial=i=>{const c=card(i);return !!(c.chase||c.ex||c.one||c.r>=7||i.pr==1||(i.pr>1&&(i.sr==1||i.sr==i.pr)))};
 const isAuto=i=>/autograph/i.test(RN[card(i).r]||'');
 const eligible=i=>!i.lock&&!i.listed&&!i.tr&&!i.trade_id&&!inSlot(i.uid);
@@ -1409,5 +1409,24 @@ pollPrices=async function(){if(!READY||pBusy)return;pBusy=1;
   (data||[]).forEach(r=>{const p=+r.price,h=S.hi[r.card_id]||(S.hi[r.card_id]=[p]);S.pr[r.card_id]=p;if(h[h.length-1]!==p){h.push(p);if(h.length>80)h.shift()}if(!PSINCE||r.upd>PSINCE)PSINCE=r.upd});
  }catch(e){}pBusy=0};
 const _rsU3=resync;resync=async function(){S.pity=S.pity||{};await _rsU3();try{const{data}=await sb.from('prices').select('upd').order('upd',{ascending:false}).limit(1);if(data&&data[0]&&data[0].upd)PSINCE=data[0].upd}catch(e){}};
+
+/* ===== PHONE LAYOUT FIX: all five income slots always fit ===== */
+{const st=document.createElement('style');st.textContent=`
+.hud{grid-template-columns:minmax(0,1fr) auto;max-width:100vw}
+.chase,.chr,.chs{min-width:0}
+.sl{grid-template-columns:repeat(5,minmax(0,1fr));gap:4px;padding:6px 4px 10px;min-width:0}
+.sc{min-width:0;overflow:hidden}
+.rt{font-size:clamp(8px,2.9vw,13px);white-space:nowrap;overflow:hidden;line-height:1.3}
+.sb2{gap:3px}.sb2 button{padding:2px 0;font-size:12px;flex:1 1 0;min-width:0;max-width:34px}
+.lk{font-size:clamp(7px,2.2vw,10px);line-height:1.15;word-break:break-word}
+.side{overflow-x:hidden}.pf b.up{font-size:10.5px;word-break:break-all;line-height:1.2}
+.mn{font-size:12px}
+`;document.head.appendChild(st)}
+const cmoney=n=>n>=1e9?'$'+(n/1e9).toFixed(1)+'B':n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e3?'$'+(n/1e3).toFixed(n>=1e5?0:1)+'k':'$'+n.toFixed(2);
+frame=function(s,k){const it=s&&S.inv.find(i=>i.uid==s.uid);
+ if(!it){S.slots[k]=null;return`<div class="sc"><div class="rt">&nbsp;</div><div class="cw" data-p="${k}"><div class="card" style="--f:#fff7;--b:#0005;--tx:#fff;border-style:dashed"><b style="margin:auto;font-size:30cqw">+</b></div></div></div>`}
+ const nr=rateOf(it),left=s.t+LOCK-Date.now(),lk=left>0;
+ return`<div class="sc"><div class="rt">${cmoney(s.rate)}/min</div>${cardH(it,`data-u="${it.uid}"`,1)}<div class="sb2"><button data-r="${k}" title="Refresh rate">↻</button><button class="g" data-x="${k}" ${lk?'disabled':''} title="Remove">✕</button></div><div class="lk ${nr>=s.rate?'up':'dn'}">${lk?'🔒 '+Math.ceil(left/6e4)+'m':'🔓'}<br>${cmoney(nr)} now</div></div>`};
+{const _homeH2=home;home=function(m){_homeH2(m);const u=m.querySelector('.side .pf b.up');if(u)u.textContent='+'+cmoney(incMin())+'/min'}}
 
 </script></body></html>
