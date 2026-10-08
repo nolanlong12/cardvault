@@ -261,7 +261,7 @@ const CH=[['open','Open 3 packs',3,500],['sell','Sell 2 cards',2,250],['trade','
 function draw(){document.body.classList.toggle('home',tab=='home');$$('mo').textContent=m2(S.money);$$('ih').textContent=fm(incMin())+'/min';$$('lv').textContent='Level '+lvl()+' · '+$$$(S.inv.reduce((a,i)=>a+val(i),0))+' collection';
 $$('nav').innerHTML=[['home','⌂ Home'],['shop','Store'],['open','Packs'],['binder','Binder'],['market','Market'],['trades','Trades'],['income','Income'],['auction','🏛 Auction'],['more','More']].map(([k,l])=>`<button class="${tab==k?'on':''}" data-t="${k}">${l}</button>`).join('');
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
-const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),ach:m=>achPg(m),watch:m=>watchPg(m),fuse:m=>fusePg(m),week:m=>weekPg(m),season:m=>seasonPg(m),quests,sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
+const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),ach:m=>achPg(m),dash:m=>dashPg(m),watch:m=>watchPg(m),fuse:m=>fusePg(m),week:m=>weekPg(m),season:m=>seasonPg(m),quests,sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
 const K=n=>n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e4?'$'+Math.round(n/1e3)+'k':$$$(n);let SCN=['park','aquarium','mall'][Math.random()*3|0];
 const HS={park:`<defs><linearGradient id="hp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ecbff"/><stop offset="1" stop-color="#e8f8ff"/></linearGradient></defs><rect width="100" height="160" fill="url(#hp)"/><circle cx="78" cy="30" r="10" fill="#ffe27a"/><ellipse cx="30" cy="40" rx="14" ry="5" fill="#fff"/><ellipse cx="62" cy="52" rx="12" ry="4" fill="#fff"/><path d="M0 100Q30 80 60 98T100 90V160H0Z" fill="#5fbf63"/><path d="M0 120Q40 105 100 118V160H0Z" fill="#43a64f"/><path d="M40 160Q48 130 60 110" stroke="#e9d49b" stroke-width="10" fill="none"/><g fill="#2f8f46"><rect x="19" y="92" width="4" height="22" fill="#7a5230"/><circle cx="21" cy="88" r="11"/><circle cx="14" cy="95" r="8"/><circle cx="28" cy="95" r="8"/><rect x="79" y="100" width="3" height="16" fill="#7a5230"/><circle cx="80.5" cy="97" r="8"/></g>`,
 aquarium:`<defs><linearGradient id="ha" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46c2e8"/><stop offset="1" stop-color="#0a2f6b"/></linearGradient></defs><rect width="100" height="160" fill="url(#ha)"/><path d="M20 0L45 160H5ZM60 0L90 160H55Z" fill="#fff" opacity=".07"/><g fill="none" stroke="#fff" opacity=".5"><circle cx="20" cy="110" r="2"/><circle cx="26" cy="90" r="3"/><circle cx="70" cy="100" r="2"/><circle cx="76" cy="70" r="3"/></g><g fill="#ff9f43"><ellipse cx="30" cy="60" rx="7" ry="4"/><path d="M37 60l7-4v8z"/></g><g fill="#ffd166"><ellipse cx="70" cy="85" rx="6" ry="3.5"/><path d="M64 85l-6-4v8z"/></g><path d="M0 142Q30 132 60 142T100 140V160H0Z" fill="#e8d29a"/><path d="M12 145Q8 130 14 118M18 145Q22 132 17 122M86 145Q90 128 84 116" stroke="#2fb86a" stroke-width="3" fill="none"/>`,
@@ -1425,7 +1425,7 @@ const cmoney=n=>n>=1e9?'$'+(n/1e9).toFixed(1)+'B':n>=1e6?'$'+(n/1e6).toFixed(1)+
 frame=function(s,k){const it=s&&S.inv.find(i=>i.uid==s.uid);
  if(!it){S.slots[k]=null;return`<div class="sc"><div class="rt">&nbsp;</div><div class="cw" data-p="${k}"><div class="card" style="--f:#fff7;--b:#0005;--tx:#fff;border-style:dashed"><b style="margin:auto;font-size:30cqw">+</b></div></div></div>`}
  const nr=rateOf(it),left=s.t+LOCK-Date.now(),lk=left>0;
- return`<div class="sc"><div class="rt">${cmoney(Math.min(s.rate,nr))}/min</div>${cardH(it,`data-u="${it.uid}"`,1)}<div class="sb2"><button data-r="${k}" title="Refresh rate" style="${nr>s.rate+.004?'background:#16a34a;border-color:#16a34a;color:#fff':''}">↻</button><button class="g" data-x="${k}" ${lk?'disabled':''} title="Remove">✕</button></div><div class="lk ${nr>=s.rate?'up':'dn'}">${lk?'🔒 '+Math.ceil(left/6e4)+'m':'🔓'}<br>${nr>s.rate+.004?'↑ tap ↻ → '+cmoney(nr):cmoney(nr)+' now'}</div></div>`};
+ return`<div class="sc"><div class="rt">${cmoney(Math.min(s.rate,nr))}/min</div>${cardH(it,`data-u="${it.uid}"`,1)}<div class="sb2"><button data-r="${k}" title="Refresh rate" style="${nr>s.rate+.004?'background:#16a34a;border-color:#16a34a;color:#fff':''}">↻</button><button class="g" data-x="${k}" ${lk?'disabled':''} title="Remove">✕</button></div><div class="lk ${nr>=s.rate?'up':'dn'}">${lk?'🔒 '+Math.ceil(left/6e4)+'m':'🔓'}<br>${cmoney(nr)} now</div></div>`};
 {const _homeH2=home;home=function(m){_homeH2(m);const u=m.querySelector('.side .pf b.up');if(u)u.textContent='+'+cmoney(incMin())+'/min'}}
 
 
@@ -1528,13 +1528,12 @@ againBtn=function(k){const p=P[k];if(!p||p.myst||p.ltd&&typeof avail=='function'
  if(!have&&S.money<p.price)return'';return`<button class="g" id="ag">🔁 Open another ${p.n} (${LASTMODE})${have?'':' · '+$$$(p.price)}</button>`};
 againGo=function(k){const ov=$$('ov');ov.style.display='none';RISKNEXT=LASTMODE;if(S.sealed[k]>0)openP(k,LASTMODE);else buy(k,1)};
 
-/* --- Home: one-tap Refresh all + Fill empty slots --- */
-const _homeQ=home;home=function(m){_homeQ(m);
- const sl=m.querySelector('.sl');if(!sl)return;
- let gain=0,empty=0;S.slots.forEach(s=>{if(!s){empty++;return}const it=S.inv.find(i=>i.uid==s.uid);if(it){const nr=rateOf(it);if(nr>s.rate+.004)gain+=nr-s.rate}else empty++});
- sl.insertAdjacentHTML('beforebegin',`<div class="row" style="gap:8px;margin:8px 0;justify-content:center"><button id="rfa" ${gain?'style="background:#16a34a;border-color:#16a34a;color:#fff"':'class="g"'}>↻ Refresh all${gain?' (+'+cm(gain)+'/min)':''}</button>${empty?`<button class="g" id="fls">⚡ Fill ${empty} empty slot${empty>1?'s':''} with my best</button>`:''}</div>`);
- const r=$$('rfa');if(r)r.onclick=async()=>{let d;try{d=await rpc('refresh_all_slots')}catch(_){return}toast('Locked in '+cm(d.rate)+'/min on '+d.n+' slot'+(d.n==1?'':'s'),3000);resync()};
- const f=$$('fls');if(f)f.onclick=async()=>{let n;try{n=await rpc('fill_slots')}catch(_){return}toast(n?'Filled '+n+' slot'+(n>1?'s':'')+' with your best cards':'No free cards to use',3000);resync()}};
+/* --- one-tap Refresh all + Fill empty slots (Income page and Dashboard; Home looks exactly as before) --- */
+window.quickBar=function(){let gain=0,empty=0;S.slots.forEach(s=>{if(!s){empty++;return}const it=S.inv.find(i=>i.uid==s.uid);if(it){const nr=rateOf(it);if(nr>s.rate+.004)gain+=nr-s.rate}else empty++});
+ return`<div class="pn"><b>⚡ Quick actions</b><div class="row" style="gap:8px;margin-top:6px"><button id="rfa" ${gain?'style="background:#16a34a;border-color:#16a34a;color:#fff"':'class="g"'}>↻ Refresh all slots${gain?' (+'+cm(gain)+'/min)':''}</button>${empty?`<button class="g" id="fls">⚡ Fill ${empty} empty slot${empty>1?'s':''} with my best</button>`:''}</div><div class="mt" style="font-size:12px;margin-top:4px">Press Refresh all when your cards are up in value to lock in the higher income.</div></div>`};
+window.wireQuick=function(root){const r=root.querySelector('#rfa');if(r)r.onclick=async()=>{let d;try{d=await rpc('refresh_all_slots')}catch(_){return}toast('Locked in '+cm(d.rate)+'/min on '+d.n+' slot'+(d.n==1?'':'s'),3000);await resync();draw()};
+ const f=root.querySelector('#fls');if(f)f.onclick=async()=>{let n;try{n=await rpc('fill_slots')}catch(_){return}toast(n?'Filled '+n+' slot'+(n>1?'s':'')+' with your best cards':'No free cards to use',3000);await resync();draw()}};
+const _incQ=income;income=function(m){_incQ(m);const h=m.querySelector('h2');const box=document.createElement('div');box.innerHTML=quickBar();(h?h.insertAdjacentElement('afterend',box):m.prepend(box));wireQuick(box)};
 
 /* --- Store: buy & open x5 / x10 in one go --- */
 const _shopQ=shop;shop=function(m){_shopQ(m);
@@ -1608,9 +1607,10 @@ function alertsBox(){const t=W.filter(w=>(w.hi&&S.pr[w.id]>=w.hi)||(w.lo&&S.pr[w
 function seasonBox(){if(!SEAS||!SEAS.active)return'';return`<div class="pn" id="sbn" style="cursor:pointer;background:linear-gradient(135deg,#1e1b4b,#7c3aed);color:#fff"><b>🌃 Season ${SEAS.id}: ${esc(SEAS.name)}</b> <span style="font-size:12px;opacity:.85">ends in ${left(SEAS.ends-Date.now())}</span><div style="font-size:13px;margin:4px 0">Limited pack and cards that never come back. You have ${SEAS.own} of ${SEAS.total} cards.</div>${bar(SEAS.own,SEAS.total,'#fde047')}</div>`}
 function panels(){return seasonBox()+alertsBox()+moversBox()+setTracker()}
 function wirePanels(root){root.querySelectorAll('[data-cp]').forEach(e=>e.onclick=()=>cardPage(+e.dataset.cp));const s=root.querySelector('#sbn');if(s)s.onclick=()=>{tab='season';draw()}}
-const _homeS=home;home=function(m){_homeS(m);const sl=m.querySelector('.sl');if(!sl)return;
- sl.insertAdjacentHTML('afterend','<div id="cvpan"></div>');const box=m.querySelector('#cvpan'),paint=()=>{if(!box.isConnected)return;box.innerHTML=panels();wirePanels(box)};paint();
- Promise.all([loadW(),loadMov(),loadSeas()]).then(paint)};
+function dashPg(m){m.innerHTML='<h2 style="margin-top:0">📊 Dashboard</h2><div id="cvpan"></div>';const box=$$('cvpan');
+ const paint=()=>{if(!box.isConnected)return;box.innerHTML=quickBar()+seasonBox()+alertsBox()+moversBox()+setTracker();wirePanels(box);wireQuick(box)};paint();
+ Promise.all([loadW(),loadMov(),loadSeas()]).then(paint)}
+window.dashPg=dashPg;
 
 /* --- Sets page header with the bonus ladder --- */
 const _colS=collections;collections=function(m){_colS(m);const h=m.querySelector('h2');if(h)h.insertAdjacentHTML('afterend',setTracker())};
@@ -1687,7 +1687,7 @@ const _shopW=shop;shop=function(m){_shopW(m);loadSeas().then(()=>{if(SEAS&&SEAS.
 
 /* --- More menu: new tiles --- */
 const _moreS=more;more=function(m){_moreS(m);const g=m.querySelector('.tg');if(!g)return;
- [['watch','⭐','Watchlist'],['fuse','🧬','Fusion Lab'],['week','📅','Weekly Boards'],['season','🌃','Season']].forEach(([k,e,l])=>g.insertAdjacentHTML('beforeend',`<div class="tile" data-g="${k}"><div style="font-size:40px">${e}</div><b>${l}</b></div>`));
+ [['dash','📊','Dashboard'],['watch','⭐','Watchlist'],['fuse','🧬','Fusion Lab'],['week','📅','Weekly Boards'],['season','🌃','Season']].forEach(([k,e,l])=>g.insertAdjacentHTML('beforeend',`<div class="tile" data-g="${k}"><div style="font-size:40px">${e}</div><b>${l}</b></div>`));
  const f=g.querySelector('[data-g="feed"] b');if(f&&window.FEEDNEW)f.textContent='Global Feed ('+window.FEEDNEW+' new)';
  g.querySelectorAll('[data-g]').forEach(t=>t.onclick=()=>{tab=t.dataset.g;draw()})};
 const _feedS=feedPg;feedPg=function(m){window.FEEDNEW=0;_feedS(m)};
