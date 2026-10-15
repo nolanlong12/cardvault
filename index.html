@@ -1717,7 +1717,7 @@ const AREAS=[
  {k:'social',i:'👥',l:'Social',tabs:[['friends','Friends'],['ranks','Leaders'],['week','Weekly'],['feed','Feed'],['more','More'],['account','Account']]}];
 const areaOf=t=>AREAS.find(a=>a.tabs.some(x=>x[0]==t))||(t=='admin'?AREAS[4]:AREAS[2]);
 const LAST={};
-window.navHTML=()=>{const a=areaOf(tab);if(tab=='home')return'';return a.tabs.map(([k,l])=>`<button class="${tab==k?'on':''}" data-t="${k}">${l}</button>`).join('')};
+window.navHTML=()=>{const a=areaOf(tab);return a.tabs.map(([k,l])=>`<button class="${tab==k?'on':''}" data-t="${k}">${l}</button>`).join('')};
 const css=document.createElement('style');css.textContent=`
 #bbar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;align-items:flex-end;justify-content:center;padding:8px 4px calc(6px + env(safe-area-inset-bottom,0px));background:linear-gradient(#2d2850,#15122a);border-top:3px solid #6d5fd0;box-shadow:0 -8px 20px #000b,inset 0 2px 0 #fff2}
 #bbar button{flex:1;max-width:100px;min-width:0;background:transparent;border:0;border-radius:0;color:#b9b3dc;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:800;padding:2px 0 0;position:relative;transition:transform .18s;letter-spacing:.2px}
@@ -1730,7 +1730,24 @@ const css=document.createElement('style');css.textContent=`
 #bbar .bd{position:absolute;top:-2px;right:calc(50% - 30px);min-width:18px;height:18px;border-radius:9px;background:#ef4444;color:#fff;font-size:11px;line-height:18px;padding:0 4px;border:2px solid #15122a}
 main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
 body.home main{padding-bottom:0}
-.hud{height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 78px)!important}
+.hud{height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 78px - var(--hh,118px))!important;grid-template-columns:minmax(0,1fr)!important}
+body.home header{display:block}body.home header nav{display:flex}
+header{padding:8px 10px 8px}
+header .top{display:block!important}
+#pc{display:flex;align-items:center;gap:9px}
+#pc .av{flex:none;width:46px;height:46px;border-radius:50%;background:conic-gradient(#ffd25a var(--p,0%),#ffffff26 0);display:flex;align-items:center;justify-content:center;position:relative;box-shadow:0 3px 0 #0008,0 0 14px #ffd25a55}
+#pc .av i{font-style:normal;width:36px;height:36px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#7e6df0,#2b2060);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;color:#fff;text-shadow:0 2px 0 #0008;box-shadow:inset 0 2px 0 #fff4}
+#pc .av b{position:absolute;bottom:-5px;right:-5px;background:linear-gradient(#ffe27a,#f0a81c);color:#3a2400;border-radius:9px;font-size:11px;padding:0 5px;border:2px solid #15122a;line-height:15px}
+#pc .pi{min-width:0;flex:1}#pc .pn1{font-weight:800;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:0 2px 0 #0008}
+#pc .pc2{font-size:11.5px;color:#b9b3dc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+#pc .mw{flex:none;text-align:right}
+#pc .mp{display:inline-flex;align-items:center;gap:6px;background:linear-gradient(#0b0a18,#1b1636);border:2px solid #f0b92d;border-radius:20px;padding:2px 12px 2px 5px;box-shadow:inset 0 2px 5px #000b,0 3px 0 #8a5300,0 0 16px #ffc83d44}
+#pc .mp .co{width:24px;height:24px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3a0,#f0a81c 60%,#b36a00);display:flex;align-items:center;justify-content:center;font-size:13px;color:#7a4700;font-weight:800;box-shadow:0 1px 0 #0008,inset 0 1px 0 #fff9}
+#pc #mo{font-size:19px;font-weight:800;color:#ffd25a;text-shadow:0 0 10px #ffb80066,0 2px 0 #0009;letter-spacing:.2px}
+#pc #ih{display:block;margin-top:3px;font-size:12px;font-weight:700;color:#4ade80!important;text-shadow:0 1px 0 #0008}#pc #ih::before{content:'▲ '}
+#pc #lv{display:none}
+#pc .bt2{flex:none;display:flex;flex-direction:column;gap:4px}#pc .bt2 button{padding:2px 8px!important;font-size:14px;line-height:20px;border-radius:10px}
+header nav{margin-top:7px}
 #toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))!important}
 nav{scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}nav::-webkit-scrollbar{display:none}
 @media(prefers-reduced-motion:reduce){#bbar button,#bbar button .ic{transition:none}}`;document.head.appendChild(css);
@@ -1739,7 +1756,17 @@ const badge=a=>{let n=0;try{if(a.k=='market')n=(TR&&TR.n)||0;if(a.k=='social')n=
 window.paintBar=()=>{const cur=areaOf(tab);LAST[cur.k]=tab;
  bar.innerHTML=AREAS.map(a=>`<button data-a="${a.k}" class="${a.k==cur.k?'on':''} ${a.k=='home'?'mid':''}"><span class="ic">${a.i}</span>${a.l}${badge(a)}</button>`).join('');
  bar.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{const a=AREAS.find(x=>x.k==b.dataset.a);tab=a.k=='home'?'home':(LAST[a.k]&&a.tabs.some(t=>t[0]==LAST[a.k])?LAST[a.k]:a.tabs[0][0]);draw();window.scrollTo(0,0)});
- const top=document.querySelector('header .top');if(top&&!$$('gear')){const g=document.createElement('button');g.id='gear';g.className='g';g.style.padding='4px 10px';g.textContent='⚙️';g.onclick=()=>{tab='account';draw()};top.appendChild(g)}};
+ buildPC();paintPC()};
+function buildPC(){const top=document.querySelector('header .top');if(!top||$$('pc'))return;
+ const mo=$$('mo'),ih=$$('ih'),lv=$$('lv'),mu=$$('mu');top.innerHTML='';
+ const pc=document.createElement('div');pc.id='pc';pc.innerHTML='<div class="av" id="pav"><i id="pai">?</i><b id="plv">1</b></div><div class="pi" id="pin"><div class="pn1" id="pnm"></div><div class="pc2" id="pcc"></div></div><div class="mw"><div class="mp"><span class="co">$</span></div></div><div class="bt2"><span id="pmu"></span><button class="g" id="gear">⚙️</button></div>';
+ top.appendChild(pc);pc.querySelector('.mp').appendChild(mo);pc.querySelector('.mw').appendChild(ih);pc.appendChild(lv);$$('pmu').appendChild(mu);mu.style.padding='';
+ $$('gear').onclick=()=>{tab='account';draw()};$$('pav').onclick=$$('pin').onclick=()=>{tab='account';draw()};
+ try{new ResizeObserver(()=>document.documentElement.style.setProperty('--hh',document.querySelector('header').offsetHeight+'px')).observe(document.querySelector('header'))}catch(e){}}
+function paintPC(){if(!$$('pc'))return;const L=lvl(),a=40*(L-1)*(L-1),b=40*L*L,pr=Math.max(0,Math.min(100,((S.xp||0)-a)/(b-a)*100));
+ $$('pnm').textContent=S.name||'Player';$$('pai').textContent=(S.name||'?').trim().charAt(0).toUpperCase()||'?';$$('plv').textContent=L;$$('pav').style.setProperty('--p',pr+'%');
+ const cv=($$('lv').textContent.split(' · ')[1]||'').replace(' collection','');$$('pcc').textContent='💎 '+cv}
+{const _homeN=home;home=function(m){_homeN(m);const sd=m.querySelector('.side');if(sd)sd.remove()}}
 const _drawN=draw;draw=function(){_drawN.apply(this,arguments);paintBar()};
 /* swipe left / right between the 5 areas */
 let sx=0,sy=0,st=0,ok=false;
