@@ -261,7 +261,7 @@ const CH=[['open','Open 3 packs',3,500],['sell','Sell 2 cards',2,250],['trade','
 function draw(){document.body.classList.toggle('home',tab=='home');$$('mo').textContent=m2(S.money);$$('ih').textContent=fm(incMin())+'/min';$$('lv').textContent='Level '+lvl()+' · '+$$$(S.inv.reduce((a,i)=>a+val(i),0))+' collection';
 $$('nav').innerHTML=typeof navHTML=='function'?navHTML():'';
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
-const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),ach:m=>achPg(m),dash:m=>dashPg(m),watch:m=>watchPg(m),fuse:m=>fusePg(m),week:m=>weekPg(m),season:m=>seasonPg(m),quests,goals:m=>goalsPg(m),sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
+const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),ach:m=>achPg(m),dash:m=>dashPg(m),watch:m=>watchPg(m),fuse:m=>fusePg(m),week:m=>weekPg(m),season:m=>seasonPg(m),quests,goals:m=>goalsPg(m),arena:m=>arenaPg(m),wanted:m=>wantedPg(m),sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
 const K=n=>n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e4?'$'+Math.round(n/1e3)+'k':$$$(n);let SCN=['park','aquarium','mall'][Math.random()*3|0];
 const HS={park:`<defs><linearGradient id="hp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ecbff"/><stop offset="1" stop-color="#e8f8ff"/></linearGradient></defs><rect width="100" height="160" fill="url(#hp)"/><circle cx="78" cy="30" r="10" fill="#ffe27a"/><ellipse cx="30" cy="40" rx="14" ry="5" fill="#fff"/><ellipse cx="62" cy="52" rx="12" ry="4" fill="#fff"/><path d="M0 100Q30 80 60 98T100 90V160H0Z" fill="#5fbf63"/><path d="M0 120Q40 105 100 118V160H0Z" fill="#43a64f"/><path d="M40 160Q48 130 60 110" stroke="#e9d49b" stroke-width="10" fill="none"/><g fill="#2f8f46"><rect x="19" y="92" width="4" height="22" fill="#7a5230"/><circle cx="21" cy="88" r="11"/><circle cx="14" cy="95" r="8"/><circle cx="28" cy="95" r="8"/><rect x="79" y="100" width="3" height="16" fill="#7a5230"/><circle cx="80.5" cy="97" r="8"/></g>`,
 aquarium:`<defs><linearGradient id="ha" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46c2e8"/><stop offset="1" stop-color="#0a2f6b"/></linearGradient></defs><rect width="100" height="160" fill="url(#ha)"/><path d="M20 0L45 160H5ZM60 0L90 160H55Z" fill="#fff" opacity=".07"/><g fill="none" stroke="#fff" opacity=".5"><circle cx="20" cy="110" r="2"/><circle cx="26" cy="90" r="3"/><circle cx="70" cy="100" r="2"/><circle cx="76" cy="70" r="3"/></g><g fill="#ff9f43"><ellipse cx="30" cy="60" rx="7" ry="4"/><path d="M37 60l7-4v8z"/></g><g fill="#ffd166"><ellipse cx="70" cy="85" rx="6" ry="3.5"/><path d="M64 85l-6-4v8z"/></g><path d="M0 142Q30 132 60 142T100 140V160H0Z" fill="#e8d29a"/><path d="M12 145Q8 130 14 118M18 145Q22 132 17 122M86 145Q90 128 84 116" stroke="#2fb86a" stroke-width="3" fill="none"/>`,
@@ -1711,9 +1711,9 @@ let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hid
 {
 const AREAS=[
  {k:'shop',i:'🏬',l:'Shop',tabs:[['shop','Buy Packs'],['open','My Packs'],['season','Season']]},
- {k:'cards',i:'📚',l:'Cards',tabs:[['binder','My Cards'],['sets','Collections'],['fuse','Fusion'],['watch','Watching'],['archive','Archive']]},
+ {k:'cards',i:'📚',l:'Cards',tabs:[['binder','My Cards'],['sets','Collections'],['arena','Arena'],['fuse','Fusion'],['watch','Watching'],['archive','Archive']]},
  {k:'home',i:'🏠',l:'Home',tabs:[['home','Home'],['goals','Goals'],['income','Income'],['ach','Badges'],['quests','Quests'],['map','Map']]},
- {k:'market',i:'📈',l:'Market',tabs:[['market','Prices'],['auction','Auction'],['myauc','My Sales'],['trades','Trades'],['dash','Stats']]},
+ {k:'market',i:'📈',l:'Market',tabs:[['market','Prices'],['auction','Auction'],['myauc','My Sales'],['wanted','Wanted'],['trades','Trades'],['dash','Stats']]},
  {k:'social',i:'👥',l:'Social',tabs:[['friends','Friends'],['ranks','Leaders'],['week','Weekly'],['feed','Feed'],['more','More']]}];
 const areaOf=t=>AREAS.find(a=>a.tabs.some(x=>x[0]==t))||(t=='admin'||t=='account'?AREAS[4]:AREAS[2]);
 const LAST={};
@@ -1952,13 +1952,15 @@ async function loadOv(f){if(!READY||(!f&&Date.now()-OVT<25000))return OV;OVT=Dat
 const row=(x)=>{const c=CARDS[x.id];if(!c)return'';return`<div class="row" data-mk="${x.id}" style="justify-content:space-between;cursor:pointer;padding:4px 0;border-bottom:1px solid #ffffff10"><span>${c.ic} <b>${esc(c.n)}</b></span><span style="white-space:nowrap">${kc(x.price)} <span style="color:${cl(x.c24)};font-weight:700">${pc(x.c24)}</span></span></div>`};
 window.pulse=async function(){
  modal(`<h2 style="margin:0">📊 Market Pulse</h2><p class="mt">Loading…</p><button class="g" id="mc">Close</button>`);$$('mc').onclick=closeM;
- const o=await loadOv(true);if(!$$('mc')||$$('md').style.display!='flex')return;
+ const[o,tt]=await Promise.all([loadOv(true),rpc('top_traders',{},1).catch(()=>null)]);if(!$$('mc')||$$('md').style.display!='flex')return;
  if(!o){modal(`<h2 style="margin:0">📊 Market Pulse</h2><p class="mt">The live market overview turns on once the Market 2.0 update is installed.</p><button class="g" id="mc">Close</button>`);$$('mc').onclick=closeM;return}
  const sec=(t,L)=>L&&L.length?`<b>${t}</b><div style="font-size:13px;margin:4px 0 10px">${L.map(row).join('')}</div>`:'';
  modal(`<div style="max-height:86vh;overflow:auto;text-align:left;padding-right:4px"><h2 style="margin:0">📊 Market Pulse</h2>
   <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:10px 0">${stat('Market index (24h)',`<span style="color:${cl(o.idx)}">${pc(o.idx)}</span>`)}${stat('Trading volume (24h)',kc(o.vol24))}${stat('Sales (24h)',o.sales24)}${stat('Listed now',o.listed)}${stat('🔥 Hot cards',o.hot)}${stat('❄️ Cold cards',o.cold)}</div>
+  ${o.spot?`<div class="pn" style="border:1px solid #f0b92d66">⭐ <b>${o.spot.active?'Weekend Spotlight':'Spotlight this weekend'}:</b> ${esc(o.spot.set)} cards ${o.spot.active?'are getting extra collector attention until Monday.':'start getting extra attention on Friday.'}<div class="mt" style="font-size:12px">A small, capped bump that fades after the weekend. It is not a guaranteed profit.</div></div>`:''}
   ${sec('📈 Biggest gainers',o.up)}${sec('📉 Biggest losers',o.down)}${sec('⚡ Most active',o.active)}
   ${(o.news||[]).length?`<b>📰 Market news</b><div style="font-size:13px;margin:4px 0 10px">${o.news.map(n=>CARDS[n.id]?`<div data-mk="${n.id}" style="cursor:pointer;padding:3px 0"><b>${esc(CARDS[n.id].n)}</b>: ${esc(n.note)} <span class="mt">${agoT(n.t)}</span></div>`:'').join('')}</div>`:''}
+  ${tt&&tt.length?`<b>🏅 Top traders this week</b><div style="font-size:13px;margin:4px 0 10px">${tt.map((x,i)=>`<div class="row" style="justify-content:space-between;padding:3px 0;${x.me?'color:#ffd25a;font-weight:700':''}"><span>${i+1}. ${esc(x.name)}</span><span>${kc(x.vol)} · ${x.n} trade${x.n==1?'':'s'}</span></div>`).join('')}<div class="mt" style="font-size:12px">Only the first 2 trades between the same two players count.</div></div>`:''}
   <details><summary class="mt" style="cursor:pointer;font-size:12px">How prices work and the rules that protect them</summary>${rulesHtml()}</details>
   <button class="g" id="mc" style="margin-top:10px">Close</button></div>`);
  $$('mc').onclick=closeM;$$('md').querySelectorAll('[data-mk]').forEach(e=>e.onclick=()=>mkt(+e.dataset.mk))};
@@ -2060,6 +2062,199 @@ TUT.length=0;TUT.push(
 const _dE=draw;draw=function(){_dE.apply(this,arguments);paintTip();paintHints()};
 const _hE=hydrate;hydrate=function(...a){_hE(...a);setTimeout(()=>loadGoals(),800)};
 setInterval(()=>{if(READY&&!document.hidden){loadGoals();paintHints()}},60000);
+}
+
+/* ===== 3D CARDS: drag-to-spin viewer, holo glare that follows your finger, floating packs ===== */
+{
+const css=document.createElement('style');css.textContent=`
+.cw .card::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:6;border-radius:inherit;opacity:0;transition:opacity .25s;mix-blend-mode:soft-light;background:radial-gradient(circle at var(--gx,50%) var(--gy,30%),#fffd,#fff0 48%)}
+.cw .card.holo::before,.cw .card.rain::before{mix-blend-mode:color-dodge;background:radial-gradient(circle at var(--gx,50%) var(--gy,30%),#fff9,#fff0 40%),linear-gradient(115deg,#ff7aa855,#ffd87a55,#7affb155,#7ab8ff55,#c97aff55);background-size:100% 100%,260% 260%;background-position:0 0,var(--gx,50%) var(--gy,50%)}
+.cw .card.has3d::before{opacity:1}
+#v3w{position:relative;height:min(62vh,470px);display:flex;align-items:center;justify-content:center;perspective:1000px;touch-action:none;cursor:grab;user-select:none;background:radial-gradient(ellipse at 50% 55%,#6d5fd055,#0000 65%);border-radius:16px}
+#v3w:active{cursor:grabbing}
+#v3c{position:relative;width:min(62vw,250px);aspect-ratio:100/122;transform-style:preserve-3d;will-change:transform}
+#v3c .vf,#v3c .vb{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:6cqw}
+#v3c .vf .cw,#v3c .vf .card{height:100%;aspect-ratio:auto;width:100%;transform:none!important}
+#v3c .vb{transform:rotateY(180deg);display:flex;align-items:center;justify-content:center;background:radial-gradient(circle at 50% 40%,#5b49c8,#1b1440 70%);border:2.4cqw solid #f0b92d;box-shadow:inset 0 0 40px #000a;overflow:hidden}
+#v3c .vb svg,#v3c .vb div{max-width:70%}
+#v3c .vf{box-shadow:0 0 0 1px #fff3}
+#v3c .gl{position:absolute;inset:0;border-radius:6cqw;pointer-events:none;z-index:9;mix-blend-mode:color-dodge;opacity:.0}
+#v3sh{position:absolute;bottom:6%;left:50%;width:55%;height:22px;transform:translateX(-50%);background:radial-gradient(ellipse,#000a,#0000 70%);filter:blur(4px);pointer-events:none}
+body.home #ov .prod,#ov .prod{animation:pkw 3.6s ease-in-out infinite;transform-style:preserve-3d}
+@keyframes pkw{0%,100%{transform:perspective(700px) rotateY(-13deg) rotateX(3deg) translateY(0)}50%{transform:perspective(700px) rotateY(13deg) rotateX(-3deg) translateY(-8px)}}
+.fl.on{position:relative}.fl.on::before{content:'';position:absolute;left:50%;top:50%;width:520px;height:520px;margin:-260px 0 0 -260px;pointer-events:none;z-index:-1;background:repeating-conic-gradient(#ffffff26 0 7deg,#0000 7deg 22deg);-webkit-mask-image:radial-gradient(circle,#000 18%,#0000 66%);mask-image:radial-gradient(circle,#000 18%,#0000 66%);animation:ray 14s linear infinite}
+@keyframes ray{to{transform:rotate(360deg)}}
+@media(prefers-reduced-motion:reduce){#ov .prod,.fl.on::before{animation:none}}`;document.head.appendChild(css);
+
+/* glare follows the pointer on any card */
+let gc=null;
+document.addEventListener('pointermove',e=>{const c=e.target.closest&&e.target.closest('.cw .card');
+ if(gc&&gc!==c){gc.classList.remove('has3d');gc=null}
+ if(c&&(e.pointerType=='mouse'||e.buttons)){const r=c.getBoundingClientRect();c.style.setProperty('--gx',((e.clientX-r.left)/r.width*100).toFixed(0)+'%');c.style.setProperty('--gy',((e.clientY-r.top)/r.height*100).toFixed(0)+'%');c.classList.add('has3d');gc=c}},{passive:true});
+document.addEventListener('pointerup',()=>{if(gc){gc.classList.remove('has3d');gc=null}},true);
+
+/* ---- the 3D viewer ---- */
+window.view3d=function(it){
+ const id=it.cid!=null?it.cid:it.id,c=CARDS[id];if(!c)return;
+ let f=it.f||0,ry=-25,rx=10,vy=0,vx=0,drag=false,lx=0,ly=0,idle=Date.now(),raf=0,last=0,tap=0,flipTo=null;
+ const mk=()=>cardH(Object.assign({uid:'v3d',ed:0,sr:null,m:1,pr:c.pr},it,{cid:id,f}),'',1);
+ modal(`<div style="text-align:center"><b>${esc(c.n)}</b><div class="mt" style="font-size:12px">Drag to spin · double tap to flip</div>
+  <div id="v3w"><div id="v3sh"></div><div id="v3c"><div class="vf">${mk()}</div><div class="vb"><div style="font-size:15px;font-weight:800;color:#f0b92d;letter-spacing:2px;text-align:center">${typeof LOGO!='undefined'?LOGO:'CARDVAULT'}</div></div></div></div>
+  <div class="row" style="justify-content:center;gap:6px;margin:8px 0">${[['Normal',0],['Holo',1],['Rainbow',2]].map(([l,k])=>`<button class="${k==f?'':'g'}" data-vf="${k}" style="padding:3px 12px;font-size:12px">${l}</button>`).join('')}</div>
+  <button id="mc" class="g">Close</button></div>`);
+ const w=$$('v3w'),cd=$$('v3c');
+ const paint=()=>{cd.style.transform=`rotateX(${rx}deg) rotateY(${ry}deg)`;
+  const a=((ry%360)+360)%360,front=a<90||a>270,card=cd.querySelector('.vf .card');
+  if(card){const gx=50+Math.sin(ry*Math.PI/180)*60,gy=50-rx*2.2;card.style.setProperty('--gx',gx.toFixed(0)+'%');card.style.setProperty('--gy',gy.toFixed(0)+'%');card.classList.add('has3d')}
+  $$('v3sh').style.transform=`translateX(-50%) scaleX(${(.55+.45*Math.abs(Math.cos(ry*Math.PI/180))).toFixed(2)})`};
+ const step=t=>{if(!$$('v3w')){cancelAnimationFrame(raf);return}
+  if(flipTo!=null){ry+=(flipTo-ry)*.16;if(Math.abs(flipTo-ry)<.5){ry=flipTo;flipTo=null}}
+  else if(!drag){ry+=vy;rx+=vx;vy*=.95;vx*=.9;if(Math.abs(vy)<.05)vy=0;
+   if(Date.now()-idle>2500&&Math.abs(vy)<.05){const tt=t/1000;ry+=(Math.sin(tt*.9)*.35);rx+=((8+Math.sin(tt*1.3)*5)-rx)*.04}
+   rx+=((Math.max(-35,Math.min(35,rx)))-rx)*.2}
+  paint();raf=requestAnimationFrame(step)};
+ w.addEventListener('pointerdown',e=>{drag=true;lx=e.clientX;ly=e.clientY;vy=0;vx=0;idle=Date.now();flipTo=null;w.setPointerCapture(e.pointerId);const n=Date.now();if(n-tap<320){const a=Math.round(ry/180)*180;flipTo=a+180;drag=false}tap=n});
+ w.addEventListener('pointermove',e=>{if(!drag)return;const dx=e.clientX-lx,dy=e.clientY-ly;lx=e.clientX;ly=e.clientY;ry+=dx*.6;rx=Math.max(-40,Math.min(40,rx-dy*.35));vy=dx*.6;idle=Date.now()});
+ w.addEventListener('pointerup',()=>{drag=false;idle=Date.now()});w.addEventListener('pointercancel',()=>{drag=false});
+ $$('md').querySelectorAll('[data-vf]').forEach(b=>b.onclick=()=>{f=+b.dataset.vf;view3dKeep(it,f,ry,rx)});
+ $$('mc').onclick=()=>{cancelAnimationFrame(raf);closeM()};
+ raf=requestAnimationFrame(step)};
+function view3dKeep(it,f,ry,rx){view3d(Object.assign({},it,{f}))}
+
+/* ---- add a 3D button to card screens ---- */
+const _d3=detail;detail=function(uid){_d3(uid);const i=S.inv.find(x=>x.uid==uid);if(!i)return;const md=$$('md');
+ const h2=md.querySelector('h2'),tg=h2&&h2.nextElementSibling;if(tg&&!md.querySelector('#v3b')){tg.insertAdjacentHTML('afterend','<div style="margin:8px 0"><button id="v3b" style="padding:6px 16px">🔄 View this card in 3D</button></div>');$$('v3b').onclick=()=>view3d(i)}};
+const _mk3=mkt;mkt=function(id){window.__mkid=id;return _mk3(id)};
+let obs;try{obs=new MutationObserver(()=>{clearTimeout(obs.t);obs.t=setTimeout(()=>{const md=$$('md');if(!md||md.style.display!='flex')return;
+ const row=md.querySelector('#mal');if(row&&!md.querySelector('#v3m')&&window.__mkid!=null){const b=document.createElement('button');b.id='v3m';b.className='g';b.textContent='🔄 3D';b.onclick=()=>view3d({cid:window.__mkid});row.insertAdjacentElement('afterend',b)}
+ const t=md.querySelector('#cvtools');if(t&&!t.querySelector('#v3k')&&typeof LASTCARD!='undefined'&&LASTCARD!=null){const b=document.createElement('button');b.id='v3k';b.className='g';b.style.cssText='padding:4px 10px;font-size:13px';b.textContent='🔄 3D';b.onclick=()=>view3d({cid:LASTCARD});t.appendChild(b)}},80)});obs.observe($$('md'),{childList:true,subtree:true})}catch(e){}
+}
+
+/* ===== ARENA: pick 3 cards, fight a computer team, win money and XP ===== */
+{
+let AS=null,AT=0,TEAM=[];
+try{TEAM=JSON.parse(localStorage.getItem('cv_team')||'[]')}catch(e){}
+const saveTeam=()=>{try{localStorage.setItem('cv_team',JSON.stringify(TEAM))}catch(e){}};
+const usable=i=>!i.listed&&!i.tr&&!i.lock&&true;
+const valOf=i=>{try{return val(i)}catch(e){return 0}};
+async function loadAS(f){if(!READY)return null;if(!f&&AS&&Date.now()-AT<20000)return AS;AT=Date.now();try{AS=await rpc('battle_state_get',{},1)}catch(e){}return AS}
+const css=document.createElement('style');css.textContent=`
+.ar-slot{flex:1;min-width:0;aspect-ratio:100/122;border:2px dashed #ffffff44;border-radius:12px;display:flex;align-items:center;justify-content:center;cursor:pointer;position:relative;overflow:hidden;background:#0003}
+.ar-slot .cw{width:100%}.ar-slot b.pl{font-size:34px;opacity:.6}
+.en{display:inline-block;width:16px;height:16px;border-radius:50%;margin-right:3px;background:#0006;border:2px solid #fff3}.en.on{background:radial-gradient(circle at 35% 30%,#fff3a0,#f0a81c);border-color:#fff8}
+.bu{flex:1;min-width:0;background:#0004;border-radius:12px;padding:6px;text-align:center;position:relative;transition:transform .15s}
+.bu .ic{font-size:30px}.bu .nm{font-size:11px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.bu .hb{height:7px;border-radius:4px;background:#0007;margin-top:4px;overflow:hidden}.bu .hb i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#4ade80,#22c55e);transition:width .35s}
+.bu.dead{opacity:.28;filter:grayscale(1)}.bu.hit{animation:bhit .3s}.bu.atk{transform:translateY(-10px) scale(1.08)}.bu.atk.o{transform:translateY(10px) scale(1.08)}
+.dmg{position:absolute;left:50%;top:10%;transform:translateX(-50%);font-weight:900;font-size:20px;color:#fff;text-shadow:0 2px 0 #000,0 0 8px #f00;animation:dmgf .8s forwards;pointer-events:none}.dmg.c{color:#ffd25a;font-size:26px}
+@keyframes dmgf{to{transform:translate(-50%,-34px);opacity:0}}@keyframes bhit{25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}`;document.head.appendChild(css);
+
+window.arenaPg=function(m){
+ m.innerHTML='<h2 style="margin-top:0">⚔️ Arena</h2><p class="mt">Loading…</p>';
+ loadAS(true).then(()=>paintArena(m))};
+function team(){return TEAM.map(u=>S.inv.find(i=>i.uid==u&&usable(i))).filter(Boolean)}
+function paintArena(m){
+ if(tab!='arena'||!m.isConnected)return;
+ if(!AS){m.innerHTML='<h2 style="margin-top:0">⚔️ Arena</h2><p class="pn mt">The Arena turns on once the Arena update is installed on the server.</p>';return}
+ const tm=team();TEAM=tm.map(i=>i.uid);
+ const slots=[0,1,2].map(k=>{const i=tm[k];return`<div class="ar-slot" data-ps="${k}">${i?cardH(i,'',1):'<b class="pl">+</b>'}</div>`}).join('');
+ m.innerHTML=`<h2 style="margin-top:0">⚔️ Arena</h2>
+ <div class="pn"><div class="row" style="justify-content:space-between;align-items:center"><span><b>Energy</b> ${[0,1,2,3,4].map(k=>`<span class="en ${k<AS.energy?'on':''}"></span>`).join('')}</span><span class="mt" style="font-size:12px">${AS.energy<5?'Next in '+Math.ceil(AS.next/60)+' min':'Full'}</span></div>
+  <div class="mt" style="font-size:12px;margin-top:4px">Each fight uses 1 energy. You get 1 back every 12 minutes.</div>
+  <div class="row mt" style="gap:14px;margin-top:6px;font-size:13px"><span>🏆 ${AS.wins} wins</span><span>💀 ${AS.losses} losses</span><span>🔥 Streak ${AS.streak}</span><span>Best ${AS.best}</span></div></div>
+ <h3 style="margin:12px 0 6px">Your team</h3><div class="row" style="gap:8px;align-items:stretch;flex-wrap:nowrap">${slots}</div>
+ <div class="row" style="gap:8px;margin-top:8px"><button class="g" id="arb">⚡ Pick my best 3</button><button class="g" id="arc">Clear</button></div>
+ <h3 style="margin:14px 0 6px">Choose an opponent</h3>
+ ${[[1,'Easy','Weaker team','$50+'],[2,'Normal','An even match','$120+'],[3,'Hard','Stronger team','$300+']].map(([d,n,t,r])=>`<div class="pn row" style="justify-content:space-between;align-items:center"><span><b>${n}</b><div class="mt" style="font-size:12px">${t} · win ${r}</div></span><button data-ar="${d}" ${tm.length==3&&AS.energy>=1?'':'class="g" disabled'}>Fight</button></div>`).join('')}
+ <p class="mt" style="font-size:12px">Rewards are small and never depend on market prices. Win streaks add up to +50%. Your cards are never lost or damaged.</p>`;
+ m.querySelectorAll('[data-ps]').forEach(e=>e.onclick=()=>pick(+e.dataset.ps,m));
+ $$('arb').onclick=()=>{const c=S.inv.filter(usable).sort((a,b)=>valOf(b)-valOf(a)).slice(0,3);TEAM=c.map(i=>i.uid);saveTeam();paintArena(m)};
+ $$('arc').onclick=()=>{TEAM=[];saveTeam();paintArena(m)};
+ m.querySelectorAll('[data-ar]').forEach(b=>b.onclick=()=>{if(b.disabled)return;fight(+b.dataset.ar,m)})}
+function pick(k,m){
+ const used=new Set(TEAM.filter((_,j)=>j!=k)),L=S.inv.filter(i=>usable(i)&&!used.has(i.uid)).sort((a,b)=>valOf(b)-valOf(a)).slice(0,60);
+ modal(`<h2 style="margin:0">Pick card ${k+1}</h2><p class="mt" style="font-size:12px">Your strongest cards are first. Cards in income slots can still fight.</p>
+ <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:8px;max-height:60vh;overflow:auto">${L.map(i=>`<div data-pu="${i.uid}" style="cursor:pointer">${cardH(i,'',1)}</div>`).join('')||'<p class="mt">No free cards.</p>'}</div><button class="g" id="mc" style="margin-top:8px">Cancel</button>`);
+ $$('mc').onclick=closeM;$$('md').querySelectorAll('[data-pu]').forEach(e=>e.onclick=()=>{TEAM[k]=e.dataset.pu;TEAM=TEAM.filter(Boolean);saveTeam();closeM();paintArena(m)})}
+async function fight(d,m){
+ let r;try{r=await rpc('battle_fight',{p_uids:TEAM,p_diff:d})}catch(e){return}
+ if(!r)return;replay(r,m)}
+function replay(r,m){
+ const hp=[r.my.map(u=>u.hp),r.opp.map(u=>u.hp)],mx=[r.my.map(u=>u.hp),r.opp.map(u=>u.hp)];let skip=false;
+ const unit=(u,s,i)=>`<div class="bu" id="u${s}${i}"><div class="ic">${u.ic||'❓'}</div><div class="nm">${esc(u.n)}</div><div class="mt" style="font-size:10px">⚔${u.atk} 🛡${u.def}</div><div class="hb"><i></i></div></div>`;
+ modal(`<div style="text-align:center"><h2 style="margin:0">⚔️ Battle</h2><div class="mt" style="font-size:12px">Computer team</div>
+ <div class="row" style="gap:8px;flex-wrap:nowrap;margin:8px 0">${r.opp.map((u,i)=>unit(u,'o',i)).join('')}</div><div style="font-size:26px;margin:4px 0" id="bvs">VS</div>
+ <div class="row" style="gap:8px;flex-wrap:nowrap;margin:8px 0">${r.my.map((u,i)=>unit(u,'p',i)).join('')}</div><div class="mt" style="font-size:12px">Your team</div>
+ <div id="bres" style="min-height:70px;margin-top:8px"><button class="g" id="bsk" style="padding:3px 12px;font-size:12px">Skip</button></div></div>`);
+ $$('bsk').onclick=()=>{skip=true};
+ const el=(s,i)=>$$('u'+(s=='p'?'p':'o')+i);
+ const setHp=(s,i)=>{const e=el(s,i);if(!e)return;const side=s=='p'?0:1;e.querySelector('i').style.width=Math.max(0,hp[side][i]/mx[side][i]*100)+'%';e.classList.toggle('dead',hp[side][i]<=0)};
+ const sleep=ms=>new Promise(res=>setTimeout(res,skip?0:ms));
+ (async()=>{for(const ev of r.log){if(!$$('bres'))return;
+   const a=el(ev.s,ev.i-1),ts=ev.s=='p'?'o':'p',t=el(ts,ev.t-1);
+   if(a&&!skip){a.classList.add('atk',ev.s=='p'?'p':'o');}
+   await sleep(260);
+   hp[ev.s=='p'?1:0][ev.t-1]=ev.hp;
+   if(t){t.classList.add('hit');t.insertAdjacentHTML('beforeend',`<span class="dmg ${ev.c?'c':''}">-${ev.d}</span>`);setHp(ts,ev.t-1);setTimeout(()=>{t.classList.remove('hit');const d=t.querySelector('.dmg');if(d)d.remove()},700)}
+   if(a)a.classList.remove('atk');
+   await sleep(300)}
+  if(!$$('bres'))return;
+  $$('bvs').innerHTML=r.win?'🏆':'💀';
+  $$('bres').innerHTML=`<h2 style="margin:0;color:${r.win?'#4ade80':'#f87171'}">${r.win?'Victory!':'Defeat'}</h2><div>${r.win?'+$'+Math.round(r.reward).toLocaleString()+' · streak '+r.streak:'Your cards are safe. Try again or pick a stronger team.'}</div><button id="bdn" style="margin-top:8px">Done</button>`;
+  $$('bdn').onclick=async()=>{closeM();await resync();AS=null;draw()}})()}
+const _dA=draw;draw=function(){_dA.apply(this,arguments)};
+}
+
+/* ===== WANTED BOARD: post what you want and your price. Holders sell to you in one tap. ===== */
+{
+let WL=null,WQ='';
+const kc2=n=>n==null?'—':(+n<10?'$'+(+n).toFixed(2):'$'+Math.round(+n).toLocaleString());
+async function loadWL(){try{WL=await rpc('wants_list',{},1)}catch(e){}return WL}
+window.wantedPg=function(m){m.innerHTML='<h2 style="margin-top:0">📌 Wanted board</h2><p class="mt">Loading…</p>';loadWL().then(()=>paintWL(m))};
+function paintWL(m){
+ if(tab!='wanted'||!m.isConnected)return;
+ if(!WL){m.innerHTML='<h2 style="margin-top:0">📌 Wanted board</h2><p class="pn mt">The Wanted board turns on once the Wanted update is installed on the server.</p>';return}
+ const mine=WL.filter(w=>w.mine),rest=WL.filter(w=>!w.mine);
+ const row=w=>{const c=CARDS[w.card];if(!c)return'';const hot=w.ratio>=1.05;return`<div class="pn row" style="justify-content:space-between;align-items:center;gap:8px"><span style="min-width:0">${c.ic} <b>${esc(c.n)}</b><div class="mt" style="font-size:12px">${w.mine?'Your offer':'by '+esc(w.by)} · market ${kc2(w.price)}</div></span>
+  <span style="text-align:right;white-space:nowrap"><b style="font-size:16px">${kc2(w.offer)}</b><div style="font-size:11px;color:${hot?'#4ade80':'#94a3b8'}">${Math.round(w.ratio*100)}% of price</div></span>
+  ${w.mine?`<button class="g" data-wc="${w.id}" style="padding:4px 10px;font-size:12px">Cancel</button>`:`<button data-wf="${w.id}" ${w.have?'':'class="g" disabled'} style="padding:4px 10px;font-size:12px">${w.have?'Sell':'Don\'t own'}</button>`}</div>`};
+ m.innerHTML=`<h2 style="margin-top:0">📌 Wanted board</h2><p class="mt" style="font-size:13px">Post a card you want and the price you will pay. Your money is held safely until someone sells to you, you cancel, or 7 days pass.</p>
+  <button id="wpost">➕ Post a wanted card</button>
+  ${mine.length?`<h3 style="margin:14px 0 4px">Your offers</h3>${mine.map(row).join('')}`:''}
+  <h3 style="margin:14px 0 4px">Players are looking for</h3>${rest.length?rest.map(row).join(''):'<p class="mt">Nobody is looking for anything right now. Be the first!</p>'}
+  <p class="mt" style="font-size:12px;margin-top:10px">Offers can be 60% to 250% of the current price. Completed deals count as real sales, with the same anti-manipulation rules as everything else.</p>`;
+ $$('wpost').onclick=()=>postWant(m);
+ m.querySelectorAll('[data-wc]').forEach(b=>b.onclick=async()=>{try{const r=await rpc('want_cancel',{p_id:+b.dataset.wc});toast(r,3000)}catch(e){return}await resync();await loadWL();paintWL(m)});
+ m.querySelectorAll('[data-wf]').forEach(b=>b.onclick=()=>{if(b.disabled)return;fillWant(+b.dataset.wf,m)})}
+function fillWant(id,m){
+ const w=WL.find(x=>x.id==id),c=w&&CARDS[w.card];if(!c)return;
+ const L=S.inv.filter(i=>i.cid==w.card&&!i.listed&&!i.tr&&!i.lock);
+ modal(`<h2 style="margin:0">Sell ${esc(c.n)}</h2><p class="mt">${esc(w.by)} pays <b>${kc2(w.offer)}</b>. Pick the copy you want to sell. Copies with low serial numbers or foil may be worth more on the market.</p>
+  <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px;max-height:50vh;overflow:auto">${L.map(i=>`<div data-fu="${i.uid}" style="cursor:pointer">${cardH(i,'',0)}</div>`).join('')||'<p class="mt">No free copies.</p>'}</div><button class="g" id="mc" style="margin-top:8px">Cancel</button>`);
+ $$('mc').onclick=closeM;$$('md').querySelectorAll('[data-fu]').forEach(e=>e.onclick=async()=>{let r;try{r=await rpc('want_fill',{p_id:id,p_uid:e.dataset.fu})}catch(er){return}toast('💰 '+r,4000);closeM();await resync();await loadWL();paintWL(m)})}
+function postWant(m){
+ modal(`<h2 style="margin:0">Post a wanted card</h2><input id="wq" placeholder="Search for a card…" style="width:100%;margin:8px 0;background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:8px"><div id="wres" style="max-height:44vh;overflow:auto"></div><button class="g" id="mc" style="margin-top:8px">Cancel</button>`);
+ $$('mc').onclick=closeM;const draw2=()=>{const q=$$('wq').value.trim().toLowerCase();
+  const L=CARDS.filter(c=>c&&!c.off&&(!c.sec||S.disc[c.id])&&(!q||(c.n+' '+c.set).toLowerCase().includes(q))).sort((a,b)=>(S.pr[b.id]||0)-(S.pr[a.id]||0)).slice(0,40);
+  $$('wres').innerHTML=L.map(c=>`<div class="pn row" data-wp="${c.id}" style="justify-content:space-between;cursor:pointer"><span>${c.ic} <b>${esc(c.n)}</b><div class="mt" style="font-size:12px">${RN[c.r]} · ${esc(c.set)}</div></span><b>${kc2(S.pr[c.id])}</b></div>`).join('')||'<p class="mt">No cards found.</p>';
+  $$('wres').querySelectorAll('[data-wp]').forEach(e=>e.onclick=()=>priceWant(+e.dataset.wp,m))};
+ $$('wq').oninput=draw2;draw2()}
+function priceWant(id,m){const c=CARDS[id],p=+S.pr[id]||1;
+ modal(`<h2 style="margin:0">${c.ic} ${esc(c.n)}</h2><p class="mt">Market price <b>${kc2(p)}</b>. You can offer between <b>${kc2(p*.6)}</b> and <b>${kc2(p*2.5)}</b>. A higher offer gets filled faster.</p>
+  <div class="row"><input id="wo" type="number" min="1" value="${Math.ceil(p)}" style="width:150px;background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:8px"></div>
+  <div class="row" style="margin-top:10px"><button id="wy">Post offer</button><button class="g" id="mc">Cancel</button></div>`);
+ $$('mc').onclick=closeM;$$('wy').onclick=async()=>{const v=+$$('wo').value;if(!(v>0))return;$$('wy').disabled=true;let r;try{r=await rpc('want_post',{p_card:id,p_offer:v})}catch(e){$$('wy').disabled=false;return}toast(r,3500);closeM();await resync();await loadWL();paintWL(m)}}
+
+/* ---- fair-trade check on the trade screen ---- */
+const verdict=(gv,av)=>{if(!(gv>0&&av>0))return'';const r=av/gv,d=Math.abs(r-1);
+ const t=d<=.10?['✅ Fair trade','#4ade80']:d<=.35?[r>1?'⚖️ A bit uneven, in your favor':'⚖️ A bit uneven, in their favor','#facc15']:[r>1?'⚠️ Very uneven, strongly in your favor':'⚠️ Very uneven, strongly in their favor','#f87171'];
+ return`<div style="margin-top:4px;font-weight:700;color:${t[1]}">${t[0]}</div>`};
+const _tbSum=tbSum;tbSum=function(){_tbSum();const el=$$('tsum');if(!el)return;
+ const g=TB.mine.filter(c=>TB.give.has(c.uid)),a=TB.theirs.filter(c=>TB.ask.has(c.uid)),gm=+($$('gm').value||0)||0,am=+($$('am').value||0)||0;
+ el.insertAdjacentHTML('beforeend',verdict(tTot(g,gm),tTot(a,am)))};
+const _tbRev=tbReview;tbReview=function(){_tbRev();const md=$$('md'),h=md&&md.querySelector('h2');if(!h)return;
+ const g=TB.mine.filter(c=>TB.give.has(c.uid)),a=TB.theirs.filter(c=>TB.ask.has(c.uid));
+ h.insertAdjacentHTML('afterend',verdict(tTot(g,TB.gm),tTot(a,TB.am))+'<div class="mt" style="font-size:12px">Based on current market prices. You decide what a card is worth to you.</div>')};
 }
 
 </script></body></html>
