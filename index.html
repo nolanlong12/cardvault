@@ -115,7 +115,7 @@ function load(){try{const j=localStorage.getItem('cardvault4');if(j){S=JSON.pars
 S.sealed.st=2}
 function save(){try{localStorage.setItem('cardvault3',JSON.stringify(S))}catch(e){}}
 const val=i=>S.pr[i.cid]*FM[i.f]*(i.m||1),card=i=>CARDS[i.cid];
-const setsDone=()=>Object.keys(SETS).filter(s=>CARDS.filter(c=>c.set==s&&!c.sec).every(c=>S.inv.some(i=>i.cid==c.id)));
+let _six=null,_sk=0;const SETIDX=()=>{const k=CARDS.length+Object.keys(SETS).length;if(_six&&_sk==k)return _six;_six={};Object.keys(SETS).forEach(s=>_six[s]=[]);CARDS.forEach(c=>{if(c&&!c.sec&&_six[c.set])_six[c.set].push(c.id)});_sk=k;return _six};const setsDone=()=>{const own=new Set(S.inv.map(i=>i.cid)),ix=SETIDX();return Object.keys(SETS).filter(s=>ix[s].every(id=>own.has(id)))};
 const LOCK=6e5,rate=v=>+(Math.pow(v,.97)*.0165/60).toFixed(2),m2=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}),fm=n=>'$'+n.toFixed(2),inSlot=u=>S.slots.some(s=>s&&s.uid==u),unslot=u=>S.slots.forEach((s,k)=>{if(s&&s.uid==u)S.slots[k]=null});
 const setBonus=n=>n*.05+(n>=12?.75:n>=8?.4:n>=5?.2:n>=3?.1:0);const incMin=()=>S.slots.reduce((a,s)=>{if(!s)return a;const it=S.inv.find(i=>i.uid==s.uid);return a+(it?Math.min(s.rate,rateOf(it)):s.rate)},0)*(1+setBonus(setsDone().length));
 const lvl=()=>Math.floor(Math.sqrt(S.xp/40))+1;
@@ -259,7 +259,7 @@ function acceptT(k){const t=S.trades[k],a=S.inv.find(i=>i.uid==t.u);if(!a)return
 S.inv=S.inv.filter(i=>i!==a);unslot(a.uid);mint(t.cid,0,0,'trade with '+t.who);S.money+=t.cash;S.trades.splice(k,1);S.st.trades++;S.ch.trade++;xp(15);save();toast('Trade complete');draw()}
 const CH=[['open','Open 3 packs',3,500],['sell','Sell 2 cards',2,250],['trade','Complete a trade',1,750],['coll','Collect income',1,300]];
 function draw(){document.body.classList.toggle('home',tab=='home');$$('mo').textContent=m2(S.money);$$('ih').textContent=fm(incMin())+'/min';$$('lv').textContent='Level '+lvl()+' · '+$$$(S.inv.reduce((a,i)=>a+val(i),0))+' collection';
-$$('nav').innerHTML=[['home','⌂ Home'],['shop','Store'],['open','Packs'],['binder','Binder'],['market','Market'],['trades','Trades'],['income','Income'],['auction','🏛 Auction'],['more','More']].map(([k,l])=>`<button class="${tab==k?'on':''}" data-t="${k}">${l}</button>`).join('');
+$$('nav').innerHTML=typeof navHTML=='function'?navHTML():'';
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
 const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),ach:m=>achPg(m),dash:m=>dashPg(m),watch:m=>watchPg(m),fuse:m=>fusePg(m),week:m=>weekPg(m),season:m=>seasonPg(m),quests,sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
 const K=n=>n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e4?'$'+Math.round(n/1e3)+'k':$$$(n);let SCN=['park','aquarium','mall'][Math.random()*3|0];
@@ -313,10 +313,11 @@ m.innerHTML=`<h2 style="margin-top:0">Market</h2><div class="row" style="margin-
 m.querySelectorAll('[data-m]').forEach(e=>e.onclick=()=>mkt(+e.dataset.m));const go=()=>{mq=$$('mq').value;draw()};$$('msb').onclick=go;$$('mq').onkeydown=e=>{if(e.key=='Enter')go()};const cl=$$('mcl');if(cl)cl.onclick=()=>{mq='';draw()};if(!a.length)m.insertAdjacentHTML('beforeend','<p class="pn mt">No cards match that search.</p>')}
 function mkt(id){const c=CARDS[id],h=S.hi[id],md=$$('md'),pv=h[Math.max(0,h.length-13)],sold=(S.minted[id]||0)+Math.round((c.pr?crOf(c,0):c.sup/50)*.3),lst=Math.max(1,Math.round(sold*.04));
 md.style.display='flex';md.innerHTML=`<div class="box" style="text-align:left"><h2 style="margin:0">${c.ic} ${c.n}</h2><div class="mt">${RN[c.r]} · ${c.set}${c.pr?' · print run '+c.pr.toLocaleString()+' ('+crOf(c,0).toLocaleString()+' created)':' · unlimited'}</div>${spark(h)}<div class="row mt" style="font-size:13px"><span>Value <b style="color:var(--tx)">${$$$(S.pr[id])}</b></span><span>Previous ${$$$(pv)}</span><span>Highest ${$$$(Math.max(...h))}</span><span>Lowest ${$$$(Math.min(...h))}</span><span>Sold ${sold.toLocaleString()}</span><span>Listed ${lst}</span></div><p class="mt" style="font-size:13px">Recent sales: ${h.slice(-4,-1).reverse().map(v=>$$$(v)).join(' · ')}</p><button class="g" id="mc">Close</button></div>`;$$('mc').onclick=()=>md.style.display='none'}
-function collections(m){m.innerHTML=`<h2 style="margin-top:0">Collections</h2>`+Object.keys(SETS).map(s=>{const L=CARDS.filter(c=>c.set==s&&!c.sec),n=L.filter(c=>S.disc[c.id]).length,ms=[[5,'Rare Pack','rare'],[8,'Mega Box','mega'],[L.length,'Collector Badge + Starter Pack','st']];
+function collections(m){m.innerHTML=`<h2 style="margin-top:0">Collections</h2>`+Object.keys(SETS).map(s=>{const L=SETIDX()[s].map(id=>CARDS[id]),n=L.filter(c=>S.disc[c.id]).length,ms=[[5,'Rare Pack','rare'],[8,'Mega Box','mega'],[L.length,'Collector Badge + Starter Pack','st']];
+if(n==0&&L.length>12&&!(window.OPENSET||{})[s])return`<div class="pn" style="display:flex;justify-content:space-between;align-items:center"><span><b>${SETS[s][0]} ${s}</b> <span class="mt">0 / ${L.length} discovered</span></span><button class="g" data-os="${s}">Show</button></div>`;
 return`<div class="pn"><b>${SETS[s][0]} ${s}</b> <span class="mt">${n} / ${L.length} discovered</span><div class="row" style="margin:6px 0">${ms.map(([k,l,pk])=>{const d=S.cl[s+':'+k];return`<button class="${d?'g':''}" data-cl="${s}|${k}|${pk}" ${n<k||d?'disabled':''}>${k} cards → ${l}${d?' ✓':''}</button>`}).join('')}</div>
 <div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(84px,1fr))">${L.map(c=>S.disc[c.id]?`<div><div class="th2" style="border:2px solid ${FRM[c.r][0]}">${scene(c)}</div><div class="mt" style="font-size:11px;text-align:center">${c.n}</div></div>`:`<div class="sil"><div class="th2" style="border:2px solid #555;background:#222">${c.r>=6?'<b style="display:flex;height:100%;align-items:center;justify-content:center;font-size:22px">???</b>':scene(c)}</div><div class="mt" style="font-size:11px;text-align:center">???</div></div>`).join('')}</div></div>`}).join('');
-m.querySelectorAll('[data-cl]').forEach(b=>b.onclick=()=>{const[s,k,pk]=b.dataset.cl.split('|');S.cl[s+':'+k]=1;S.sealed[pk]=(S.sealed[pk]||0)+1;toast('Reward added to sealed stock');draw()})}
+m.querySelectorAll('[data-os]').forEach(b=>b.onclick=()=>{(window.OPENSET=window.OPENSET||{})[b.dataset.os]=1;draw()});m.querySelectorAll('[data-cl]').forEach(b=>b.onclick=()=>{const[s,k,pk]=b.dataset.cl.split('|');S.cl[s+':'+k]=1;S.sealed[pk]=(S.sealed[pk]||0)+1;toast('Reward added to sealed stock');draw()})}
 function histH(){const b=[...S.hist].sort((a,c)=>c.v-a.v).slice(0,5),bg=b[0],ln=h=>`${h.n} — ${RN[h.r]}${h.pr?` — #${h.sr.toLocaleString()} / ${h.pr.toLocaleString()}`:''}${h.ed?' · '+EDN[h.ed]:''}`;
 return`<h2>Best pulls</h2>${bg?`<div class="pn"><b>Biggest pull ${$$$(bg.v)}</b><br>${ln(bg)}</div>`:'<p class="mt">Open packs to fill this in.</p>'}${b.slice(1).map(h=>`<div class="pn" style="padding:8px 12px">${ln(h)} <b style="float:right">${$$$(h.v)}</b></div>`).join('')}<h2>Recent pulls</h2>${S.hist.slice(0,10).map(h=>`<div class="pn" style="padding:8px 12px">${ln(h)}</div>`).join('')||'<p class="mt">No pulls yet.</p>'}`}
 function trades(m){if(Date.now()-S.tAt>18e4||(!S.trades.length&&S.inv.length))genTrades();
@@ -1340,7 +1341,7 @@ function binder(m,keepScroll){
  const sc=document.scrollingElement?document.scrollingElement.scrollTop:0;
  m.innerHTML=`<h2 style="margin-top:0">Binder <span class="mt" style="font-size:14px">${all.length.toLocaleString()} of ${S.inv.length.toLocaleString()} cards</span></h2>
  ${sh.length&&!BN.sel?`<h3 style="margin:0 0 6px">⭐ Trophy shelf</h3><div class="grid" style="grid-template-columns:repeat(auto-fill,minmax(100px,1fr));margin-bottom:12px">${sh.map(i=>cardH(i,`data-u="${i.uid}"`)).join('')}</div>`:''}
- <div class="row" style="margin-bottom:8px">${Object.keys(SETS).map(s=>{const n=CARDS.filter(c=>c&&c.set==s&&!c.sec&&S.inv.some(i=>i.cid==c.id)).length;return`<span class="tag">${SETS[s][0]} ${s} ${n}/${CARDS.filter(c=>c&&c.set==s&&!c.sec).length}${sd.includes(s)?' ✔ +5%':''}</span>`}).join('')}</div>
+ <div class="row" style="margin-bottom:8px">${(()=>{const own=new Set(S.inv.map(i=>i.cid)),ix=SETIDX();return Object.keys(SETS).map(s=>{const L=ix[s],n=L.filter(id=>own.has(id)).length;return n>0||L.length<=12?`<span class="tag">${SETS[s][0]} ${s} ${n}/${L.length}${sd.includes(s)?' ✔ +5%':''}</span>`:''}).join('')})()}</div>
  <div class="row" style="gap:6px;margin-bottom:8px">${chip('all','All')}${chip('0','Common')}${chip('1','Uncommon')}${chip('2','Rare')}${chip('5','Ultra Rare')}${chip('4','Epic')}${chip('6','Legendary')}${chip('special','Special / Chase')}
   <select id="bx">${O('','More rarities…',BN.rarx)}${RN.map((n,i)=>O(i,n,BN.rarx))}</select></div>
  <div class="row" style="gap:6px;margin-bottom:8px"><input id="bq" value="${esc(BN.q)}" placeholder="Search name, set, card # or #12/500" style="background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:6px;width:190px">
@@ -1402,10 +1403,11 @@ function bnConfirm(list,mv,qs,warn){
 let PSINCE=null;
 pollPrices=async function(){if(!READY||pBusy)return;pBusy=1;
  try{await sb.rpc('market_tick');
-  let q=sb.from('prices').select('card_id,price,upd').order('upd',{ascending:true}).limit(1000);
+  for(let k=0;k<8;k++){let q=sb.from('prices').select('card_id,price,upd').order('upd',{ascending:true}).limit(1000);
   if(PSINCE)q=q.gt('upd',PSINCE);
   const{data}=await q;
   (data||[]).forEach(r=>{const p=+r.price,h=S.hi[r.card_id]||(S.hi[r.card_id]=[p]);S.pr[r.card_id]=p;if(h[h.length-1]!==p){h.push(p);if(h.length>80)h.shift()}if(!PSINCE||r.upd>PSINCE)PSINCE=r.upd});
+  if(!data||data.length<1000)break}
  }catch(e){}pBusy=0};
 const _rsU3=resync;resync=async function(){S.pity=S.pity||{};await _rsU3();try{const{data}=await sb.from('prices').select('upd').order('upd',{ascending:false}).limit(1);if(data&&data[0]&&data[0].upd)PSINCE=data[0].upd}catch(e){}};
 
@@ -1431,7 +1433,7 @@ frame=function(s,k){const it=s&&S.inv.find(i=>i.uid==s.uid);
 
 /* ===== UNIQUE ART: every card, pack and box gets its own look; real leaderboard ===== */
 {
-const GP={set:{"Crystal Fauna": ["#0ea5e9", "#082f49", "#7dd3fc"], "Storm Titans": ["#6366f1", "#1e1b4b", "#c7d2fe"], "Neon City": ["#ec4899", "#500724", "#fbcfe8"], "Ancient Ruins": ["#b45309", "#451a03", "#fcd34d"], "Toxic Swamp": ["#65a30d", "#1a2e05", "#bef264"], "Frost Realm": ["#38bdf8", "#0c4a6e", "#e0f2fe"], "Sky Pirates": ["#0d9488", "#042f2e", "#99f6e4"], "Dream Garden": ["#a855f7", "#3b0764", "#e9d5ff"], "Mecha Forge": ["#64748b", "#0f172a", "#e2e8f0"], "Cosmic Zoo": ["#f43f5e", "#2e1065", "#fecdd3"]},id:{"1163": ["#1d4ed8", "#0b1b4d", "#7dd3fc"], "1164": ["#0891b2", "#082f49", "#67e8f9"], "1165": ["#7c3aed", "#2e1065", "#c4b5fd"], "1166": ["#c026d3", "#4a044e", "#f0abfc"], "1167": ["#d97706", "#451a03", "#fde68a"], "1168": ["#ea580c", "#431407", "#fdba74"], "1169": ["#0d9488", "#042f2e", "#5eead4"], "1170": ["#eab308", "#422006", "#fef08a"], "1171": ["#dc2626", "#450a0a", "#fca5a5"], "1172": ["#9333ea", "#3b0764", "#d8b4fe"], "1173": ["#2563eb", "#172554", "#93c5fd"], "1174": ["#4f46e5", "#0f0a3c", "#a5b4fc"], "1175": ["#06b6d4", "#083344", "#a5f3fc"], "1176": ["#f59e0b", "#451a03", "#fde047"], "1177": ["#e11d48", "#4c0519", "#fda4af"], "1178": ["#8b5cf6", "#020617", "#f5d0fe"]}};
+const GP={set:{"Amber Realm": ["#c81c1c", "#340909", "#f5acac"], "Azure Wilds": ["#1cc84e", "#093415", "#acf5c1"], "Beryl Legion": ["#811cc8", "#220934", "#d7acf5"], "Cobalt Vale": ["#c8b31c", "#342e09", "#f5ecac"], "Coral Pack": ["#1cacc8", "#092c34", "#ace9f5"], "Crimson Order": ["#c81c79", "#340920", "#f5acd4"], "Cyan Guild": ["#47c81c", "#133409", "#bef5ac"], "Ebon Tribe": ["#241cc8", "#0b0934", "#afacf5"], "Ember Flock": ["#c8561c", "#341709", "#f5c4ac"], "Emerald Pride": ["#1cc888", "#093424", "#acf5da"], "Fern Realm": ["#ba1cc8", "#300934", "#efacf5"], "Flint Wilds": ["#a4c81c", "#2b3409", "#e6f5ac"], "Frost Legion": ["#1c72c8", "#091e34", "#acd0f5"], "Garnet Vale": ["#c81c40", "#340912", "#f5acbb"], "Gilded Pack": ["#1cc82b", "#09340c", "#acf5b2"], "Golden Order": ["#5d1cc8", "#190934", "#c8acf5"], "Granite Guild": ["#c88f1c", "#342509", "#f5ddac"], "Indigo Tribe": ["#1cc8c2", "#093432", "#acf5f2"], "Ivory Flock": ["#c81c9d", "#340929", "#f5ace3"], "Jade Pride": ["#6bc81c", "#1c3409", "#cdf5ac"], "Jet Realm": ["#1c38c8", "#091034", "#acb8f5"], "Lapis Wilds": ["#c8321c", "#340e09", "#f5b5ac"], "Lava Legion": ["#1cc864", "#09341b", "#acf5cb"], "Lilac Vale": ["#971cc8", "#270934", "#e0acf5"], "Lunar Pack": ["#c8c81c", "#333409", "#f5f5ac"], "Maple Order": ["#1c96c8", "#092734", "#ace0f5"], "Marble Guild": ["#c81c63", "#34091a", "#f5acca"], "Mist Tribe": ["#31c81c", "#0e3409", "#b5f5ac"], "Moss Flock": ["#3a1cc8", "#100934", "#b8acf5"], "Mystic Pride": ["#c86c1c", "#341c09", "#f5ceac"], "Neon Realm": ["#1cc89e", "#093429", "#acf5e3"], "Obsidian Wilds": ["#c81cc0", "#340932", "#f5acf2"], "Olive Legion": ["#8ec81c", "#253409", "#ddf5ac"], "Onyx Vale": ["#1c5cc8", "#091934", "#acc7f5"], "Opal Pack": ["#c81c2a", "#34090c", "#f5acb2"], "Orchid Order": ["#1cc841", "#093412", "#acf5bc"], "Pearl Guild": ["#731cc8", "#1e0934", "#d1acf5"], "Pine Tribe": ["#c8a51c", "#342b09", "#f5e6ac"], "Plum Flock": ["#1cb9c8", "#093034", "#aceff5"], "Prism Pride": ["#c81c87", "#340923", "#f5acd9"], "Quartz Realm": ["#55c81c", "#173409", "#c4f5ac"], "Radiant Wilds": ["#1c22c8", "#090a34", "#acaff5"], "Raven Legion": ["#c8481c", "#341409", "#f5bfac"], "Rose Vale": ["#1cc87a", "#093420", "#acf5d4"], "Ruby Pack": ["#ad1cc8", "#2d0934", "#eaacf5"], "Rust Order": ["#b2c81c", "#2e3409", "#ecf5ac"], "Sable Guild": ["#1c80c8", "#092134", "#acd6f5"], "Sage Tribe": ["#c81c4d", "#340915", "#f5acc1"], "Sand Flock": ["#1cc81d", "#093409", "#acf5ac"], "Scarlet Pride": ["#501cc8", "#150934", "#c2acf5"], "Shadow Realm": ["#c8821c", "#342209", "#f5d7ac"], "Silver Wilds": ["#1cc8b4", "#09342e", "#acf5ed"], "Slate Legion": ["#c81caa", "#34092c", "#f5ace9"], "Solar Vale": ["#78c81c", "#203409", "#d3f5ac"], "Sorrel Pack": ["#1c46c8", "#091334", "#acbef5"], "Steel Order": ["#c8251c", "#340b09", "#f5afac"], "Storm Guild": ["#1cc857", "#093417", "#acf5c5"], "Sunset Tribe": ["#891cc8", "#240934", "#daacf5"], "Tawny Flock": ["#c8bb1c", "#343009", "#f5f0ac"], "Teal Pride": ["#1ca3c8", "#092a34", "#ace5f5"], "Thorn Realm": ["#c81c71", "#34091e", "#f5acd0"], "Topaz Wilds": ["#3fc81c", "#113409", "#bbf5ac"], "Twilight Legion": ["#2c1cc8", "#0d0934", "#b3acf5"], "Umber Vale": ["#c85e1c", "#341909", "#f5c8ac"], "Velvet Pack": ["#1cc890", "#093426", "#acf5dd"], "Verdant Order": ["#c31cc8", "#320934", "#f3acf5"], "Violet Guild": ["#9cc81c", "#283409", "#e2f5ac"], "Wild Tribe": ["#1c6ac8", "#091c34", "#accdf5"], "Willow Flock": ["#c81c37", "#34090f", "#f5acb7"], "Zephyr Pride": ["#1cc833", "#09340e", "#acf5b6"], "Aurora Realm": ["#661cc8", "#1b0934", "#cbacf5"], "Basalt Wilds": ["#c8981c", "#342709", "#f5e1ac"], "Blaze Legion": ["#1cc7c8", "#093334", "#acf5f5"], "Breeze Vale": ["#c81c94", "#340927", "#f5acdf"], "Cedar Pack": ["#62c81c", "#1a3409", "#caf5ac"], "Cinder Order": ["#1c30c8", "#090e34", "#acb4f5"], "Cloud Guild": ["#c83b1c", "#341009", "#f5b9ac"], "Dawn Tribe": ["#1cc86d", "#09341d", "#acf5ce"], "Dune Flock": ["#9f1cc8", "#290934", "#e4acf5"], "Echo Pride": ["#bfc81c", "#313409", "#f1f5ac"], "Gale Realm": ["#1c8dc8", "#092534", "#acdcf5"], "Glacier Wilds": ["#c81c5b", "#340918", "#f5acc7"], "Harbor Legion": ["#29c81c", "#0c3409", "#b1f5ac"], "Haze Vale": ["#421cc8", "#120934", "#bcacf5"], "Kelp Pack": ["#c8741c", "#341f09", "#f5d1ac"], "Lotus Order": ["#1cc8a6", "#09342b", "#acf5e7"], "Meadow Guild": ["#c81cb8", "#34092f", "#f5acee"], "Nimbus Tribe": ["#86c81c", "#233409", "#d9f5ac"], "Oasis Flock": ["#1c54c8", "#091634", "#acc3f5"], "Reef Pride": ["#c81c21", "#34090a", "#f5acae"], "Ripple Realm": ["#1cc849", "#093414", "#acf5bf"], "Spark Wilds": ["#7c1cc8", "#200934", "#d5acf5"], "Summit Legion": ["#c8ae1c", "#342d09", "#f5eaac"], "Tundra Vale": ["#1cb1c8", "#092e34", "#acebf5"], "Vortex Pack": ["#c81c7e", "#340921", "#f5acd6"], "Whisper Order": ["#4cc81c", "#153409", "#c0f5ac"], "Zenith Guild": ["#1e1cc8", "#090934", "#adacf5"], "Arcane Tribe": ["#c8511c", "#341609", "#f5c2ac"], "Cipher Flock": ["#1cc883", "#093422", "#acf5d8"], "Rune Pride": ["#b51cc8", "#2f0934", "#edacf5"], "Crystal Fauna": ["#0ea5e9", "#082f49", "#7dd3fc"], "Storm Titans": ["#6366f1", "#1e1b4b", "#c7d2fe"], "Neon City": ["#ec4899", "#500724", "#fbcfe8"], "Ancient Ruins": ["#b45309", "#451a03", "#fcd34d"], "Toxic Swamp": ["#65a30d", "#1a2e05", "#bef264"], "Frost Realm": ["#38bdf8", "#0c4a6e", "#e0f2fe"], "Sky Pirates": ["#0d9488", "#042f2e", "#99f6e4"], "Dream Garden": ["#a855f7", "#3b0764", "#e9d5ff"], "Mecha Forge": ["#64748b", "#0f172a", "#e2e8f0"], "Cosmic Zoo": ["#f43f5e", "#2e1065", "#fecdd3"]},id:{"1163": ["#1d4ed8", "#0b1b4d", "#7dd3fc"], "1164": ["#0891b2", "#082f49", "#67e8f9"], "1165": ["#7c3aed", "#2e1065", "#c4b5fd"], "1166": ["#c026d3", "#4a044e", "#f0abfc"], "1167": ["#d97706", "#451a03", "#fde68a"], "1168": ["#ea580c", "#431407", "#fdba74"], "1169": ["#0d9488", "#042f2e", "#5eead4"], "1170": ["#eab308", "#422006", "#fef08a"], "1171": ["#dc2626", "#450a0a", "#fca5a5"], "1172": ["#9333ea", "#3b0764", "#d8b4fe"], "1173": ["#2563eb", "#172554", "#93c5fd"], "1174": ["#4f46e5", "#0f0a3c", "#a5b4fc"], "1175": ["#06b6d4", "#083344", "#a5f3fc"], "1176": ["#f59e0b", "#451a03", "#fde047"], "1177": ["#e11d48", "#4c0519", "#fda4af"], "1178": ["#8b5cf6", "#020617", "#f5d0fe"]}};
 const rnd=a=>()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296};
 const h2=(h,s,l)=>{s/=100;l/=100;const k=n=>(n+h/30)%12,a=s*Math.min(l,1-l),f=n=>l-a*Math.max(-1,Math.min(k(n)-3,Math.min(9-k(n),1)));return'#'+[f(0),f(8),f(4)].map(x=>Math.round(x*255).toString(16).padStart(2,'0')).join('')};
 const hue=hx=>{const r=parseInt(hx.slice(1,3),16)/255,g=parseInt(hx.slice(3,5),16)/255,b=parseInt(hx.slice(5,7),16)/255,M=Math.max(r,g,b),m=Math.min(r,g,b),d=M-m;if(!d)return 0;let h=M==r?((g-b)/d)%6:M==g?(b-r)/d+2:(r-g)/d+4;return(h*60+360)%360};
@@ -1593,7 +1595,7 @@ const loadMov=async()=>{if(!READY||Date.now()-MVT<180000)return;MVT=Date.now();t
 const loadSeas=async f=>{if(!READY||(!f&&Date.now()-SST<60000))return;SST=Date.now();try{SEAS=await rpc('season_state',{},1)}catch(e){}};
 
 /* --- Home panels --- */
-function setTracker(){const own=new Set(S.inv.map(i=>i.cid)),done=setsDone().length,rows=Object.keys(SETS).map(s=>{const L=CARDS.filter(c=>c&&c.set==s&&!c.sec),h=L.filter(c=>own.has(c.id)).length;return{s,n:L.length,h}}).filter(x=>x.n>0&&x.h<x.n).sort((a,b)=>(a.n-a.h)-(b.n-b.h)||b.h/b.n-a.h/a.n).slice(0,3);
+function setTracker(){const own=new Set(S.inv.map(i=>i.cid)),done=setsDone().length,rows=Object.keys(SETS).map(s=>{const L=SETIDX()[s],h=L.filter(id=>own.has(id)).length;return{s,n:L.length,h}}).filter(x=>x.n>0&&x.h<x.n).sort((a,b)=>(a.n-a.h)-(b.n-b.h)||b.h/b.n-a.h/a.n).slice(0,3);
  const nxt=TIERS.find(t=>done<t[0]);
  return`<div class="pn"><b>📖 Set bonus: +${Math.round(setBonus(done)*100)}% income</b> <span class="mt" style="font-size:12px">${done} set${done==1?'':'s'} done${nxt?` · ${nxt[0]-done} more for the +${nxt[1]}% tier`:' · top tier!'}</span>
  <div class="mt" style="font-size:12px;margin:2px 0 6px">+5% per finished set, plus ${TIERS.map(t=>t[0]+' sets +'+t[1]+'%').join(' · ')}</div>
@@ -1703,6 +1705,85 @@ function awayModal(a){const mins=Math.round(+a.mins),t=mins>=60?Math.floor(mins/
  modal(`<h2 style="margin:0">👋 Welcome back!</h2><p style="font-size:18px">While you were away (${t}) your cards earned <b class="up">${cm(a.earn)}</b>.</p>${mins>=720?'<p class="mt">Offline earnings stop after 12 hours, so check in at least twice a day.</p>':''}<div class="row"><button id="awk">Collect</button></div>`);$$('awk').onclick=closeM}
 const _rsW=resync;resync=async function(){await _rsW();if(!AWAYDONE&&READY){AWAYDONE=1;try{const a=await rpc('away_get',{},1);if(a&&+a.earn>0&&$$('md').style.display!='flex'&&$$('ov').style.display!='flex')awayModal(a)}catch(e){}}};
 let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hidden)hiddenAt=Date.now();else if(hiddenAt&&Date.now()-hiddenAt>10*6e4&&READY){AWAYDONE=0;resync()}});
+}
+
+/* ===== BOTTOM MENU (Clash Royale style): 5 big buttons, sub-tabs inside each area ===== */
+{
+const AREAS=[
+ {k:'shop',i:'🏬',l:'Shop',tabs:[['shop','Store'],['open','Packs'],['season','Season']]},
+ {k:'cards',i:'📚',l:'Cards',tabs:[['binder','Binder'],['fuse','Fusion'],['sets','Sets'],['watch','Watchlist'],['daily','Mystery'],['archive','Archive']]},
+ {k:'home',i:'🏠',l:'Home',tabs:[['home','Home'],['income','Income'],['quests','Quests'],['map','Map'],['ach','Badges']]},
+ {k:'market',i:'📈',l:'Market',tabs:[['market','Market'],['auction','Auction'],['myauc','My Auctions'],['trades','Trades'],['dash','Dashboard']]},
+ {k:'social',i:'👥',l:'Social',tabs:[['friends','Friends'],['ranks','Leaders'],['week','Weekly'],['feed','Feed'],['more','More'],['account','Account']]}];
+const areaOf=t=>AREAS.find(a=>a.tabs.some(x=>x[0]==t))||(t=='admin'?AREAS[4]:AREAS[2]);
+const LAST={};
+window.navHTML=()=>{const a=areaOf(tab);if(tab=='home')return'';return a.tabs.map(([k,l])=>`<button class="${tab==k?'on':''}" data-t="${k}">${l}</button>`).join('')};
+const css=document.createElement('style');css.textContent=`
+#bbar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;align-items:flex-end;justify-content:center;padding:8px 4px calc(6px + env(safe-area-inset-bottom,0px));background:linear-gradient(#2d2850,#15122a);border-top:3px solid #6d5fd0;box-shadow:0 -8px 20px #000b,inset 0 2px 0 #fff2}
+#bbar button{flex:1;max-width:100px;min-width:0;background:transparent;border:0;border-radius:0;color:#b9b3dc;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:800;padding:2px 0 0;position:relative;transition:transform .18s;letter-spacing:.2px}
+#bbar button .ic{display:flex;align-items:center;justify-content:center;width:46px;height:38px;font-size:23px;border-radius:14px;filter:drop-shadow(0 2px 0 #0009);transition:all .18s}
+#bbar button.mid .ic{width:56px;height:46px;font-size:29px}
+#bbar button.on{color:#fff}
+#bbar button.on .ic{transform:translateY(-12px);margin-bottom:-4px;background:linear-gradient(#ffe27a,#f0a81c 60%,#d9890a);border:3px solid #fff9;box-shadow:0 5px 0 #8a5300,0 10px 16px #000a,inset 0 2px 0 #fff9;filter:none;width:56px;height:48px;font-size:27px}
+#bbar button.on.mid .ic{width:64px;height:54px;font-size:32px}
+#bbar button:active .ic{filter:brightness(.9)}
+#bbar .bd{position:absolute;top:-2px;right:calc(50% - 30px);min-width:18px;height:18px;border-radius:9px;background:#ef4444;color:#fff;font-size:11px;line-height:18px;padding:0 4px;border:2px solid #15122a}
+main{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}
+body.home main{padding-bottom:0}
+.hud{height:calc(100dvh - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px) - 78px)!important}
+#toast{bottom:calc(92px + env(safe-area-inset-bottom,0px))!important}
+nav{scrollbar-width:none;-webkit-mask-image:linear-gradient(90deg,#000 88%,transparent);mask-image:linear-gradient(90deg,#000 88%,transparent)}nav::-webkit-scrollbar{display:none}
+@media(prefers-reduced-motion:reduce){#bbar button,#bbar button .ic{transition:none}}`;document.head.appendChild(css);
+const bar=document.createElement('div');bar.id='bbar';document.body.appendChild(bar);
+const badge=a=>{let n=0;try{if(a.k=='market')n=(TR&&TR.n)||0;if(a.k=='social')n=(FR&&FR.n)||0}catch(e){}return n>0?`<span class="bd">${n>9?'9+':n}</span>`:''};
+window.paintBar=()=>{const cur=areaOf(tab);LAST[cur.k]=tab;
+ bar.innerHTML=AREAS.map(a=>`<button data-a="${a.k}" class="${a.k==cur.k?'on':''} ${a.k=='home'?'mid':''}"><span class="ic">${a.i}</span>${a.l}${badge(a)}</button>`).join('');
+ bar.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{const a=AREAS.find(x=>x.k==b.dataset.a);tab=a.k=='home'?'home':(LAST[a.k]&&a.tabs.some(t=>t[0]==LAST[a.k])?LAST[a.k]:a.tabs[0][0]);draw();window.scrollTo(0,0)});
+ const top=document.querySelector('header .top');if(top&&!$$('gear')){const g=document.createElement('button');g.id='gear';g.className='g';g.style.padding='4px 10px';g.textContent='⚙️';g.onclick=()=>{tab='account';draw()};top.appendChild(g)}};
+const _drawN=draw;draw=function(){_drawN.apply(this,arguments);paintBar()};
+/* swipe left / right between the 5 areas */
+let sx=0,sy=0,st=0,ok=false;
+document.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();
+ ok=e.touches.length==1&&!e.target.closest('input,select,textarea,nav,#bbar,#ov,#md,#auth,.cw,.card,svg,.grid,[style*="overflow"]')&&$$('ov').style.display!='flex'&&$$('md').style.display!='flex'},{passive:true});
+document.addEventListener('touchend',e=>{if(!ok)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Date.now()-st>600||Math.abs(dx)<90||Math.abs(dy)>Math.abs(dx)*.5)return;
+ const i=AREAS.indexOf(areaOf(tab)),j=i+(dx<0?1:-1);if(j<0||j>=AREAS.length)return;const a=AREAS[j];tab=a.k=='home'?'home':(LAST[a.k]||a.tabs[0][0]);draw();window.scrollTo(0,0)},{passive:true});
+}
+
+(()=>{const css=document.createElement('style');css.textContent=`
+button:not(#bbar button):not(.hud button):not(nav button){background-image:linear-gradient(#fff4,#fff0 48%,#0002 52%,#0003);border-bottom:3px solid #0006;box-shadow:0 3px 0 #0007,0 6px 10px #0006,inset 0 1px 0 #fff6;text-shadow:0 1px 0 #fff3;transition:transform .08s,box-shadow .08s}
+button.g:not(.hud button){text-shadow:0 1px 0 #000a}
+button:not(#bbar button):not(.hud button):not(nav button):active:not(:disabled){transform:translateY(3px);box-shadow:0 0 0 #0007,0 2px 4px #0006,inset 0 1px 0 #fff4}
+button:disabled{box-shadow:none!important;filter:grayscale(.5)}
+nav button{background-image:linear-gradient(#fff2,#0003);border-bottom:3px solid #0007;box-shadow:0 2px 0 #0006,inset 0 1px 0 #fff5;border-radius:12px}
+nav button.on{background-image:linear-gradient(#fff6,#fff0 50%,#0002);box-shadow:0 3px 0 #8a5300,0 6px 10px #0008,inset 0 1px 0 #fff9;color:#1a1405;text-shadow:0 1px 0 #fff6}
+header{background:linear-gradient(#262143f2,#14121af2);border-bottom:3px solid #6d5fd0;box-shadow:0 6px 16px #0009}
+.pn{background:linear-gradient(160deg,#2c2745ee,#1a1630ee);border:1px solid #fff2;border-bottom:3px solid #0008;border-radius:16px;box-shadow:0 6px 14px #0007,inset 0 1px 0 #fff3}
+.box{background:linear-gradient(160deg,#2f2a4c,#1a1630);border:2px solid #7d6fe0;border-bottom:5px solid #3b3280;border-radius:20px;box-shadow:0 14px 34px #000c,inset 0 2px 0 #fff3}
+select,input{border-radius:12px;box-shadow:inset 0 2px 4px #0008,0 1px 0 #fff2}
+.cw{perspective:700px}.cw .card{transition:transform .15s ease-out,box-shadow .15s;transform-style:preserve-3d;will-change:transform;box-shadow:0 8px 14px -4px #000c,0 0 6cqw -2cqw var(--f)}
+.cw .card::before{content:'';position:absolute;inset:0;z-index:3;pointer-events:none;background:linear-gradient(135deg,#fff5 0,#fff0 35%,#0000 65%,#0004 100%);border-radius:inherit}
+@media(hover:hover){.cw:hover .card{transform:translateY(-4px) scale(1.03);box-shadow:0 16px 22px -6px #000d,0 0 8cqw -1cqw var(--f)}}
+#toast{border-bottom:3px solid #8a5300;box-shadow:0 4px 0 #0006,0 8px 14px #0008;background-image:linear-gradient(#fff5,#fff0 50%,#0002)}
+h2{text-shadow:0 2px 0 #0009}
+`;document.head.appendChild(css);
+// tilt cards toward the pointer (mouse or finger drag)
+let cur=null;
+const tilt=(e,c)=>{const r=c.getBoundingClientRect();const x=(e.clientX-r.left)/r.width-.5,y=(e.clientY-r.top)/r.height-.5;
+c.style.transform=`rotateY(${x*18}deg) rotateX(${-y*18}deg) translateY(-4px) scale(1.04)`};
+document.addEventListener('pointermove',e=>{const c=e.target.closest&&e.target.closest('.cw .card');
+ if(cur&&cur!==c){cur.style.transform='';cur=null}
+ if(c&&(e.pointerType=='mouse'||e.buttons)){cur=c;tilt(e,c)}},{passive:true});
+document.addEventListener('pointerleave',()=>{if(cur){cur.style.transform='';cur=null}},true);
+})();
+
+/* ===== SCALE: 3,400+ cards. Load the big tables once, refresh the small parts ===== */
+{
+const _sel=selAll,C={};
+selAll=async function(t,cols,ord){
+ if(t=='card_defs'){if(!C.defs)C.defs=await _sel(t,cols,ord);return C.defs}
+ if(t=='print_runs'){if(!C.pr||Date.now()-C.prt>90000){C.pr=await _sel(t,cols,ord);C.prt=Date.now()}return C.pr}
+ if(t=='prices'&&C.px&&Object.keys(S.pr).length>100){return{data:Object.keys(S.pr).map(id=>({card_id:+id,price:S.pr[id],hist:S.hi[id]||[]}))}}
+ const r=await _sel(t,cols,ord);if(t=='prices')C.px=1;return r};
 }
 
 </script></body></html>
