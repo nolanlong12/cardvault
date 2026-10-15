@@ -594,7 +594,7 @@ function loadCatalog(defs,prods){
   else{o.pity=r.pity;if(!r.ltd)o.price=+r.price}});
  const ents=Object.entries(P).sort((a,b)=>a[1].price-b[1].price);ents.forEach(([k])=>delete P[k]);ents.forEach(([k,v])=>P[k]=v)}
 const FAIR={},TREND={};
-const rateOf=i=>{const f=S.pr[i.cid];return +(f*FM[i.f||0]*(i.m||1)*.02).toFixed(2)};
+const rateOf=i=>{const f=S.pr[i.cid];return +(f*FM[i.f||0]*(i.m||1)*.01).toFixed(2)};
 const _info=info;info=function(c){const d=_info(c);if(d.hp==null||isNaN(d.hp))d.hp=300+(c.r-8)*50;if(c.hp!=null)d.hp=c.hp;
  if(c.atk!=null){d.a[0][2]=c.atk;d.a[1][2]=c.atk*2}if(c.ab)d.a[1][1]=c.ab;return d};
 
@@ -831,7 +831,7 @@ const TUT=[
  ['🃏','Your cards',`<p>Every card has a <b>rarity</b>, from Common up to the rarest chase cards, and a <b>value</b> that moves with the market.</p>
   <ul><li><b>Numbered cards</b> show a serial like #12 / 500. Low numbers and tiny print runs are worth more.</li><li><b>Holo</b> and <b>Rainbow</b> versions are worth extra.</li><li>Your <b>Binder</b> shows everything you own. Tap a card to see its details.</li></ul>`],
  ['💰','Earn money while you play',`<p>Put cards in your <b>income slots</b> (the Income tab). You have 5 slots.</p>
-  <ul><li>Each card in a slot earns about <b>2% of its value every minute</b>, and that moves with the market.</li><li>Rarer cards are worth more, so they earn <b>far more</b> per minute.</li><li>You keep earning while you're away. Up to <b>12 hours</b> of earnings are saved for you.</li></ul>
+  <ul><li>Each card in a slot earns about <b>1% of its value every minute</b>, and that moves with the market.</li><li>Rarer cards are worth more, so they earn <b>far more</b> per minute.</li><li>You keep earning while you're away. Up to <b>12 hours</b> of earnings are saved for you.</li></ul>
   <p>Always put your best cards in the slots, and don't sell a card you're using.</p>`],
  ['🏷️','Selling cards',`<p>Tap a card and choose <b>Sell</b> to turn it into cash. You get <b>95%</b> of its current value.</p>
   <p>Good habit: sell duplicates and cards you don't need, then use the money for the next pack. Think twice before selling rare cards, because they also earn you money every minute.</p>`],
@@ -1052,7 +1052,7 @@ const EXSORT={value_desc:['Highest value',(a,b)=>b.v-a.v],value_asc:['Lowest val
  newest:['Newest discoveries',(a,b)=>(b.s.d||0)-(a.s.d||0)],owners:['Most owners',(a,b)=>b.s.o-a.s.o],gain:['Biggest 24h gain',(a,b)=>(b.s.c==null?-1e9:b.s.c)-(a.s.c==null?-1e9:a.s.c)],
  loss:['Biggest 24h drop',(a,b)=>(a.s.c==null?1e9:a.s.c)-(b.s.c==null?1e9:b.s.c)],income:['Highest $/min',(a,b)=>b.rate-a.rate],active:['Most sales this week',(a,b)=>b.s.s-a.s.s],listed:['Most listed',(a,b)=>b.s.l-a.s.l]};
 function exRow(c){
- const s=exS(c),v=S.pr[c.id]||0,left=exLeft(c,s),rate=v*.02,ch=s.c;
+ const s=exS(c),v=S.pr[c.id]||0,left=exLeft(c,s),rate=v*.01,ch=s.c;
  const tags=[];
  if(c.pr>0&&s.f==0)tags.push('<span class="tag" style="background:#7c3aed;color:#fff">NOT YET DISCOVERED</span>');
  if(c.pr>0&&left==0)tags.push('<span class="tag" style="background:#6b7280;color:#fff">SOLD OUT</span>');
@@ -1065,7 +1065,7 @@ function exRow(c){
  <div style="text-align:right;min-width:92px"><b>${kc(v)}</b><br><span class="${ch==null?'mt':ch>=0?'up':'dn'}" style="font-size:12px">${ch==null?'new':(ch>=0?'+':'')+ch+'%'} ${({rising:'📈',falling:'📉',hot:'🔥',cold:'❄️'})[s.t]||''}</span><br><span class="mt" style="font-size:12px">${kc(rate)}/min</span></div></div>`}
 market=function(m,skip){
  if(!skip)exLoad();
- const all=CARDS.filter(c=>c&&exMatch(c)),rows=all.map(c=>{const s=exS(c);return{c,s,v:S.pr[c.id]||0,left:exLeft(c,s),rate:(S.pr[c.id]||0)*.02}});
+ const all=CARDS.filter(c=>c&&exMatch(c)),rows=all.map(c=>{const s=exS(c);return{c,s,v:S.pr[c.id]||0,left:exLeft(c,s),rate:(S.pr[c.id]||0)*.01}});
  rows.sort(EXSORT[EX.sort][1]);
  const nUnd=CARDS.filter(c=>c&&c.pr>0&&!(c.sec&&!S.disc[c.id])&&exS(c).f==0).length,sets=Object.keys(SETS),rars=[...new Set(CARDS.filter(c=>c).map(c=>c.r))].sort((a,b)=>a-b);
  const sel=(id,opts,val)=>`<select id="${id}" style="background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:6px;font:inherit">${opts.map(([k,l])=>`<option value="${k}" ${String(val)===String(k)?'selected':''}>${l}</option>`).join('')}</select>`;
@@ -1811,6 +1811,67 @@ selAll=async function(t,cols,ord){
  if(t=='print_runs'){if(!C.pr||Date.now()-C.prt>90000){C.pr=await _sel(t,cols,ord);C.prt=Date.now()}return C.pr}
  if(t=='prices'&&C.px&&Object.keys(S.pr).length>100){return{data:Object.keys(S.pr).map(id=>({card_id:+id,price:S.pr[id],hist:S.hi[id]||[]}))}}
  const r=await _sel(t,cols,ord);if(t=='prices')C.px=1;return r};
+}
+
+/* ===== APP FEEL: installable on the home screen, splash screen, haptics, smooth screens ===== */
+{
+const H=document.head;
+const meta=(n,c)=>{const m=document.createElement('meta');m.name=n;m.content=c;H.appendChild(m)};
+meta('apple-mobile-web-app-capable','yes');meta('mobile-web-app-capable','yes');meta('apple-mobile-web-app-status-bar-style','black-translucent');meta('apple-mobile-web-app-title','CardVault');meta('theme-color','#15122a');meta('format-detection','telephone=no');
+const vp=document.querySelector('meta[name=viewport]');if(vp)vp.content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+/* app icon, drawn in code */
+const icon=sz=>{const c=document.createElement('canvas');c.width=c.height=sz;const g=c.getContext('2d'),k=sz/512;
+ const bg=g.createLinearGradient(0,0,0,sz);bg.addColorStop(0,'#4a3bb0');bg.addColorStop(1,'#14102e');g.fillStyle=bg;g.fillRect(0,0,sz,sz);
+ const card=(x,y,r,col1,col2)=>{g.save();g.translate(x*k,y*k);g.rotate(r);const w=190*k,h=270*k;const gr=g.createLinearGradient(0,-h/2,0,h/2);gr.addColorStop(0,col1);gr.addColorStop(1,col2);
+  g.fillStyle=gr;g.strokeStyle='#fff';g.lineWidth=10*k;g.beginPath();g.roundRect(-w/2,-h/2,w,h,28*k);g.fill();g.stroke();g.fillStyle='#ffffff55';g.beginPath();g.roundRect(-w/2+18*k,-h/2+18*k,w-36*k,h*.55,16*k);g.fill();g.restore()};
+ card(190,270,-.35,'#ff7a9c','#a3174a');card(322,270,.35,'#5ad1ff','#0a4c8f');card(256,250,0,'#ffe27a','#d9890a');
+ g.fillStyle='#3a2400';g.font='800 '+150*k+'px sans-serif';g.textAlign='center';g.fillText('CV',256*k,300*k);return c.toDataURL('image/png')};
+try{const i180=icon(180),i512=icon(512);
+ let l=document.createElement('link');l.rel='apple-touch-icon';l.href=i180;H.appendChild(l);
+ l=document.createElement('link');l.rel='icon';l.href=i180;H.appendChild(l);
+ const man={name:'CardVault',short_name:'CardVault',start_url:location.href.split('#')[0],display:'standalone',orientation:'portrait',background_color:'#15122a',theme_color:'#15122a',icons:[{src:i180,sizes:'180x180',type:'image/png'},{src:i512,sizes:'512x512',type:'image/png',purpose:'any maskable'}]};
+ l=document.createElement('link');l.rel='manifest';l.href=URL.createObjectURL(new Blob([JSON.stringify(man)],{type:'application/manifest+json'}));H.appendChild(l);
+ window.__icon512=i512}catch(e){}
+const css=document.createElement('style');css.textContent=`
+html,body{overscroll-behavior:none;-webkit-tap-highlight-color:transparent;-webkit-text-size-adjust:100%}
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none;touch-action:manipulation}
+input,textarea,select{-webkit-user-select:text;user-select:text;font-size:16px}
+img{-webkit-user-drag:none}
+::-webkit-scrollbar{width:0;height:0}
+@keyframes scrIn{from{opacity:0;transform:translateY(14px) scale(.985)}to{opacity:1;transform:none}}
+body:not(.home) main>*{animation:scrIn .26s cubic-bezier(.2,.8,.2,1) both}
+.cw:active .card{transform:scale(.96)!important}
+#splash{position:fixed;inset:0;z-index:500;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:22px;background:radial-gradient(circle at 50% 38%,#4a3bb0,#14102e 70%);transition:opacity .5s,visibility .5s}
+#splash.out{opacity:0;visibility:hidden}
+#splash .fan{position:relative;width:170px;height:130px}
+#splash .fan i{position:absolute;left:50%;top:0;width:78px;height:112px;margin-left:-39px;border-radius:12px;border:3px solid #fff;box-shadow:0 8px 18px #000a;transform-origin:50% 130%;animation:fan 1s cubic-bezier(.2,.9,.3,1.2) both}
+#splash .fan i:nth-child(1){background:linear-gradient(#ff7a9c,#a3174a);--r:-24deg}
+#splash .fan i:nth-child(2){background:linear-gradient(#5ad1ff,#0a4c8f);--r:24deg;animation-delay:.08s}
+#splash .fan i:nth-child(3){background:linear-gradient(#ffe27a,#d9890a);--r:0deg;animation-delay:.16s}
+@keyframes fan{from{transform:rotate(0) translateY(30px);opacity:0}to{transform:rotate(var(--r)) translateY(0);opacity:1}}
+#splash b{font-size:38px;letter-spacing:1px;color:#ffe27a;text-shadow:0 4px 0 #8a5300,0 0 24px #ffb80088}
+#splash u{display:block;width:150px;height:8px;border-radius:5px;background:#ffffff22;overflow:hidden;text-decoration:none}
+#splash u::after{content:'';display:block;height:100%;width:40%;border-radius:5px;background:linear-gradient(90deg,#ffe27a,#f0a81c);animation:ld 1.1s ease-in-out infinite}
+@keyframes ld{from{margin-left:-40%}to{margin-left:100%}}
+#inst{position:fixed;left:10px;right:10px;bottom:calc(88px + env(safe-area-inset-bottom,0px));z-index:7;background:linear-gradient(#3b3170,#241d4d);border:2px solid #7d6fe0;border-radius:16px;padding:10px 12px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px #000b;font-size:13px}
+#inst button{flex:none}
+@media(prefers-reduced-motion:reduce){body:not(.home) main>*{animation:none}}`;H.appendChild(css);
+/* splash */
+const sp=document.createElement('div');sp.id='splash';sp.innerHTML='<div class="fan"><i></i><i></i><i></i></div><b>CardVault</b><u></u>';document.body.appendChild(sp);
+const hide=()=>{sp.classList.add('out');setTimeout(()=>sp.remove(),700)};
+const t0=Date.now(),chk=setInterval(()=>{const a=$$('auth');const up=typeof READY!='undefined'&&READY;if((up||(a&&a.style.display=='none'))&&Date.now()-t0>1100||Date.now()-t0>4500){clearInterval(chk);hide()}},150);
+/* haptics: a light tick on taps, a stronger buzz on big moments (Android; iPhone ignores it) */
+const buzz=p=>{try{navigator.vibrate&&navigator.vibrate(p)}catch(e){}};
+document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closest('button:not(:disabled),#bbar [data-a]'))buzz(8)},{passive:true});
+window.buzz=buzz;
+if(typeof sfx=='function'){const _sfx=sfx;sfx=function(k,r){if(k!='tear'&&r>=4)buzz([30,40,60]);return _sfx.apply(this,arguments)}}
+/* add-to-home-screen hint */
+const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+const mob=/iPhone|iPad|Android/i.test(navigator.userAgent);
+let dis=false;try{dis=localStorage.getItem('cvInst')=='1'}catch(e){}
+if(mob&&!standalone&&!dis)setTimeout(()=>{if($$('inst')||document.body.classList.contains('x'))return;const ios=/iPhone|iPad/i.test(navigator.userAgent);
+ const d=document.createElement('div');d.id='inst';d.innerHTML=`<span style="font-size:26px">📲</span><span style="flex:1">${ios?'Play it like a real app: tap <b>Share</b>, then <b>Add to Home Screen</b>.':'Play it like a real app: open the browser menu, then tap <b>Add to Home screen</b>.'}</span><button class="g" id="instx">Got it</button>`;
+ document.body.appendChild(d);$$('instx').onclick=()=>{d.remove();try{localStorage.setItem('cvInst','1')}catch(e){}}},9000);
 }
 
 </script></body></html>
