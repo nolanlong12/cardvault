@@ -261,7 +261,7 @@ const CH=[['open','Open 3 packs',3,500],['sell','Sell 2 cards',2,250],['trade','
 function draw(){document.body.classList.toggle('home',tab=='home');$$('mo').textContent=m2(S.money);$$('ih').textContent=fm(incMin())+'/min';$$('lv').textContent='Level '+lvl()+' · '+$$$(S.inv.reduce((a,i)=>a+val(i),0))+' collection';
 $$('nav').innerHTML=typeof navHTML=='function'?navHTML():'';
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
-const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),ach:m=>achPg(m),dash:m=>dashPg(m),watch:m=>watchPg(m),fuse:m=>fusePg(m),week:m=>weekPg(m),season:m=>seasonPg(m),quests,sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
+const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),ach:m=>achPg(m),dash:m=>dashPg(m),watch:m=>watchPg(m),fuse:m=>fusePg(m),week:m=>weekPg(m),season:m=>seasonPg(m),quests,goals:m=>goalsPg(m),sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
 const K=n=>n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e4?'$'+Math.round(n/1e3)+'k':$$$(n);let SCN=['park','aquarium','mall'][Math.random()*3|0];
 const HS={park:`<defs><linearGradient id="hp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ecbff"/><stop offset="1" stop-color="#e8f8ff"/></linearGradient></defs><rect width="100" height="160" fill="url(#hp)"/><circle cx="78" cy="30" r="10" fill="#ffe27a"/><ellipse cx="30" cy="40" rx="14" ry="5" fill="#fff"/><ellipse cx="62" cy="52" rx="12" ry="4" fill="#fff"/><path d="M0 100Q30 80 60 98T100 90V160H0Z" fill="#5fbf63"/><path d="M0 120Q40 105 100 118V160H0Z" fill="#43a64f"/><path d="M40 160Q48 130 60 110" stroke="#e9d49b" stroke-width="10" fill="none"/><g fill="#2f8f46"><rect x="19" y="92" width="4" height="22" fill="#7a5230"/><circle cx="21" cy="88" r="11"/><circle cx="14" cy="95" r="8"/><circle cx="28" cy="95" r="8"/><rect x="79" y="100" width="3" height="16" fill="#7a5230"/><circle cx="80.5" cy="97" r="8"/></g>`,
 aquarium:`<defs><linearGradient id="ha" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46c2e8"/><stop offset="1" stop-color="#0a2f6b"/></linearGradient></defs><rect width="100" height="160" fill="url(#ha)"/><path d="M20 0L45 160H5ZM60 0L90 160H55Z" fill="#fff" opacity=".07"/><g fill="none" stroke="#fff" opacity=".5"><circle cx="20" cy="110" r="2"/><circle cx="26" cy="90" r="3"/><circle cx="70" cy="100" r="2"/><circle cx="76" cy="70" r="3"/></g><g fill="#ff9f43"><ellipse cx="30" cy="60" rx="7" ry="4"/><path d="M37 60l7-4v8z"/></g><g fill="#ffd166"><ellipse cx="70" cy="85" rx="6" ry="3.5"/><path d="M64 85l-6-4v8z"/></g><path d="M0 142Q30 132 60 142T100 140V160H0Z" fill="#e8d29a"/><path d="M12 145Q8 130 14 118M18 145Q22 132 17 122M86 145Q90 128 84 116" stroke="#2fb86a" stroke-width="3" fill="none"/>`,
@@ -1710,12 +1710,12 @@ let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hid
 /* ===== BOTTOM MENU (Clash Royale style): 5 big buttons, sub-tabs inside each area ===== */
 {
 const AREAS=[
- {k:'shop',i:'🏬',l:'Shop',tabs:[['shop','Store'],['open','Packs'],['season','Season']]},
- {k:'cards',i:'📚',l:'Cards',tabs:[['binder','Binder'],['fuse','Fusion'],['sets','Sets'],['watch','Watchlist'],['daily','Mystery'],['archive','Archive']]},
- {k:'home',i:'🏠',l:'Home',tabs:[['home','Home'],['income','Income'],['quests','Quests'],['map','Map'],['ach','Badges']]},
- {k:'market',i:'📈',l:'Market',tabs:[['market','Market'],['auction','Auction'],['myauc','My Auctions'],['trades','Trades'],['dash','Dashboard']]},
- {k:'social',i:'👥',l:'Social',tabs:[['friends','Friends'],['ranks','Leaders'],['week','Weekly'],['feed','Feed'],['more','More'],['account','Account']]}];
-const areaOf=t=>AREAS.find(a=>a.tabs.some(x=>x[0]==t))||(t=='admin'?AREAS[4]:AREAS[2]);
+ {k:'shop',i:'🏬',l:'Shop',tabs:[['shop','Buy Packs'],['open','My Packs'],['season','Season']]},
+ {k:'cards',i:'📚',l:'Cards',tabs:[['binder','My Cards'],['sets','Collections'],['fuse','Fusion'],['watch','Watching'],['archive','Archive']]},
+ {k:'home',i:'🏠',l:'Home',tabs:[['home','Home'],['goals','Goals'],['income','Income'],['ach','Badges'],['quests','Quests'],['map','Map']]},
+ {k:'market',i:'📈',l:'Market',tabs:[['market','Prices'],['auction','Auction'],['myauc','My Sales'],['trades','Trades'],['dash','Stats']]},
+ {k:'social',i:'👥',l:'Social',tabs:[['friends','Friends'],['ranks','Leaders'],['week','Weekly'],['feed','Feed'],['more','More']]}];
+const areaOf=t=>AREAS.find(a=>a.tabs.some(x=>x[0]==t))||(t=='admin'||t=='account'?AREAS[4]:AREAS[2]);
 const LAST={};
 window.navHTML=()=>{const a=areaOf(tab);return a.tabs.map(([k,l])=>`<button class="${tab==k?'on':''}" data-t="${k}">${l}</button>`).join('')};
 const css=document.createElement('style');css.textContent=`
@@ -1977,6 +1977,89 @@ const st=document.createElement('style');st.textContent='button[data-r]{display:
 
 /* card page gets a Market button */
 const _it=injectTools;injectTools=function(){_it();const t=document.getElementById('cvtools');if(t&&!t.querySelector('#cvmk')){const b=document.createElement('button');b.id='cvmk';b.className='g';b.style.cssText='padding:4px 10px;font-size:13px';b.textContent='📊 Market';b.onclick=()=>mkt(LASTCARD);t.appendChild(b)}};
+}
+
+/* ===== EASY MODE: goals, daily check-in, "do this next" hints, screen tips, help button, new tour ===== */
+{
+const lsg=(k)=>{try{return localStorage.getItem(k)}catch(e){return null}},lss=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+let GL=null,GLT=0,SKIP=false;
+async function loadGoals(f){if(!READY||!S.prefs)return GL;if(!f&&Date.now()-GLT<45000)return GL;GLT=Date.now();try{GL=await rpc('goals_get',{},1)}catch(e){}paintHints();return GL}
+const fmt=s=>{s=Math.max(0,s|0);const d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);return d?d+'d '+h+'h':h?h+'h '+m+'m':m+'m'};
+const money=n=>'$'+Math.round(n).toLocaleString();
+const claimable=()=>GL?GL.items.filter(i=>!i.claimed&&i.have>=i.need).length+((GL.dbonus&&!GL.dbonus.claimed&&GL.dbonus.have>=3)?1:0)+((GL.wbonus&&!GL.wbonus.claimed&&GL.wbonus.have>=3)?1:0):0;
+
+/* ---- Goals page ---- */
+window.goalsPg=function(m){
+ m.innerHTML='<h2 style="margin-top:0">🎯 Goals</h2><p class="mt">Loading…</p>';
+ loadGoals(true).then(()=>paintGoals(m));
+ if(!GL)return;};
+function paintGoals(m){
+ if(tab!='goals'||!m.isConnected)return;
+ if(!GL){m.innerHTML='<h2 style="margin-top:0">🎯 Goals</h2><p class="pn mt">Goals turn on once the Goals update is installed on the server.</p>';return}
+ const st=GL.streak,bar=(a,b)=>`<div style="height:8px;border-radius:5px;background:#0006;overflow:hidden;margin-top:5px"><div style="height:100%;width:${Math.min(100,a/b*100)}%;background:linear-gradient(90deg,#4ade80,#22c55e)"></div></div>`;
+ const goal=i=>{const ok=i.have>=i.need;return`<div class="pn" style="display:flex;gap:10px;align-items:center"><div style="flex:1;min-width:0"><b>${esc(i.t)}</b><div class="mt" style="font-size:12px">${i.have} / ${i.need} · Reward ${money(i.money)}</div>${bar(i.have,i.need)}</div>${i.claimed?'<span class="mt" style="font-size:13px">✅ Done</span>':`<button data-gc="${i.id}" ${ok?'':'disabled class="g"'}>${ok?'Collect':'Go'}</button>`}</div>`};
+ const chest=(b,id,l)=>`<div class="pn" style="display:flex;gap:10px;align-items:center;border:1px solid #f0b92d66"><div style="font-size:30px">🎁</div><div style="flex:1"><b>${l}</b><div class="mt" style="font-size:12px">Collect all 3 goals · ${esc(b.reward)}</div></div>${b.claimed?'<span class="mt">✅ Done</span>':`<button data-gc="${id}" ${b.have>=3?'':'class="g" disabled'}>${b.have>=3?'Open':b.have+'/3'}</button>`}</div>`;
+ const days=Array.from({length:7},(_,k)=>{const done=k<(st.n%7||(st.n>0&&!st.ready?7:0));return`<div style="flex:1;text-align:center"><div style="width:30px;height:30px;margin:auto;border-radius:50%;background:${done?'linear-gradient(#ffe27a,#f0a81c)':'#0005'};display:flex;align-items:center;justify-content:center;font-size:13px;color:${done?'#3a2400':'#b9b3dc'};font-weight:800">${done?'✓':k+1}</div></div>`}).join('');
+ m.innerHTML=`<h2 style="margin-top:0">🎯 Goals</h2>
+ <div class="pn"><div class="row" style="justify-content:space-between;align-items:center"><span><b>🔥 Daily check-in</b><div class="mt" style="font-size:12px">${st.n} day streak · best ${st.best}. Come back every day. Day 7 gives a free Rare Pack.</div></span>
+  <button id="gci" ${st.ready?'':'class="g" disabled'}>${st.ready?'Check in +'+money(st.next):'Back tomorrow'}</button></div><div class="row" style="gap:4px;margin-top:10px">${days}</div></div>
+ <h3 style="margin:14px 0 4px">Daily goals <span class="mt" style="font-size:12px;font-weight:400">resets in ${fmt(GL.dsecs)}</span></h3>
+ ${GL.items.filter(i=>i.per=='d').map(goal).join('')}${chest(GL.dbonus,'dall','Daily chest')}
+ <h3 style="margin:14px 0 4px">Weekly goals <span class="mt" style="font-size:12px;font-weight:400">resets in ${fmt(GL.wsecs)}</span></h3>
+ ${GL.items.filter(i=>i.per=='w').map(goal).join('')}${chest(GL.wbonus,'wall','Weekly chest')}`;
+ const ci=m.querySelector('#gci');if(ci)ci.onclick=async()=>{try{const r=await rpc('daily_checkin');toast('🎁 '+r,4000)}catch(e){return}await resync();await loadGoals(true);draw()};
+ m.querySelectorAll('[data-gc]').forEach(b=>b.onclick=async()=>{if(b.disabled){const i=GL.items.find(x=>x.id==b.dataset.gc);if(i)toast(/pack/i.test(i.t)?'Tap Shop to buy and open packs':/Sell/.test(i.t)?'Sell cards from your Cards area':/slot/.test(i.t)?'Put cards in your income slots':'Keep playing!',2500);return}
+  try{const r=await rpc('goal_collect',{p_id:b.dataset.gc});toast('🎁 '+r,4000);sfx&&0}catch(e){return}await resync();await loadGoals(true);draw()})}
+
+/* ---- "Do this next" pill + red dot on Home ---- */
+const pill=document.createElement('div');pill.id='nxt';document.body.appendChild(pill);
+const css=document.createElement('style');css.textContent=`#nxt{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(100px + env(safe-area-inset-bottom,0px));z-index:7;display:none;align-items:center;gap:8px;background:linear-gradient(#ffe27a,#f0a81c 60%,#d9890a);color:#3a2400;font-weight:800;font-size:14px;border-radius:24px;padding:9px 14px;border:3px solid #fff9;box-shadow:0 4px 0 #8a5300,0 8px 18px #000a;max-width:92vw;animation:nxb 1.6s ease-in-out infinite;cursor:pointer}
+#nxt i{font-style:normal;opacity:.6;padding-left:4px}@keyframes nxb{50%{transform:translateX(-50%) translateY(-4px)}}
+#hlp{position:fixed;right:10px;bottom:calc(94px + env(safe-area-inset-bottom,0px));z-index:6;width:38px;height:38px;border-radius:50%;padding:0!important;font-size:18px;font-weight:800;display:flex;align-items:center;justify-content:center;opacity:.92}
+body.home #hlp{bottom:calc(172px + env(safe-area-inset-bottom,0px))}body.home #nxt{bottom:calc(176px + env(safe-area-inset-bottom,0px))}
+.tip{display:flex;gap:10px;align-items:center;background:#ffffff14;border:1px dashed #ffffff44;border-radius:12px;padding:8px 10px;margin:0 0 10px;font-size:13.5px}.tip b{white-space:nowrap}.tip button{flex:none;padding:3px 10px!important;font-size:12px}
+.hq{display:flex;gap:10px;align-items:center;text-align:left;width:100%;margin:6px 0;padding:10px 12px!important;font-size:15px}.hq span{font-size:26px}
+@media(prefers-reduced-motion:reduce){#nxt{animation:none}}`;document.head.appendChild(css);
+function nextStep(){
+ if(!READY||!S.prefs||tab!='home'||SKIP||!noModal())return null;
+ const opens=(S.st&&S.st.open)||0,sealed=Object.values(S.sealed||{}).reduce((a,b)=>a+b,0),filled=S.slots.filter(Boolean).length;
+ if(!opens&&sealed)return['👉 Open your first pack','open'];
+ if(!opens)return['🛒 Buy your first pack','shop'];
+ if(S.inv.length&&!filled)return['💰 Put a card in a slot to earn money','income'];
+ if(GL&&GL.streak.ready)return['🎁 Daily bonus ready. Tap to collect','goals'];
+ if(claimable())return['🎯 You have goal rewards to collect','goals'];
+ return null}
+pill.onclick=e=>{if(e.target.tagName=='I'){SKIP=true;paintHints();return}const n=nextStep();if(n){tab=n[1];draw();window.scrollTo(0,0)}};
+function paintHints(){const n=nextStep();pill.style.display=n?'flex':'none';if(n)pill.innerHTML=esc(n[0])+'<i>✕</i>';
+ const hb=document.querySelector('#bbar [data-a="home"]');if(hb){let d=hb.querySelector('.bd');const c=(GL&&GL.streak.ready?1:0)+claimable();if(c>0&&!d){d=document.createElement('span');d.className='bd';hb.appendChild(d)}if(d){if(c>0)d.textContent=c>9?'9+':c;else d.remove()}}}
+
+/* ---- screen tips (shown once per screen) ---- */
+const TIPS={shop:['Buy packs','Each pack holds random cards. Cheap packs are the safest way to start. Tap one to buy it.'],open:['Your packs','Packs you bought wait here. Tap one to open it and see what you got.'],binder:['Your cards','Everything you own is here. Tap a card to sell it, see its price, or put it to work.'],fuse:['Fusion','Combine several cards into a new one.'],sets:['Collections','Collect every card in a set to earn rewards.'],watch:['Watchlist','Follow cards you like and get a message when the price hits your target.'],income:['Income slots','Cards in these slots earn money every minute, even while you are away. Put your best cards here.'],market:['Card market','Prices change all day. Tap a card to see its chart and recent sales.'],auction:['Auction house','Other players sell cards here. Bid, or use Buy Now.'],myauc:['Your auctions','Cards you listed and bids you made.'],trades:['Trades','Swap cards or cash with another player. Both of you have to agree.'],dash:['Stats','Your collection at a glance.'],friends:['Friends','Add friends to see what they collect.'],ranks:['Leaderboards','See who has the best collection.'],week:['Weekly contest','Compete for the top spot this week.'],feed:['Live feed','The biggest pulls from players, as they happen.'],ach:['Badges','Earn badges for things you do in the game.'],season:['Season','Seasonal rewards and challenges.']};
+function paintTip(){const m=$$('m'),t=TIPS[tab];if(!m||!t||m.querySelector('.tip')||lsg('cv_tip_'+tab))return;
+ m.insertAdjacentHTML('afterbegin',`<div class="tip"><span style="font-size:20px">💡</span><span><b>${t[0]}:</b> ${t[1]}</span><button class="g" id="tipx">Got it</button></div>`);$$('tipx').onclick=()=>{lss('cv_tip_'+tab,'1');const e=m.querySelector('.tip');if(e)e.remove()}}
+
+/* ---- help button ---- */
+const hb=document.createElement('button');hb.id='hlp';hb.textContent='?';hb.className='g';hb.title='Help';document.body.appendChild(hb);
+const go=(t)=>{closeM();tab=t;draw();window.scrollTo(0,0)};
+hb.onclick=()=>{modal(`<h2 style="margin:0;text-align:center">What do you want to do?</h2><div style="margin-top:8px">
+ <button class="hq g" data-go="open"><span>🎁</span>Open a pack</button><button class="hq g" data-go="shop"><span>🛒</span>Buy more packs</button>
+ <button class="hq g" data-go="income"><span>💰</span>Earn more money</button><button class="hq g" data-go="binder"><span>🃏</span>See or sell my cards</button>
+ <button class="hq g" data-go="market"><span>📈</span>Check card prices</button><button class="hq g" data-go="goals"><span>🎯</span>Daily goals and rewards</button>
+ <button class="hq g" data-go="trades"><span>🤝</span>Trade with a friend</button><button class="hq g" id="hqt"><span>📖</span>Replay the quick tour</button></div><button id="mc" style="margin-top:8px">Close</button>`);
+ $$('mc').onclick=closeM;$$('md').querySelectorAll('[data-go]').forEach(b=>b.onclick=()=>go(b.dataset.go));$$('hqt').onclick=()=>tutShow(0)};
+
+/* ---- a short, plain tour that matches the 5 buttons at the bottom ---- */
+TUT.length=0;TUT.push(
+ ['👋','Welcome to CardVault!',`<p>Collect cards. Your cards <b>earn you money</b> every minute, even when you are away.</p><p>This quick tour shows you everything you need. It takes under a minute.</p>`],
+ ['🎁','Step 1: Open packs',`<p>You start with a few packs. Tap <b>Shop</b> at the bottom, then <b>Packs</b>, then tap a pack to open it.</p><p>Each pack has random cards. Rarer cards are worth more.</p>`],
+ ['💰','Step 2: Put cards to work',`<p>Tap the <b>Home</b> button in the middle, then <b>Income</b>. Put your cards in the slots.</p><p>Each card earns a <b>fixed amount every minute</b>. Better cards earn more.</p>`],
+ ['🛒','Step 3: Grow',`<ul><li>Spend your money on more packs.</li><li><b>Cards</b> shows everything you own. You can sell cards you don't need.</li><li><b>Market</b> shows card prices going up and down, and lets you buy and sell with other players.</li></ul>`],
+ ['🎯','Come back every day',`<p>Open <b>Home → Goals</b> for a daily check-in bonus, daily and weekly goals, and free packs.</p><p>If you ever feel lost, tap the round <b>?</b> button. It takes you anywhere in one tap.</p>`]);
+
+/* ---- hook into drawing ---- */
+const _dE=draw;draw=function(){_dE.apply(this,arguments);paintTip();paintHints()};
+const _hE=hydrate;hydrate=function(...a){_hE(...a);setTimeout(()=>loadGoals(),800)};
+setInterval(()=>{if(READY&&!document.hidden){loadGoals();paintHints()}},60000);
 }
 
 </script></body></html>
