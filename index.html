@@ -116,7 +116,7 @@ S.sealed.st=2}
 function save(){try{localStorage.setItem('cardvault3',JSON.stringify(S))}catch(e){}}
 const val=i=>S.pr[i.cid]*FM[i.f]*(i.m||1),card=i=>CARDS[i.cid];
 let _six=null,_sk=0;const SETIDX=()=>{const k=CARDS.length+Object.keys(SETS).length;if(_six&&_sk==k)return _six;_six={};Object.keys(SETS).forEach(s=>_six[s]=[]);CARDS.forEach(c=>{if(c&&!c.sec&&_six[c.set])_six[c.set].push(c.id)});_sk=k;return _six};const setsDone=()=>{const own=new Set(S.inv.map(i=>i.cid)),ix=SETIDX();return Object.keys(SETS).filter(s=>ix[s].every(id=>own.has(id)))};
-const LOCK=6e5,rate=v=>+(Math.pow(v,.97)*.0165/60).toFixed(2),m2=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}),fm=n=>'$'+n.toFixed(2),inSlot=u=>S.slots.some(s=>s&&s.uid==u),unslot=u=>S.slots.forEach((s,k)=>{if(s&&s.uid==u)S.slots[k]=null});
+const LOCK=0,rate=v=>+(Math.pow(v,.97)*.0165/60).toFixed(2),m2=n=>'$'+n.toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2}),fm=n=>'$'+n.toFixed(2),inSlot=u=>S.slots.some(s=>s&&s.uid==u),unslot=u=>S.slots.forEach((s,k)=>{if(s&&s.uid==u)S.slots[k]=null});
 const setBonus=n=>n*.05+(n>=12?.75:n>=8?.4:n>=5?.2:n>=3?.1:0);const incMin=()=>S.slots.reduce((a,s)=>{if(!s)return a;const it=S.inv.find(i=>i.uid==s.uid);return a+(it?Math.min(s.rate,rateOf(it)):s.rate)},0)*(1+setBonus(setsDone().length));
 const lvl=()=>Math.floor(Math.sqrt(S.xp/40))+1;
 const avail=()=>Date.now()%36e5<18e5;
@@ -243,11 +243,11 @@ md.style.display='flex';md.innerHTML=`<div class="box" style="max-width:600px;te
 $$('pc2').onclick=()=>md.style.display='none';$$('pb').onclick=()=>{md.style.display='none';buy(k)};
 const w=$$('wi');if(w)w.onclick=()=>{$$('wiv').innerHTML=`<div class="prod" style="margin:8px">${prodH(k)}</div><p class="mt">Inside: ${p.packs} packs × ${p.per} cards${p.g?', '+p.g+' guaranteed '+RN[p.gm]+'+':''}${p.e?', 1 guaranteed Epic+':''}${p.exc?', 1 Collector Card slot':''}. Chase cards are possible.</p>`;$('#wiv .bx').classList.add('torn')}}
 function pick(k){const L=S.inv.filter(i=>!inSlot(i.uid)).sort((a,b)=>val(b)-val(a)),md=$$('md');md.style.display='flex';
-md.innerHTML=`<div class="box" style="max-width:640px"><h2 style="margin-top:0">Choose a card for slot ${k+1}</h2><p class="mt">Its current rate locks in for 10 minutes.</p><div class="grid">${L.map(i=>cardH(i,`data-u="${i.uid}"`)).join('')||'<p class="mt">No free cards.</p>'}</div><button class="g" id="pc" style="margin-top:10px">Cancel</button></div>`;
+md.innerHTML=`<div class="box" style="max-width:640px"><h2 style="margin-top:0">Choose a card for slot ${k+1}</h2><p class="mt">Tap the green ↻ any time to update its income to the card's latest value.</p><div class="grid">${L.map(i=>cardH(i,`data-u="${i.uid}"`)).join('')||'<p class="mt">No free cards.</p>'}</div><button class="g" id="pc" style="margin-top:10px">Cancel</button></div>`;
 $$('pc').onclick=()=>md.style.display='none';
 md.querySelectorAll('[data-u]').forEach(e=>e.onclick=()=>{const i=S.inv.find(x=>x.uid==e.dataset.u);S.slots[k]={uid:i.uid,rate:rate(val(i)),t:Date.now()};md.style.display='none';toast('Locked at '+fm(S.slots[k].rate)+'/min');draw()})}
 function refreshS(k){const s=S.slots[k],it=S.inv.find(i=>i.uid==s.uid),nr=rateOf(it);
-if(nr>s.rate||Date.now()-s.t>=LOCK){s.rate=nr;s.t=Date.now();toast('Rate set to '+fm(nr)+'/min, locked for 10 min')}else toast('Your locked '+fm(s.rate)+'/min is already as good or better. Kept.');draw()}
+if(true){s.rate=nr;s.t=Date.now();toast('Rate set to '+fm(nr)+'/min')}else toast('Your locked '+fm(s.rate)+'/min is already as good or better. Kept.');draw()}
 function frame(s,k){const it=s&&S.inv.find(i=>i.uid==s.uid);if(!it){S.slots[k]=null;return`<div class="sc"><div class="rt">&nbsp;</div><div class="cw" data-p="${k}"><div class="card" style="--f:#fff7;--b:#0005;--tx:#fff;border-style:dashed"><b style="margin:auto;font-size:30cqw">+</b></div></div></div>`}
 const nr=rateOf(it),left=s.t+LOCK-Date.now(),lk=left>0;
 return`<div class="sc"><div class="rt">${fm(s.rate)}/min</div>${cardH(it,`data-u="${it.uid}"`,1)}<div class="sb2"><button data-r="${k}" title="Refresh rate">↻</button><button class="g" data-x="${k}" ${lk?'disabled':''} title="Remove">✕</button></div><div class="lk ${nr>=s.rate?'up':'dn'}">${lk?'🔒 '+Math.ceil(left/6e4)+'m':'🔓'} · ${fm(nr)}/min now</div></div>`}
@@ -410,7 +410,7 @@ sell=function(i,q){if(i.lock||i.listed)return;S.money+=val(i)*.95;S.inv=S.inv.fi
  rpc('sell_card',{p_uid:i.uid},1).catch(e=>{toast(e.message,4000);resync()})};
 async function slotSet(k,uid){try{await rpc('set_slot',{p_idx:k,p_uid:uid})}catch(e){return}closeM();await resync();toast('Slot set')}
 pick=function(k){const L=S.inv.filter(i=>!inSlot(i.uid)&&!i.listed).sort((a,b)=>val(b)-val(a));
- modal(`<h2 style="margin-top:0">Choose an Active Card for slot ${k+1}</h2><p class="mt">Its current rate locks in for 10 minutes.</p><div class="grid">${L.map(i=>cardH(i,`data-u="${i.uid}"`)).join('')||'<p class="mt">No free cards.</p>'}</div><button class="g" id="pc" style="margin-top:10px">Cancel</button>`);
+ modal(`<h2 style="margin-top:0">Choose an Active Card for slot ${k+1}</h2><p class="mt">Tap the green ↻ any time to update its income to the card's latest value.</p><div class="grid">${L.map(i=>cardH(i,`data-u="${i.uid}"`)).join('')||'<p class="mt">No free cards.</p>'}</div><button class="g" id="pc" style="margin-top:10px">Cancel</button>`);
  $$('pc').onclick=closeM;$$('md').querySelectorAll('[data-u]').forEach(e=>e.onclick=()=>slotSet(k,e.dataset.u))};
 const _detail=detail;detail=function(uid){_detail(uid);const i=S.inv.find(x=>x.uid==uid);if(!i)return;const md=$$('md');
  const s1=$$('s1');if(s1&&i.listed)s1.disabled=true;
