@@ -261,7 +261,7 @@ const CH=[['open','Open 3 packs',3,500],['sell','Sell 2 cards',2,250],['trade','
 function draw(){document.body.classList.toggle('home',tab=='home');$$('mo').textContent=m2(S.money);$$('ih').textContent=fm(incMin())+'/min';$$('lv').textContent='Level '+lvl()+' · '+$$$(S.inv.reduce((a,i)=>a+val(i),0))+' collection';
 $$('nav').innerHTML=typeof navHTML=='function'?navHTML():'';
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>{tab=b.dataset.t;draw()});
-const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),ach:m=>achPg(m),dash:m=>dashPg(m),watch:m=>watchPg(m),fuse:m=>fusePg(m),week:m=>weekPg(m),season:m=>seasonPg(m),quests,goals:m=>goalsPg(m),arena:m=>arenaPg(m),wanted:m=>wantedPg(m),sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
+const m=$$('m');if(tab!=lastTab){m.classList.remove('fd');void m.offsetWidth;m.classList.add('fd');lastTab=tab}({home,shop,open:openT,binder,market,trades,friends:m=>friendsPg(m),ach:m=>achPg(m),dash:m=>dashPg(m),watch:m=>watchPg(m),fuse:m=>fusePg(m),week:m=>weekPg(m),season:m=>seasonPg(m),quests,goals:m=>goalsPg(m),arena:m=>arenaPg(m),mkhub:m=>mkhubPg(m),sochub:m=>sochubPg(m),progress:m=>progressPg(m),wanted:m=>wantedPg(m),sets:collections,income,more,map,feed:feedPg,ranks,daily,archive,auction:m=>auctionPg(m),myauc:m=>myAuc(m),account:m=>accountPg(m),admin:m=>adminPg(m)})[tab](m);save()}
 const K=n=>n>=1e6?'$'+(n/1e6).toFixed(1)+'M':n>=1e4?'$'+Math.round(n/1e3)+'k':$$$(n);let SCN=['park','aquarium','mall'][Math.random()*3|0];
 const HS={park:`<defs><linearGradient id="hp" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7ecbff"/><stop offset="1" stop-color="#e8f8ff"/></linearGradient></defs><rect width="100" height="160" fill="url(#hp)"/><circle cx="78" cy="30" r="10" fill="#ffe27a"/><ellipse cx="30" cy="40" rx="14" ry="5" fill="#fff"/><ellipse cx="62" cy="52" rx="12" ry="4" fill="#fff"/><path d="M0 100Q30 80 60 98T100 90V160H0Z" fill="#5fbf63"/><path d="M0 120Q40 105 100 118V160H0Z" fill="#43a64f"/><path d="M40 160Q48 130 60 110" stroke="#e9d49b" stroke-width="10" fill="none"/><g fill="#2f8f46"><rect x="19" y="92" width="4" height="22" fill="#7a5230"/><circle cx="21" cy="88" r="11"/><circle cx="14" cy="95" r="8"/><circle cx="28" cy="95" r="8"/><rect x="79" y="100" width="3" height="16" fill="#7a5230"/><circle cx="80.5" cy="97" r="8"/></g>`,
 aquarium:`<defs><linearGradient id="ha" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#46c2e8"/><stop offset="1" stop-color="#0a2f6b"/></linearGradient></defs><rect width="100" height="160" fill="url(#ha)"/><path d="M20 0L45 160H5ZM60 0L90 160H55Z" fill="#fff" opacity=".07"/><g fill="none" stroke="#fff" opacity=".5"><circle cx="20" cy="110" r="2"/><circle cx="26" cy="90" r="3"/><circle cx="70" cy="100" r="2"/><circle cx="76" cy="70" r="3"/></g><g fill="#ff9f43"><ellipse cx="30" cy="60" rx="7" ry="4"/><path d="M37 60l7-4v8z"/></g><g fill="#ffd166"><ellipse cx="70" cy="85" rx="6" ry="3.5"/><path d="M64 85l-6-4v8z"/></g><path d="M0 142Q30 132 60 142T100 140V160H0Z" fill="#e8d29a"/><path d="M12 145Q8 130 14 118M18 145Q22 132 17 122M86 145Q90 128 84 116" stroke="#2fb86a" stroke-width="3" fill="none"/>`,
@@ -1711,13 +1711,14 @@ let hiddenAt=0;document.addEventListener('visibilitychange',()=>{if(document.hid
 {
 const AREAS=[
  {k:'shop',i:'🏬',l:'Shop',tabs:[['shop','Buy Packs'],['open','My Packs'],['season','Season']]},
- {k:'cards',i:'📚',l:'Cards',tabs:[['binder','My Cards'],['sets','Collections'],['arena','Arena'],['fuse','Fusion'],['watch','Watching'],['archive','Archive']]},
- {k:'home',i:'🏠',l:'Home',tabs:[['home','Home'],['goals','Goals'],['income','Income'],['ach','Badges'],['quests','Quests'],['map','Map']]},
- {k:'market',i:'📈',l:'Market',tabs:[['market','Prices'],['auction','Auction'],['myauc','My Sales'],['wanted','Wanted'],['trades','Trades'],['dash','Stats']]},
- {k:'social',i:'👥',l:'Social',tabs:[['friends','Friends'],['ranks','Leaders'],['week','Weekly'],['feed','Feed'],['more','More']]}];
+ {k:'cards',i:'📚',l:'Cards',tabs:[['binder','My Cards'],['sets','Collections'],['fuse','Fusion'],['watch','Watchlist'],['archive','Archive']]},
+ {k:'home',i:'🏠',l:'Home',tabs:[['home','Home'],['progress','Progress'],['goals','Goals'],['income','Income'],['ach','Badges'],['quests','Quests'],['map','Map']]},
+ {k:'market',i:'📈',l:'Market',tabs:[['mkhub','Market'],['market','All Cards'],['auction','Auction House'],['myauc','My Sales'],['wanted','Wanted Board'],['dash','Stats']]},
+ {k:'social',i:'👥',l:'Social',tabs:[['sochub','Social'],['friends','Friends'],['trades','Trades'],['arena','Battles'],['ranks','Leaderboards'],['week','Weekly'],['feed','Live Feed'],['more','More']]}];
+window.CV_AREAS=AREAS;
 const areaOf=t=>AREAS.find(a=>a.tabs.some(x=>x[0]==t))||(t=='admin'||t=='account'?AREAS[4]:AREAS[2]);
 const LAST={};
-window.navHTML=()=>{const a=areaOf(tab);return a.tabs.map(([k,l])=>`<button class="${tab==k?'on':''}" data-t="${k}">${l}</button>`).join('')};
+window.navHTML=()=>'';window.cvAreaOf=areaOf;
 const css=document.createElement('style');css.textContent=`
 #bbar{position:fixed;left:0;right:0;bottom:0;z-index:6;display:flex;align-items:flex-end;justify-content:center;padding:8px 4px calc(6px + env(safe-area-inset-bottom,0px));background:linear-gradient(#2d2850,#15122a);border-top:3px solid #6d5fd0;box-shadow:0 -8px 20px #000b,inset 0 2px 0 #fff2}
 #bbar button{flex:1;max-width:100px;min-width:0;background:transparent;border:0;border-radius:0;color:#b9b3dc;display:flex;flex-direction:column;align-items:center;gap:2px;font-size:11px;font-weight:800;padding:2px 0 0;position:relative;transition:transform .18s;letter-spacing:.2px}
@@ -1755,7 +1756,7 @@ const bar=document.createElement('div');bar.id='bbar';document.body.appendChild(
 const badge=a=>{let n=0;try{if(a.k=='market')n=(TR&&TR.n)||0;if(a.k=='social')n=(FR&&FR.n)||0}catch(e){}return n>0?`<span class="bd">${n>9?'9+':n}</span>`:''};
 window.paintBar=()=>{const cur=areaOf(tab);LAST[cur.k]=tab;
  bar.innerHTML=AREAS.map(a=>`<button data-a="${a.k}" class="${a.k==cur.k?'on':''} ${a.k=='home'?'mid':''}"><span class="ic">${a.i}</span>${a.l}${badge(a)}</button>`).join('');
- bar.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{const a=AREAS.find(x=>x.k==b.dataset.a);tab=a.k=='home'?'home':(LAST[a.k]&&a.tabs.some(t=>t[0]==LAST[a.k])?LAST[a.k]:a.tabs[0][0]);draw();window.scrollTo(0,0)});
+ bar.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>{const a=AREAS.find(x=>x.k==b.dataset.a);tab=a.tabs[0][0];draw();window.scrollTo(0,0)});
  buildPC();paintPC()};
 function buildPC(){const top=document.querySelector('header .top');if(!top||$$('pc'))return;
  const mo=$$('mo'),ih=$$('ih'),lv=$$('lv'),mu=$$('mu');top.innerHTML='';
@@ -1774,7 +1775,7 @@ let sx=0,sy=0,st=0,ok=false;
 document.addEventListener('touchstart',e=>{const t=e.touches[0];sx=t.clientX;sy=t.clientY;st=Date.now();
  ok=e.touches.length==1&&!e.target.closest('input,select,textarea,nav,#bbar,#ov,#md,#auth,.cw,.card,svg,.grid,[style*="overflow"]')&&$$('ov').style.display!='flex'&&$$('md').style.display!='flex'},{passive:true});
 document.addEventListener('touchend',e=>{if(!ok)return;const t=e.changedTouches[0],dx=t.clientX-sx,dy=t.clientY-sy;if(Date.now()-st>600||Math.abs(dx)<90||Math.abs(dy)>Math.abs(dx)*.5)return;
- const i=AREAS.indexOf(areaOf(tab)),j=i+(dx<0?1:-1);if(j<0||j>=AREAS.length)return;const a=AREAS[j];tab=a.k=='home'?'home':(LAST[a.k]||a.tabs[0][0]);draw();window.scrollTo(0,0)},{passive:true});
+ const i=AREAS.indexOf(areaOf(tab)),j=i+(dx<0?1:-1);if(j<0||j>=AREAS.length)return;const a=AREAS[j];tab=a.tabs[0][0];draw();window.scrollTo(0,0)},{passive:true});
 }
 
 (()=>{const css=document.createElement('style');css.textContent=`
@@ -1950,6 +1951,7 @@ function rulesHtml(){return`<div style="font-size:12.5px;line-height:1.5">
 let OV=null,OVT=0;
 async function loadOv(f){if(!READY||(!f&&Date.now()-OVT<25000))return OV;OVT=Date.now();try{OV=await rpc('market_overview',{},1)}catch(e){}return OV}
 const row=(x)=>{const c=CARDS[x.id];if(!c)return'';return`<div class="row" data-mk="${x.id}" style="justify-content:space-between;cursor:pointer;padding:4px 0;border-bottom:1px solid #ffffff10"><span>${c.ic} <b>${esc(c.n)}</b></span><span style="white-space:nowrap">${kc(x.price)} <span style="color:${cl(x.c24)};font-weight:700">${pc(x.c24)}</span></span></div>`};
+window.cvOv=loadOv;window.cvChg=CHG;window.cvTL=TL;
 window.pulse=async function(){
  modal(`<h2 style="margin:0">📊 Market Pulse</h2><p class="mt">Loading…</p><button class="g" id="mc">Close</button>`);$$('mc').onclick=closeM;
  const[o,tt]=await Promise.all([loadOv(true),rpc('top_traders',{},1).catch(()=>null)]);if(!$$('mc')||$$('md').style.display!='flex')return;
@@ -1990,6 +1992,7 @@ const fmt=s=>{s=Math.max(0,s|0);const d=Math.floor(s/86400),h=Math.floor(s%86400
 const money=n=>'$'+Math.round(n).toLocaleString();
 const claimable=()=>GL?GL.items.filter(i=>!i.claimed&&i.have>=i.need).length+((GL.dbonus&&!GL.dbonus.claimed&&GL.dbonus.have>=3)?1:0)+((GL.wbonus&&!GL.wbonus.claimed&&GL.wbonus.have>=3)?1:0):0;
 
+window.cvGoals=()=>GL;window.cvLoadGoals=loadGoals;window.cvClaimable=()=>claimable();
 /* ---- Goals page ---- */
 window.goalsPg=function(m){
  m.innerHTML='<h2 style="margin-top:0">🎯 Goals</h2><p class="mt">Loading…</p>';
@@ -2033,7 +2036,7 @@ function nextStep(){
  return null}
 pill.onclick=e=>{if(e.target.tagName=='I'){SKIP=true;paintHints();return}const n=nextStep();if(n){tab=n[1];draw();window.scrollTo(0,0)}};
 function paintHints(){const n=nextStep();pill.style.display=n?'flex':'none';if(n)pill.innerHTML=esc(n[0])+'<i>✕</i>';
- const hb=document.querySelector('#bbar [data-a="home"]');if(hb){let d=hb.querySelector('.bd');const c=(GL&&GL.streak.ready?1:0)+claimable();if(c>0&&!d){d=document.createElement('span');d.className='bd';hb.appendChild(d)}if(d){if(c>0)d.textContent=c>9?'9+':c;else d.remove()}}}
+ const hb=document.querySelector('#bbar [data-a="home"]');if(hb){let d=hb.querySelector('.bd');const c=(GL&&GL.streak&&GL.streak.ready?1:0)+claimable();if(c>0&&!d){d=document.createElement('span');d.className='bd';hb.appendChild(d)}if(d){if(c>0)d.textContent=c>9?'9+':c;else d.remove()}}}
 
 /* ---- screen tips (shown once per screen) ---- */
 const TIPS={shop:['Buy packs','Each pack holds random cards. Cheap packs are the safest way to start. Tap one to buy it.'],open:['Your packs','Packs you bought wait here. Tap one to open it and see what you got.'],binder:['Your cards','Everything you own is here. Tap a card to sell it, see its price, or put it to work.'],fuse:['Fusion','Combine several cards into a new one.'],sets:['Collections','Collect every card in a set to earn rewards.'],watch:['Watchlist','Follow cards you like and get a message when the price hits your target.'],income:['Income slots','Cards in these slots earn money every minute, even while you are away. Put your best cards here.'],market:['Card market','Prices change all day. Tap a card to see its chart and recent sales.'],auction:['Auction house','Other players sell cards here. Bid, or use Buy Now.'],myauc:['Your auctions','Cards you listed and bids you made.'],trades:['Trades','Swap cards or cash with another player. Both of you have to agree.'],dash:['Stats','Your collection at a glance.'],friends:['Friends','Add friends to see what they collect.'],ranks:['Leaderboards','See who has the best collection.'],week:['Weekly contest','Compete for the top spot this week.'],feed:['Live feed','The biggest pulls from players, as they happen.'],ach:['Badges','Earn badges for things you do in the game.'],season:['Season','Seasonal rewards and challenges.']};
@@ -2255,6 +2258,243 @@ const _tbSum=tbSum;tbSum=function(){_tbSum();const el=$$('tsum');if(!el)return;
 const _tbRev=tbReview;tbReview=function(){_tbRev();const md=$$('md'),h=md&&md.querySelector('h2');if(!h)return;
  const g=TB.mine.filter(c=>TB.give.has(c.uid)),a=TB.theirs.filter(c=>TB.ask.has(c.uid));
  h.insertAdjacentHTML('afterend',verdict(tTot(g,TB.gm),tTot(a,TB.am))+'<div class="mt" style="font-size:12px">Based on current market prices. You decide what a card is worth to you.</div>')};
+}
+
+/* ===== UI 2.0: app-style navigation. No top tabs. Compact header, profile menu, section sheets, Progress / Market / Social hubs. ===== */
+{
+const AR=window.CV_AREAS,areaOf=window.cvAreaOf;
+const TT={shop:'Shop',open:'My Packs',season:'Season',binder:'My Cards',sets:'Collections',fuse:'Fusion',watch:'Watchlist',archive:'Secret Archive',progress:'Progress',goals:'Goals',income:'Income',ach:'Badges',quests:'Quests',map:'World Map',mkhub:'Market',market:'All Cards',auction:'Auction House',myauc:'My Sales',wanted:'Wanted Board',dash:'Market Stats',sochub:'Social',friends:'Friends',trades:'Trades',arena:'Battles',ranks:'Leaderboards',week:'Weekly Contest',feed:'Live Feed',more:'More',account:'Account',admin:'Admin'};
+const IC={shop:'🏬',open:'📦',season:'🏆',binder:'📚',sets:'📖',fuse:'⚗️',watch:'⭐',archive:'🕵️',progress:'📊',goals:'🎯',income:'💸',ach:'🏅',quests:'📋',map:'🗺️',mkhub:'📈',market:'🔎',auction:'🏛',myauc:'🧾',wanted:'📌',dash:'📉',sochub:'👥',friends:'👥',trades:'🤝',arena:'⚔️',ranks:'🏆',week:'📅',feed:'📡',more:'➕',account:'⚙️'};
+const PROG=new Set(['goals','income','ach','quests','map']);
+const root=t=>{const a=areaOf(t);return a.tabs[0][0]};
+const go=(t,fp)=>{closeM();window.cvFP=!!fp;tab=t;draw();window.scrollTo(0,0)};
+const css=document.createElement('style');css.textContent=`
+:root{--gold:#f0b92d;--bg0:#0e0c1c;--bg1:#171430;--card:#1f1b3d;--card2:#292450;--line:#ffffff1c;--r:14px}
+body{background:var(--bg0)!important}
+#bg{display:none}
+body.home #bg{display:block}body.home #bg::after{background:linear-gradient(#0e0c1ccc,#0e0c1ce6)!important}
+header nav,body.home header nav{display:none!important}
+header{padding:6px 10px!important;background:#120f26f2!important;border-bottom:1px solid var(--line)!important}
+#pc{gap:8px!important}
+#pc .av{width:38px!important;height:38px!important}#pc .av i{width:30px!important;height:30px!important;font-size:15px!important}
+#pc .av b{font-size:10px!important;line-height:13px!important;bottom:-4px!important;right:-4px!important;padding:0 4px!important}
+#pc .pn1{font-size:14px!important}#pc .pc2{display:block!important;font-size:11px!important;color:#b9b3dc}
+#pc .mp{padding:1px 10px 1px 4px!important;border-width:1.5px!important;box-shadow:none!important}
+#pc .mp .co{width:20px!important;height:20px!important;font-size:11px!important;box-shadow:none!important}
+#pc #mo{font-size:16px!important;text-shadow:none!important}
+#pc #ih{font-size:11px!important;margin-top:1px!important}
+#pc #pmu{display:none!important}#pc .bt2{flex-direction:row!important}
+#pc .bt2 button{width:34px;height:34px;padding:0!important;font-size:17px!important;line-height:34px!important;border-radius:10px!important}
+#m>.backb,#hlp{display:none!important}
+.tb{position:sticky;top:calc(env(safe-area-inset-top,0px) + var(--hh,56px));z-index:4;display:flex;align-items:center;gap:8px;margin:-14px -14px 10px;padding:8px 12px;background:#120f26f2;backdrop-filter:blur(6px);border-bottom:1px solid var(--line)}
+.tb .bk{flex:none;width:34px;height:34px;padding:0!important;border-radius:10px!important;font-size:18px!important}
+.tb h1{flex:1;min-width:0;margin:0;font-size:17px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-shadow:none}
+.tb .sc2{flex:none;padding:6px 12px!important;font-size:13px!important;border-radius:20px!important}
+.hubg{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.ht{position:relative;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 12px;text-align:left;cursor:pointer;min-height:92px;display:flex;flex-direction:column;gap:2px;transition:transform .12s,background .12s}
+.ht:active{transform:scale(.97);background:var(--card2)}.ht .e{font-size:28px}.ht b{font-size:15px}.ht span.s{font-size:12px;color:#b9b3dc}
+.ht .bd2{position:absolute;top:8px;right:8px;min-width:20px;height:20px;border-radius:10px;background:#ef4444;color:#fff;font-size:11px;line-height:20px;text-align:center;padding:0 5px;font-weight:800}
+.lr{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:12px;margin:0 0 8px;cursor:pointer}
+.lr .e{font-size:26px;width:36px;text-align:center}.lr .t{flex:1;min-width:0}.lr .t b{display:block;font-size:15px}.lr .t span{font-size:12px;color:#b9b3dc}.lr .ch{color:#b9b3dc;font-size:20px}
+.sec{display:flex;align-items:center;justify-content:space-between;margin:16px 0 8px}.sec h3{margin:0;font-size:15px}.sec a{font-size:12px;color:var(--gold);cursor:pointer}
+.hs{display:flex;gap:10px;overflow-x:auto;scroll-snap-type:x proximity;padding:2px 14px 8px;margin:0 -14px;scrollbar-width:none}.hs::-webkit-scrollbar{display:none}
+.mi{flex:0 0 118px;scroll-snap-align:start;background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:8px;cursor:pointer;min-width:0}
+.mi .th{aspect-ratio:1;border-radius:10px;overflow:hidden;border:2px solid var(--c,#888)}.mi .th svg{width:100%;height:100%;display:block}
+.mi b{display:block;font-size:12px;margin-top:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mi .pr{font-size:12px;color:#b9b3dc}.mi .cg{font-size:12px;font-weight:800}
+.up2{color:#4ade80}.dn2{color:#f87171}
+.srch{display:flex;gap:8px}.srch input{flex:1;min-width:0;background:var(--card);border:1px solid var(--line);border-radius:12px;padding:11px 12px;color:var(--tx);font:inherit}
+.sk{background:linear-gradient(90deg,#ffffff0d,#ffffff1c,#ffffff0d);background-size:200% 100%;animation:skm 1.2s infinite;border-radius:10px;height:64px;margin:6px 0}@keyframes skm{to{background-position:-200% 0}}
+.empty{color:#b9b3dc;font-size:13px;padding:10px 0}
+#md{align-items:flex-end!important;padding:0!important}
+#md .box{max-width:560px!important;margin:0 auto;border-radius:20px 20px 0 0!important;max-height:90dvh!important;padding:16px 16px calc(16px + env(safe-area-inset-bottom,0px))!important;animation:sheet .2s ease-out;border:1px solid var(--line);border-bottom:0}
+#md .backb{display:none!important}
+#md .box::before{content:'';display:block;width:42px;height:4px;border-radius:2px;background:#ffffff33;margin:-6px auto 10px}
+@keyframes sheet{from{transform:translateY(40px);opacity:0}}
+.mrow{display:flex;align-items:center;gap:12px;padding:12px 4px;border-bottom:1px solid var(--line);cursor:pointer}.mrow:last-child{border:0}.mrow .e{font-size:22px;width:30px;text-align:center}.mrow b{flex:1}.mrow span{color:#b9b3dc;font-size:13px}
+.tg2{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.tg2 .ht{min-height:84px;padding:10px 8px;align-items:center;text-align:center}
+@media(prefers-reduced-motion:reduce){#md .box,.sk{animation:none}}`;document.head.appendChild(css);
+/* tap the dark background to close a sheet */
+document.addEventListener('click',e=>{const md=$$('md');if(e.target===md&&md.style.display=='flex')closeM()});
+
+/* ---- header: compact, menu button ---- */
+function openMenu(){
+ const L=lvl(),a=40*(L-1)*(L-1),b=40*L*L,pr=Math.max(0,Math.min(100,((S.xp||0)-a)/(b-a)*100));
+ const cv=(($$('lv')&&$$('lv').textContent.split(' · ')[1])||'').replace(' collection','');
+ const gl=window.cvGoals&&window.cvGoals(),cn=window.cvClaimable?window.cvClaimable():0;
+ const mu=$$('mu');
+ modal(`<div style="display:flex;align-items:center;gap:12px;margin-bottom:8px"><div style="width:48px;height:48px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#7e6df0,#2b2060);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:22px">${esc((S.name||'?').trim().charAt(0).toUpperCase())}</div>
+  <div style="flex:1;min-width:0"><b style="font-size:17px">${esc(S.name||'Player')}</b><div class="mt" style="font-size:12px">Level ${L} · ${cv?'Collection '+esc(cv):''}</div><div style="height:6px;border-radius:3px;background:#0006;margin-top:5px;overflow:hidden"><div style="height:100%;width:${pr}%;background:linear-gradient(90deg,#ffe27a,#f0a81c)"></div></div></div></div>
+  <div class="mrow" data-m="progress"><span class="e">📊</span><b>Progress</b>${cn?`<span class="bd2" style="position:static;background:#ef4444;color:#fff;border-radius:10px;padding:0 7px;font-weight:800">${cn}</span>`:'<span>Goals, income, badges</span>'}</div>
+  <div class="mrow" data-m="profile"><span class="e">🙋</span><b>My profile</b><span>What others see</span></div>
+  <div class="mrow" data-m="account"><span class="e">⚙️</span><b>Account &amp; notifications</b><span>Settings</span></div>
+  <div class="mrow" data-m="sound"><span class="e">${mu&&mu.textContent.trim()||'🔊'}</span><b>Sound</b><span>Tap to switch</span></div>
+  <div class="mrow" data-m="help"><span class="e">❓</span><b>Help</b><span>What do you want to do?</span></div>
+  <div class="mrow" data-m="tour"><span class="e">📖</span><b>Quick tour</b><span>1 minute</span></div>
+  <button class="g" id="mc" style="width:100%;margin-top:10px">Close</button>`);
+ $$('mc').onclick=closeM;
+ $$('md').querySelectorAll('[data-m]').forEach(r=>r.onclick=()=>{const k=r.dataset.m;
+  if(k=='progress'||k=='account')return go(k);
+  if(k=='profile'){closeM();if(READY&&S.prefs)showProfile(S.prefs.id);return}
+  if(k=='sound'){if(mu)mu.click();openMenu();return}
+  if(k=='help'){closeM();const h=$$('hlp');if(h)h.click();return}
+  if(k=='tour'){tutShow(0)}})}
+const _pb=window.paintBar;
+window.paintBar=function(){_pb();
+ const g=$$('gear');if(g){g.textContent='☰';g.title='Menu';g.onclick=openMenu}
+ const av=$$('pav'),pi=$$('pin');if(av)av.onclick=openMenu;if(pi)pi.onclick=openMenu;
+ const pcc=$$('pcc');if(pcc)pcc.textContent='Level '+lvl()};
+
+/* ---- title bar + sections ---- */
+function sections(a){
+ const L=a.tabs.slice(a.k=='home'?1:0);
+ modal(`<h2 style="margin:0 0 10px">${a.i} ${a.l}</h2><div class="tg2">${L.map(([k,l])=>`<div class="ht" data-g="${k}"><span class="e">${IC[k]||'•'}</span><b style="font-size:13px">${l}</b></div>`).join('')}</div><button class="g" id="mc" style="width:100%;margin-top:12px">Close</button>`);
+ $$('mc').onclick=closeM;$$('md').querySelectorAll('[data-g]').forEach(e=>e.onclick=()=>go(e.dataset.g))}
+function paintTB(){
+ const m=$$('m');if(!m||tab=='home'||!TT[tab]||m.querySelector(':scope>.tb')){return}
+ const a=areaOf(tab),r=a.tabs[0][0],isRoot=tab==r;
+ const back=PROG.has(tab)||(tab=='sets'&&window.cvFP)?'progress':tab=='progress'?'home':tab=='account'||tab=='admin'?'home':isRoot?null:r;
+ const many=false;
+ const d=document.createElement('div');d.className='tb';
+ d.innerHTML=`${back?'<button class="g bk" id="tbk" aria-label="Back">←</button>':''}<h1>${TT[tab]}</h1>${many?'<button class="g sc2" id="tsc">☰ Sections</button>':''}`;
+ m.insertBefore(d,m.firstChild);
+ const bk=$$('tbk');if(bk)bk.onclick=()=>go(back);const sc=$$('tsc');if(sc)sc.onclick=()=>sections(a);
+ const h=[...m.children].find(e=>e.tagName=='H2');if(h&&h.textContent.trim()&&!h.querySelector('.mt'))h.style.display='none'}
+const _d2=draw;draw=function(){_d2.apply(this,arguments);paintTB()};
+new MutationObserver(()=>{const m=$$('m');if(m&&tab!='home'&&TT[tab]&&!m.querySelector(':scope>.tb'))paintTB()}).observe($$('m'),{childList:true});
+
+/* ---- Progress hub ---- */
+window.progressPg=function(m){
+ let gl=window.cvGoals&&window.cvGoals();if(gl&&!gl.streak)gl=null;const cn=window.cvClaimable?window.cvClaimable():0;
+ let sd=0,sl=0;try{sd=setsDone().length;sl=Object.keys(SETS).length}catch(e){}
+ const filled=S.slots.filter(Boolean).length;
+ const R=[['goals','🎯','Goals & daily reward',gl?(gl.streak.ready?'Daily reward ready':cn?cn+' to collect':gl.streak.n+' day streak'):'Daily check-in, daily and weekly goals',cn||(gl&&gl.streak.ready?'!':0)],
+  ['income','💸','Passive income','+'+fm(incMin())+'/min · '+filled+' of 5 slots earning',0],
+  ['ach','🏅','Achievements & badges','Things you have done in the game',0],
+  ['quests','📋','Quests','Set and collection quests',0],
+  ['sets','📖','Collection progress',sd+' of '+sl+' sets completed',0]];
+ m.innerHTML=R.map(([k,e,t,s,b])=>`<div class="lr" data-g="${k}"><span class="e">${e}</span><div class="t"><b>${t}</b><span>${s}</span></div>${b?`<span class="bd2" style="position:static;min-width:20px;height:20px;border-radius:10px;background:#ef4444;color:#fff;font-size:11px;line-height:20px;text-align:center;padding:0 6px;font-weight:800">${b}</span>`:'<span class="ch">›</span>'}</div>`).join('');
+ m.querySelectorAll('[data-g]').forEach(e=>e.onclick=()=>go(e.dataset.g,1));
+ if(window.cvLoadGoals&&!gl)window.cvLoadGoals(true).then(()=>{if(tab=='progress')draw()})};
+
+/* ---- Social hub ---- */
+window.sochubPg=function(m){
+ const fr=(typeof FR!='undefined'&&FR.n)||0,tr=(typeof TR!='undefined'&&TR.n)||0;
+ const T=[['friends','👥','Friends','See who is online',fr],['search','🔎','Find players','Search by username',0],['profile','🙋','My profile','Your showcase',0],['trades','🤝','Trades','Swap with players',tr],['arena','⚔️','Battles','Fight with your cards',0],['ranks','🏆','Leaderboards','Top collectors',0],['week','📅','Weekly contest','This week\'s ranking',0],['feed','📡','Live feed','Big pulls, live',0]];
+ const act=(S.feed||[]).slice(0,5);
+ m.innerHTML=`<div class="hubg">${T.map(([k,e,t,s,b])=>`<div class="ht" data-g="${k}"><span class="e">${e}</span><b>${t}</b><span class="s">${s}</span>${b?`<span class="bd2">${b}</span>`:''}</div>`).join('')}</div>
+ <div class="sec"><h3>Recent activity</h3><a id="sfa">Live feed ›</a></div>
+ ${act.length?act.map(f=>{const c=CARDS[f.cid];if(!c)return'';return`<div class="lr" data-fc="${f.cid}" style="padding:8px 12px"><span class="e" style="font-size:20px">${c.ic}</span><div class="t"><b style="font-size:13px">${esc(f.w||'Someone')} pulled ${esc(c.n)}${f.pr?' #'+f.sr+'/'+f.pr:''}</b><span>${RN[c.r]} · ${typeof agoT=='function'&&f.t?agoT(f.t):''}</span></div></div>`}).join(''):'<div class="empty">Nothing yet. Big pulls from other players will show up here.</div>'}`;
+ m.querySelectorAll('[data-g]').forEach(e=>e.onclick=()=>{const k=e.dataset.g;
+  if(k=='search'){FR.go='search';return go('friends')}
+  if(k=='profile'){if(READY&&S.prefs)showProfile(S.prefs.id);return}
+  if(k=='friends')FR.go='';go(k)});
+ m.querySelectorAll('[data-fc]').forEach(e=>e.onclick=()=>mkt(+e.dataset.fc));$$('sfa').onclick=()=>go('feed')};
+
+/* ---- Market hub ---- */
+const kc3=n=>n==null?'—':(+n<10?'$'+(+n).toFixed(2):+n>=1e6?'$'+(n/1e6).toFixed(1)+'M':+n>=1e4?'$'+Math.round(n/1e3)+'k':'$'+Math.round(+n).toLocaleString());
+const pc3=v=>(v>0?'+':'')+(+v).toFixed(1)+'%';
+const mini=(id,ch,sub)=>{const c=CARDS[id];if(!c)return'';const F=FRM[c.r]||['#888'];const p=S.pr[id];
+ return`<div class="mi" data-mk="${id}" style="--c:${F[0]}"><div class="th">${scene(c)}</div><b>${esc(c.n)}</b><div class="pr">${kc3(p)}</div>${ch!=null?`<div class="cg ${ch>=0?'up2':'dn2'}">${pc3(ch)}</div>`:`<div class="pr">${sub||RN[c.r]}</div>`}</div>`};
+window.mkhubPg=function(m){
+ const skel='<div class="sk"></div>';
+ m.innerHTML=`<div class="srch"><input id="hq" placeholder="Search cards by name" autocomplete="off"><button id="hqb">Search</button></div>
+ <div class="row" style="gap:8px;margin:10px 0 0;flex-wrap:nowrap;overflow-x:auto"><button class="g" data-g="auction" style="white-space:nowrap">🏛 Auction House</button><button class="g" data-g="wanted" style="white-space:nowrap">📌 Wanted</button><button class="g" data-g="market" style="white-space:nowrap">🔎 All cards</button><button class="g" data-g="dash" style="white-space:nowrap">📉 Stats</button></div>
+ <div id="hps" class="pn row" style="justify-content:space-between;margin:12px 0 0;cursor:pointer">${skel}</div>
+ <div class="sec"><h3>🔥 Trending</h3></div><div class="hs" id="htr">${skel}</div>
+ <div class="sec"><h3>📈 Biggest gainers (24h)</h3></div><div class="hs" id="hup">${skel}</div>
+ <div class="sec"><h3>📉 Biggest losers (24h)</h3></div><div class="hs" id="hdn">${skel}</div>
+ <div class="sec"><h3>💰 Recently sold</h3></div><div id="hrs">${skel}</div>
+ <div class="sec"><h3>🏛 Popular listings</h3><a data-g="auction">Auction House ›</a></div><div class="hs" id="hpl">${skel}</div>
+ <div class="sec"><h3>⭐ Your watchlist</h3><a data-g="watch">Manage ›</a></div><div class="hs" id="hwl"></div>`;
+ const wire=()=>{m.querySelectorAll('[data-mk]').forEach(e=>e.onclick=()=>mkt(+e.dataset.mk));m.querySelectorAll('[data-g]').forEach(e=>e.onclick=()=>go(e.dataset.g))};
+ const doSearch=()=>{const v=$$('hq').value.trim();try{EX.q=v}catch(e){}try{mq=v}catch(e){}go('market')};
+ $$('hqb').onclick=doSearch;$$('hq').onkeydown=e=>{if(e.key=='Enter')doSearch()};wire();
+ const fill=(id,html,empty)=>{const e=$$(id);if(e&&e.isConnected)e.innerHTML=html||`<div class="empty">${empty}</div>`;wire()};
+ /* movers from the live market overview */
+ (window.cvOv?window.cvOv():Promise.resolve(null)).then(o=>{
+  if(tab!='mkhub')return;
+  if(!o){fill('hps','<span class="mt">Live market stats turn on once the Market 2.0 update is installed.</span>');fill('htr','',"Nothing to show yet.");fill('hup','',"Nothing to show yet.");fill('hdn','',"Nothing to show yet.");return}
+  const ps=$$('hps');if(!isFinite(+o.idx)){ps.innerHTML='<span class="mt">Market stats are loading…</span>';return}ps.innerHTML=`<span>📊 <b>Market index</b> <b class="${o.idx>=0?'up2':'dn2'}">${pc3(o.idx)}</b></span><span class="mt" style="font-size:12px">Volume ${kc3(o.vol24)} · ${o.sales24} sales ›</span>`;ps.onclick=()=>window.pulse&&window.pulse();
+  const T=window.cvChg||{};const hot=Object.keys(S.pr).map(Number).filter(i=>CARDS[i]&&!CARDS[i].off&&TREND[i]=='hot').sort((a,b)=>((T[b]||{}).b||0)-((T[a]||{}).b||0)).slice(0,10);
+  fill('htr',hot.map(i=>mini(i,(T[i]||{}).b)).join(''),'No hot cards right now.');
+  fill('hup',(o.up||[]).map(x=>mini(x.id,x.c24)).join(''),'No gainers yet.');
+  fill('hdn',(o.down||[]).map(x=>mini(x.id,x.c24)).join(''),'No losers yet.')}).catch(()=>{});
+ /* recent completed sales and popular listings, straight from the database */
+ if(READY){
+  sb.from('txns').select('card_id,price,at,seller_name,buyer_name,sr,pr,kind').order('at',{ascending:false}).limit(8).then(({data,error})=>{
+   if(tab!='mkhub')return;
+   fill('hrs',error?'':(data||[]).map(t=>{const c=CARDS[t.card_id];if(!c)return'';return`<div class="lr" data-mk="${t.card_id}" style="padding:8px 12px"><span class="e" style="font-size:20px">${c.ic}</span><div class="t"><b style="font-size:13px">${esc(c.n)}${t.pr?' #'+t.sr:''}</b><span>${esc(t.seller_name||'?')} → ${esc(t.buyer_name||'?')} · ${typeof agoT=='function'?agoT(Date.parse(t.at)):''}</span></div><b>${kc3(t.price)}</b></div>`}).join(''),error?"Couldn't load sales.":'No completed sales yet.')});
+  sb.from('listings').select('*').eq('status','active').order('watchers',{ascending:false}).limit(8).then(({data,error})=>{
+   if(tab!='mkhub')return;
+   const L=(data||[]).filter(l=>CARDS[l.card_id]);
+   fill('hpl',error?'':L.map(l=>{const c=CARDS[l.card_id],F=FRM[c.r]||['#888'];AH.map.set(l.id,l);return`<div class="mi" data-ls="${l.id}" style="--c:${F[0]}"><div class="th">${scene(c)}</div><b>${esc(c.n)}</b><div class="pr">${l.buy_now!=null?'Buy now '+kc3(l.buy_now):'Bid '+kc3(l.current_bid||l.start_bid)}</div><div class="pr">❤️ ${l.watchers||0}</div></div>`}).join(''),error?"Couldn't load listings.":'No active listings.');
+   m.querySelectorAll('[data-ls]').forEach(e=>e.onclick=()=>{try{ahDetail(+e.dataset.ls)}catch(er){go('auction')}})})}
+ else{fill('hrs','','Sign in to see sales.');fill('hpl','','Sign in to see listings.')}
+ /* watchlist */
+ (typeof loadW=='function'?loadW(true):Promise.resolve()).then(()=>{if(tab!='mkhub')return;const w=(typeof W!='undefined'?W:[]).filter(x=>CARDS[x.id]);const T=window.cvChg||{};
+  fill('hwl',w.map(x=>mini(x.id,(T[x.id]||{}).b)).join(''),'Follow a card from its market page and it will show up here.')})};
+
+/* ---- the tour becomes a small banner instead of a pop-up ---- */
+const _ta=tutAuto;tutAuto=function(){let seen=false;try{seen=!!localStorage.getItem(tutKey())}catch(e){}if(seen)return;
+ const t=setInterval(()=>{if(!noModal())return;clearInterval(t);
+  const b=document.createElement('div');b.id='tourb';b.style.cssText='position:fixed;left:10px;right:10px;top:calc(env(safe-area-inset-top,0px) + 66px);z-index:12;background:var(--card2);border:1px solid var(--gold);border-radius:14px;padding:10px 12px;display:flex;gap:10px;align-items:center;box-shadow:0 8px 24px #000a';
+  b.innerHTML='<span style="font-size:22px">👋</span><span style="flex:1;font-size:13.5px"><b>New here?</b> Take a 1-minute tour.</span><button id="tourg" style="padding:6px 12px">Start</button><button class="g" id="tourx" style="padding:6px 10px">No thanks</button>';
+  document.body.appendChild(b);$$('tourg').onclick=()=>{b.remove();tutShow(0)};$$('tourx').onclick=()=>{b.remove();try{localStorage.setItem(tutKey(),'1')}catch(e){}}},500)};
+}
+
+/* ===== UI 2.0 part 2: Home reward chip, Shop storefront sections, Cards filter row ===== */
+{
+const css=document.createElement('style');css.textContent=`
+.chips2{flex-wrap:nowrap!important;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}.chips2::-webkit-scrollbar{display:none}.chips2>*{flex:none}.chips2 #bx{display:none}
+.fl2{gap:8px!important}.fl2 #bq{flex:1 1 100%!important;min-width:0}.fl2 select{flex:1 1 30%;min-width:0;max-width:100%;font-size:13px}
+.setrow{display:none!important}
+.shs{margin:0 0 4px}.shs h3{margin:18px 0 8px;font-size:15px;display:flex;align-items:center;gap:6px}.shs h3 small{font-weight:400;color:#b9b3dc;font-size:12px}
+.sp .prod,.shs .prod{display:grid!important;grid-template-columns:84px 1fr;gap:4px 12px;align-items:center;text-align:left;padding:10px!important;margin:0 0 10px;border-radius:14px!important;background:var(--card)!important;border:1px solid var(--line)!important;box-shadow:none!important}
+.shs .prod>.pk,.shs .prod>div:first-child{grid-row:1/5;zoom:.5;margin:0 auto;transform:none}
+.shs .prod.pbx>div:first-child{zoom:.4;overflow:visible}.shs .prod{overflow:hidden}
+.shs .prod>b{font-size:15px;align-self:end}.shs .prod>.mt{font-size:12px!important;align-self:start}
+.shs .prod>.row{grid-column:2;justify-content:flex-start!important;gap:6px!important;margin-top:4px!important}
+.shs .prod>.row button{padding:7px 10px!important;font-size:12.5px!important;min-height:34px}
+.shs .prod>.row [data-o]{flex:1 1 auto}
+.rcl{display:flex;align-items:center;gap:6px;border-radius:20px!important;padding:6px 12px!important;font-size:13px!important}
+.rcl.ready{background:linear-gradient(#ffe27a,#f0a81c)!important;color:#2a1a00!important;font-weight:800}
+.rcl i{font-style:normal;background:#ef4444;color:#fff;border-radius:9px;min-width:16px;height:16px;line-height:16px;font-size:10px;text-align:center}
+#md .box .row{flex-wrap:wrap}
+.hud{height:calc(100dvh - 56px - 84px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important}
+body.home main{padding-bottom:0!important}
+body.home #nxt{top:calc(env(safe-area-inset-top,0px) + 62px);bottom:auto!important;animation:none!important;padding:6px 12px!important;font-size:13px!important;white-space:nowrap;max-width:calc(100% - 20px);overflow:hidden}
+body.home:has(#nxt[style*="flex"]) .hud{margin-top:40px;height:calc(100dvh - 56px - 124px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px))!important}
+`;document.head.appendChild(css);
+const SECT=(k,p)=>p.ltd&&!p.box?'ltd':p.box?'box':p.myst?'feat':p.price>=5000?'prem':'reg';
+function tidyShop(){const m=$$('m');if(!m||tab!='shop'||m.querySelector('.shs'))return;
+ const g=m.querySelector('.shopg');if(!g)return;
+ [...m.querySelectorAll(':scope>.backb,:scope>.tip,:scope>h2')].forEach(e=>e.remove());
+ [...m.children].forEach(e=>{if(e.tagName=='P'&&e.classList.contains('mt'))e.remove()});
+ const prods=[...g.querySelectorAll('.prod')],S2={feat:[],reg:[],prem:[],box:[],ltd:[]};
+ prods.forEach(e=>{const p=P[e.dataset.k];if(!p)return;(S2[SECT(e.dataset.k,p)]||S2.reg).push(e);if(p.box)e.classList.add('pbx');
+  const b=e.querySelector('[data-b]'),o=e.querySelector('[data-o]'),v=e.querySelector('[data-v]');
+  if(b)b.innerHTML='Buy only <small>'+$$$(p.price)+'</small>';if(b)b.title='Buys it sealed. Open it later from My Packs.';
+  if(o)o.textContent='Buy & open';if(v)v.textContent="What's inside";});
+ const T=[['feat','⭐ Featured','Mystery and special products'],['reg','🎴 Regular packs',''],['prem','💎 Premium packs',''],['box','📦 Collector boxes','Bigger guaranteed contents'],['ltd','⏳ Limited-time','Sells out']];
+ const w=document.createElement('div');w.className='shs';
+ const sealed=Object.keys(S.sealed||{}).reduce((a,k)=>a+(S.sealed[k]||0),0);
+ w.innerHTML=`<div class="lr" id="mypk" style="margin-top:2px"><span class="e">📦</span><div class="t"><b>My Packs</b><span>${sealed?sealed+' sealed — tap to open':'Nothing sealed. Use "Buy only" to keep packs for later.'}</span></div><span class="ch">›</span></div>`;
+ T.forEach(([k,t,s])=>{if(!S2[k].length)return;const h=document.createElement('h3');h.innerHTML=t+(s?` <small>${s}</small>`:'');w.appendChild(h);S2[k].forEach(e=>w.appendChild(e))});
+ g.replaceWith(w);const sl=document.createElement('div');sl.className='row chips2';sl.innerHTML='<button class="g" data-q="season">🏆 Season</button>';w.insertBefore(sl,w.firstChild);sl.onclick=e=>{const b=e.target.closest('[data-q]');if(b){tab=b.dataset.q;draw();window.scrollTo(0,0)}};$$('mypk').onclick=()=>{tab='open';draw();window.scrollTo(0,0)}}
+function tidyBinder(){const m=$$('m');if(!m||tab!='binder')return;const q=$$('bq');if(!q||q.parentElement.classList.contains('fl2'))return;
+ q.parentElement.classList.add('fl2');if(!$$('qlinks')){const L=document.createElement('div');L.id='qlinks';L.className='row chips2';L.innerHTML='<button class="g" data-q="sets">📖 Collections</button><button class="g" data-q="fuse">⚗️ Fusion</button><button class="g" data-q="watch">⭐ Watchlist</button><button class="g" data-q="archive">🕵️ Archive</button>';L.onclick=e=>{const b=e.target.closest('[data-q]');if(b){tab=b.dataset.q;draw();window.scrollTo(0,0)}};q.parentElement.parentElement.insertBefore(L,q.parentElement)}const bx=$$('bx');if(bx)bx.parentElement.classList.add('chips2');
+ [...m.querySelectorAll(':scope>.row')].forEach(r=>{if(r.querySelector('.tag')&&!r.querySelector('button'))r.classList.add('setrow')});
+ [...m.querySelectorAll(':scope>.backb')].forEach(e=>e.remove())}
+function tidyHome(){const m=$$('m');if(!m||tab!='home')return;const cl=m.querySelector('.cl');if(!cl||cl.querySelector('.rcl'))return;
+ const sc=$$('scb');if(sc)sc.style.display='none';
+ const b=document.createElement('button');b.className='g rcl';b.id='dchip';b.innerHTML='🎁 Daily reward';cl.insertBefore(b,cl.firstChild);
+ const paint=()=>{const gl=window.cvGoals&&window.cvGoals();const ok=gl&&gl.streak;const rdy=ok&&gl.streak.ready;const cn=window.cvClaimable?window.cvClaimable():0;
+  b.classList.toggle('ready',!!rdy);b.innerHTML=rdy?'🎁 Collect daily reward':'🎁 Daily '+(ok?'· '+gl.streak.n+' day streak':'reward');
+  if(cn&&!rdy)b.innerHTML+=` <i>${cn}</i>`};paint();
+ if(READY&&window.cvLoadGoals)window.cvLoadGoals().then(paint);
+ b.onclick=async()=>{const gl=window.cvGoals&&window.cvGoals();if(gl&&gl.streak&&gl.streak.ready){try{const r=await rpc('daily_checkin');toast('🎁 '+r,4000)}catch(e){return}await resync();await window.cvLoadGoals(true);paint()}else{tab='goals';draw()}}}
+const _d3=draw;draw=function(){_d3.apply(this,arguments);try{tidyShop();tidyBinder();tidyHome()}catch(e){console.error(e)}};
+new MutationObserver(()=>{try{tidyBinder()}catch(e){}}).observe($$('m'),{childList:true});
 }
 
 </script></body></html>
