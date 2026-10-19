@@ -383,7 +383,7 @@ function archive(m){const L=CARDS.filter(c=>c.sec);m.innerHTML=`<h2 style="margi
 return S.disc[c.id]?(it?cardH(it,`data-u="${it.uid}"`):`<div class="pn" style="text-align:center">${c.ic}<br><b>${c.n}</b><br><span class="mt">discovered</span></div>`):`<div class="pn" style="text-align:center"><div style="font-size:40px">❓</div><b>???</b><br><span class="mt">SECRET</span></div>`}).join('')+`</div>`+L.filter(c=>S.disc[c.id]).map(c=>`<div class="pn">🔓 <b>${c.n}</b>: ${SECM[c.n]}</div>`).join('');m.querySelectorAll('[data-u]').forEach(e=>e.onclick=()=>detail(e.dataset.u))}
 $$('bg').innerHTML=homeScene();$$('mu').onclick=e=>{mute=!mute;e.target.textContent=mute?'🔇':'🔊'};load();{let n=Math.min(150,Math.floor((Date.now()-S.tick)/5000));while(n-->0)tickMarket();S.tick=Date.now()}
 tick();draw();setInterval(()=>{tick();const e=$$('mo'),h=$$('hm');if(e)e.textContent=m2(S.money);if(h)h.textContent=m2(S.money)},200);document.addEventListener('visibilitychange',save);
-setInterval(()=>{tickMarket();S.tick=Date.now();if(['market','home','feed'].includes(tab)&&!(document.activeElement&&document.activeElement.id=='mq')&&$$('ov').style.display!='flex'&&$$('md').style.display!='flex')draw();else{$$('mo').textContent=$$$(S.money)}},20000);
+setInterval(()=>{tickMarket();S.tick=Date.now();if(['market','home','feed'].includes(tab)&&!(document.activeElement&&document.activeElement.id=='mq')&&$$('ov').style.display!='flex'&&$$('md').style.display!='flex')draw();else{$$('mo').textContent=$$$(S.money)}},60000);
 setInterval(()=>{const l=$$('lt');if(l&&tab=='shop'){const v=Math.ceil((avail()?18e5-Date.now()%36e5:36e5-Date.now()%36e5)/6e4);l.textContent=v}},1000);
 
 /* ================= CARDVAULT ONLINE LAYER =================
@@ -397,7 +397,7 @@ const cvNow=()=>Date.now()+OFF,noModal=()=>$$('ov').style.display!='flex'&&$$('m
 const modal=h=>{const md=$$('md');md.style.display='flex';md.innerHTML=`<div class="box" style="text-align:left;max-width:560px;max-height:92vh;overflow:auto">${h}</div>`},closeM=()=>{$$('md').style.display='none'};
 
 /* ---------- server calls ---------- */
-async function rpc(fn,a,quiet){const{data,error}=await sb.rpc(fn,a||{});
+async function rpc(fn,a,quiet){if(!document.getElementById('auth').classList.contains('off'))cvLd('Asking server: '+fn+'…');const{data,error}=await sb.rpc(fn,a||{});
  if(error){if(error.code=='PGRST301'||error.status==401||/JWT/i.test(error.message)){expire();throw error}if(!quiet)toast(error.message,4500);throw error}return data}
 function expire(){if(READY){READY=false;sb.auth.signOut({scope:'local'})}}
 function hydrate(st,pr,runs){const p=st.profile,keep={ch:S.ch};S=def();S.ch=keep.ch||S.ch;
@@ -447,14 +447,14 @@ const _coll=collections;collections=function(m){_coll(m);m.querySelectorAll('[da
 daily=function(m){m.innerHTML='<h2 style="margin-top:0">Mystery Card</h2><p class="pn mt">Coming soon to the online version.</p>'};
 
 /* ---------- auth screens ---------- */
-window.cvLd=t=>{const e=document.getElementById('ldst');if(e)e.textContent=t};
+window.addEventListener('error',e=>{try{if(!document.getElementById('auth').classList.contains('off'))cvLd('Error: '+(e.message||'unknown')+' (line '+e.lineno+')')}catch(x){}});window.addEventListener('unhandledrejection',e=>{try{if(!document.getElementById('auth').classList.contains('off'))cvLd('Error: '+((e.reason&&e.reason.message)||e.reason))}catch(x){}});window.cvLd=t=>{const e=document.getElementById('ldst');if(e)e.textContent=t};
 document.addEventListener('click',e=>{const i=e.target&&e.target.id;if(i=='ldrt')location.reload();if(i=='ldcl'){try{[localStorage,sessionStorage].forEach(st=>Object.keys(st).filter(k=>/^sb-/.test(k)).forEach(k=>st.removeItem(k)))}catch(x){}location.reload()}});
 function showAuth(mode,msg){clearTimeout(window._ldT);if(mode=='loading')window._ldT=setTimeout(()=>{['ldrt','ldcl'].forEach(i=>{const x=document.getElementById(i);if(x)x.style.display=''})},12000);const a=$$('auth');a.classList.remove('off');
  const inp=(id,ph,t,v)=>`<input id="${id}" type="${t||'text'}" placeholder="${ph}" value="${v||''}" autocomplete="${t=='password'?'current-password':id=='em'?'email':'username'}">`;
  const err=msg?`<p class="aerr">${esc(msg)}</p>`:'';
  const H={
  setup:`<h2>Setup needed</h2><p class="mt">Open the game file and paste your Supabase URL and anon key into the <b>CV</b> constant at the top of the last script. See SETUP.md.</p>`,
- loading:`<h2>Loading your account…</h2><p class="mt" id="ldst">Starting…</p><div class="row" style="justify-content:center;gap:8px"><button id="ldrt" style="display:none">Try again</button><button class="g" id="ldcl" style="display:none">Clear saved login</button></div><p class="mt" style="font-size:11px;opacity:.55">Version 19 Oct 2026 · app update 2.1</p>`,
+ loading:`<h2>Loading your account…</h2><p class="mt" id="ldst">Starting…</p><div class="row" style="justify-content:center;gap:8px"><button id="ldrt" style="display:none">Try again</button><button class="g" id="ldcl" style="display:none">Clear saved login</button></div><p class="mt" style="font-size:11px;opacity:.55">Version 19 Oct 2026 · build R2 · 19 Oct 14:26</p>`,
  login:`<h2>WELCOME BACK</h2>${err}${inp('li','Email / Username')}${inp('lp','Password','password')}<label class="mt"><input type="checkbox" id="rm" ${REM?'checked':''}> Remember me</label><button id="go">LOG IN</button><p><a id="fg">Forgot Password?</a></p><p class="mt">New here? <a id="sw">Create Account</a></p>`,
  create:`<h2>WELCOME TO CARDVAULT</h2><p class="mt">Create Account</p>${err}${inp('cu','Username')}${inp('em','Email','email')}${inp('cp','Password (8+ characters)','password')}${inp('cp2','Confirm Password','password')}<button id="go">CREATE ACCOUNT</button><p class="mt">Already have an account? <a id="sw">Log In</a></p>`,
  forgot:`<h2>Reset password</h2>${err}${inp('em','Email','email')}<button id="go">SEND RESET LINK</button><p><a id="sw">Back to Log In</a></p>`,
@@ -475,7 +475,7 @@ async function authDo(mode){const v=id=>($$(id)||{}).value||'';
  if(mode=='forgot'){const{error}=await sb.auth.resetPasswordForEmail(v('em').trim(),{redirectTo:location.href.split('#')[0]});if(error)throw Error(error.message);return showAuth('login','Reset link sent. Check your email.')}
  if(mode=='recover'){const pw=v('np');if(pw.length<8)throw Error('Password must be at least 8 characters');const{error}=await sb.auth.updateUser({password:pw});if(error)throw Error(error.message);const{data}=await sb.auth.getSession();return data.session?enter(data.session.user):showAuth('login','Password changed. Log in.')}}
 async function enter(user){if(entering)return;entering=true;USER=user;showAuth('loading');
- try{READY=true;cvLd('Loading your cards…');for(let at=0;at<2;at++){try{await Promise.race([resync(),new Promise((_,rj)=>setTimeout(()=>rj(Error('slow')),20000))])}catch(e){if(at==1)throw Error('The server is taking too long to answer. Please tap Log in to try again.')}if(S.prefs)break}if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
+ try{READY=true;cvLd('Loading your cards…');for(let at=0;at<2;at++){try{await Promise.race([resync(),new Promise((_,rj)=>setTimeout(()=>rj(Error('slow')),20000))])}catch(e){if(at==1)throw Error('The server is taking too long to answer. Please tap Log in to try again.')}if(S.prefs)break}if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));cvLd('Drawing home…');tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
  catch(e){READY=false;entering=false;return showAuth('login',(e&&e.message)||'Could not load your account. Try again.')}entering=false}
 
 /* ---------- boot ---------- */
@@ -491,7 +491,7 @@ async function enter(user){if(entering)return;entering=true;USER=user;showAuth('
 /* ---------- live updates + background loops ---------- */
 function settleLoop(){if(settleLoop.on)return;settleLoop.on=1;
  setInterval(()=>{if(READY)sb.rpc('settle_auctions').then(()=>{})},10000);
- setInterval(()=>{if(READY&&noModal())resync()},30000);
+ setInterval(()=>{if(READY&&noModal()&&!document.hidden)resync()},60000);
  setInterval(()=>{document.querySelectorAll('[data-end]').forEach(e=>{const t=+e.dataset.end-cvNow();e.textContent=cvT(t);e.style.color=t>0&&t<6e4?'var(--dn)':''})},1000)}
 const cvT=ms=>{if(ms<=0)return'ENDED';const s=Math.floor(ms/1e3),d=s/86400|0,h=s%86400/3600|0,mi=s%3600/60|0,se=s%60,p=n=>String(n).padStart(2,'0');return d?d+'d '+h+'h '+mi+'m':p(h)+':'+p(mi)+':'+p(se)};
 function subscribeLive(){if(subbed)return;subbed=true;
@@ -688,9 +688,11 @@ scene=c=>c.img?`<svg viewBox="0 0 120 80" preserveAspectRatio="xMidYMid slice"><
 const _lc=loadCatalog;loadCatalog=function(defs,prods){_lc(defs,prods);defs.forEach(d=>{const c=CARDS[d.id];if(c&&d.img)c.img=d.img})};
 
 /* load more than 1,000 rows (Supabase caps one request at 1,000) */
-async function selAll(t,cols,ord){let out=[],from=0;for(;;){let q=sb.from(t).select(cols);ord.forEach(o=>q=q.order(o));const{data,error}=await q.range(from,from+999);if(error)throw error;out=out.concat(data||[]);if(!data||data.length<1000)break;from+=1000}return{data:out}}
-resync=async function(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1),[a,b,cd,pd]=await Promise.all([selAll('prices_lite','card_id,price,hist',['card_id']).catch(()=>selAll('prices','card_id,price,hist',['card_id'])),selAll('print_runs','card_id,ed,created',['card_id','ed']),selAll('card_defs','*',['id']),sb.from('products').select('*')]);
- loadCatalog(cd.data||[],pd.data||[]);hydrate(st,a.data||[],b.data||[]);LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}};
+async function selAll(t,cols,ord){if(!document.getElementById('auth').classList.contains('off'))cvLd('Downloading: '+t+'…');let out=[],from=0;for(;;){let q=sb.from(t).select(cols);ord.forEach(o=>q=q.order(o));const{data,error}=await q.range(from,from+999);if(error)throw error;out=out.concat(data||[]);if(!data||data.length<1000)break;from+=1000}return{data:out}}
+resync=async function(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1);let a;const full=!window.__rc||Date.now()-window.__rc.t>600000;
+ if(full){const[a0,b0,cd,pd]=await Promise.all([selAll('prices_lite','card_id,price,hist',['card_id']).catch(()=>selAll('prices','card_id,price,hist',['card_id'])),selAll('print_runs','card_id,ed,created',['card_id','ed']),selAll('card_defs','*',['id']),sb.from('products').select('*')]);a=a0;window.__rc={t:Date.now(),b:b0.data||[],cd:cd.data||[],pd:pd.data||[]};loadCatalog(window.__rc.cd,window.__rc.pd)}
+ else a={data:Object.keys(S.pr).map(k=>({card_id:+k,price:S.pr[k],hist:S.hi&&S.hi[k]}))};
+ hydrate(st,a.data||[],window.__rc.b);LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}};
 
 /* light 5-second price refresh */
 pollPrices=async function(){if(!READY||pBusy)return;pBusy=1;try{await sb.rpc('market_tick');const{data}=await selAll('prices','card_id,price',['card_id']);(data||[]).forEach(r=>{const p=+r.price,h=S.hi[r.card_id]||(S.hi[r.card_id]=[p]);S.pr[r.card_id]=p;if(h[h.length-1]!==p){h.push(p);if(h.length>80)h.shift()}})}catch(e){}pBusy=0};
