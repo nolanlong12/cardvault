@@ -408,10 +408,11 @@ function hydrate(st,pr,runs){const p=st.profile,keep={ch:S.ch};S=def();S.ch=keep
  const fe=e=>({t:e.t,w:e.who,cid:e.card_id,sr:e.sr,pr:e.pr,f:e.f,src:e.src,v:+e.v,hist:e.historic});S.feed=st.feed.map(fe);S.hf=S.feed.filter(e=>e.hist);
  pr.forEach(r=>{S.pr[r.card_id]=+r.price;S.hi[r.card_id]=(r.hist||[+r.price]).map(Number)});runs.forEach(r=>S.cr[r.card_id+':'+r.ed]=r.created);
  S.off=0;S.trades=[];S.ev=null;S.seen=Date.now();OFF=st.now-Date.now()}
-async function resync(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1),[a,b,cd,pd]=await Promise.all([sb.from('prices').select('card_id,price,hist'),sb.from('print_runs').select('card_id,ed,created'),sb.from('card_defs').select('*').order('id'),sb.from('products').select('*')]);
+async function cvPL(){let r;try{r=await sb.from('prices_lite').select('card_id,price,hist')}catch(e){r={error:e}}if(!r||r.error||!r.data)r=await sb.from('prices').select('card_id,price,hist');return r}
+async function resync(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1),[a,b,cd,pd]=await Promise.all([cvPL(),sb.from('print_runs').select('card_id,ed,created'),sb.from('card_defs').select('*').order('id'),sb.from('products').select('*')]);
  loadCatalog(cd.data||[],pd.data||[]);hydrate(st,a.data||[],b.data||[]);LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}}
 const lazySync=()=>{const t=setInterval(()=>{if(noModal()){clearInterval(t);resync()}},700)};
-let pBusy=0;async function pollPrices(){if(!READY||pBusy)return;pBusy=1;try{await sb.rpc('market_tick');const{data}=await sb.from('prices').select('card_id,price,hist');(data||[]).forEach(r=>{S.pr[r.card_id]=+r.price;S.hi[r.card_id]=(r.hist||[]).map(Number)})}catch(e){}pBusy=0}
+let pBusy=0;async function pollPrices(){if(!READY||pBusy)return;pBusy=1;try{await sb.rpc('market_tick');const{data}=await cvPL();(data||[]).forEach(r=>{S.pr[r.card_id]=+r.price;S.hi[r.card_id]=(r.hist||[]).map(Number)})}catch(e){}pBusy=0}
 
 /* ---------- replace the game's local-only actions with server calls ---------- */
 save=function(){};load=function(){};tickMarket=function(){pollPrices()};
@@ -472,7 +473,7 @@ async function authDo(mode){const v=id=>($$(id)||{}).value||'';
  if(mode=='forgot'){const{error}=await sb.auth.resetPasswordForEmail(v('em').trim(),{redirectTo:location.href.split('#')[0]});if(error)throw Error(error.message);return showAuth('login','Reset link sent. Check your email.')}
  if(mode=='recover'){const pw=v('np');if(pw.length<8)throw Error('Password must be at least 8 characters');const{error}=await sb.auth.updateUser({password:pw});if(error)throw Error(error.message);const{data}=await sb.auth.getSession();return data.session?enter(data.session.user):showAuth('login','Password changed. Log in.')}}
 async function enter(user){if(entering)return;entering=true;USER=user;showAuth('loading');
- try{READY=true;await resync();if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
+ try{READY=true;for(let at=0;at<2;at++){try{await Promise.race([resync(),new Promise((_,rj)=>setTimeout(()=>rj(Error('slow')),20000))])}catch(e){if(at==1)throw Error('The server is taking too long to answer. Please tap Log in to try again.')}if(S.prefs)break}if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
  catch(e){READY=false;entering=false;return showAuth('login',(e&&e.message)||'Could not load your account. Try again.')}entering=false}
 
 /* ---------- boot ---------- */
