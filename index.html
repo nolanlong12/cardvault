@@ -447,12 +447,14 @@ const _coll=collections;collections=function(m){_coll(m);m.querySelectorAll('[da
 daily=function(m){m.innerHTML='<h2 style="margin-top:0">Mystery Card</h2><p class="pn mt">Coming soon to the online version.</p>'};
 
 /* ---------- auth screens ---------- */
-function showAuth(mode,msg){const a=$$('auth');a.classList.remove('off');
+window.cvLd=t=>{const e=document.getElementById('ldst');if(e)e.textContent=t};
+document.addEventListener('click',e=>{const i=e.target&&e.target.id;if(i=='ldrt')location.reload();if(i=='ldcl'){try{[localStorage,sessionStorage].forEach(st=>Object.keys(st).filter(k=>/^sb-/.test(k)).forEach(k=>st.removeItem(k)))}catch(x){}location.reload()}});
+function showAuth(mode,msg){clearTimeout(window._ldT);if(mode=='loading')window._ldT=setTimeout(()=>{['ldrt','ldcl'].forEach(i=>{const x=document.getElementById(i);if(x)x.style.display=''})},12000);const a=$$('auth');a.classList.remove('off');
  const inp=(id,ph,t,v)=>`<input id="${id}" type="${t||'text'}" placeholder="${ph}" value="${v||''}" autocomplete="${t=='password'?'current-password':id=='em'?'email':'username'}">`;
  const err=msg?`<p class="aerr">${esc(msg)}</p>`:'';
  const H={
  setup:`<h2>Setup needed</h2><p class="mt">Open the game file and paste your Supabase URL and anon key into the <b>CV</b> constant at the top of the last script. See SETUP.md.</p>`,
- loading:`<h2>Loading your account…</h2><p class="mt">Collection · Home · Income · Market</p>`,
+ loading:`<h2>Loading your account…</h2><p class="mt" id="ldst">Starting…</p><div class="row" style="justify-content:center;gap:8px"><button id="ldrt" style="display:none">Try again</button><button class="g" id="ldcl" style="display:none">Clear saved login</button></div><p class="mt" style="font-size:11px;opacity:.55">Version 19 Oct 2026 · app update 2.1</p>`,
  login:`<h2>WELCOME BACK</h2>${err}${inp('li','Email / Username')}${inp('lp','Password','password')}<label class="mt"><input type="checkbox" id="rm" ${REM?'checked':''}> Remember me</label><button id="go">LOG IN</button><p><a id="fg">Forgot Password?</a></p><p class="mt">New here? <a id="sw">Create Account</a></p>`,
  create:`<h2>WELCOME TO CARDVAULT</h2><p class="mt">Create Account</p>${err}${inp('cu','Username')}${inp('em','Email','email')}${inp('cp','Password (8+ characters)','password')}${inp('cp2','Confirm Password','password')}<button id="go">CREATE ACCOUNT</button><p class="mt">Already have an account? <a id="sw">Log In</a></p>`,
  forgot:`<h2>Reset password</h2>${err}${inp('em','Email','email')}<button id="go">SEND RESET LINK</button><p><a id="sw">Back to Log In</a></p>`,
@@ -473,7 +475,7 @@ async function authDo(mode){const v=id=>($$(id)||{}).value||'';
  if(mode=='forgot'){const{error}=await sb.auth.resetPasswordForEmail(v('em').trim(),{redirectTo:location.href.split('#')[0]});if(error)throw Error(error.message);return showAuth('login','Reset link sent. Check your email.')}
  if(mode=='recover'){const pw=v('np');if(pw.length<8)throw Error('Password must be at least 8 characters');const{error}=await sb.auth.updateUser({password:pw});if(error)throw Error(error.message);const{data}=await sb.auth.getSession();return data.session?enter(data.session.user):showAuth('login','Password changed. Log in.')}}
 async function enter(user){if(entering)return;entering=true;USER=user;showAuth('loading');
- try{READY=true;for(let at=0;at<2;at++){try{await Promise.race([resync(),new Promise((_,rj)=>setTimeout(()=>rj(Error('slow')),20000))])}catch(e){if(at==1)throw Error('The server is taking too long to answer. Please tap Log in to try again.')}if(S.prefs)break}if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
+ try{READY=true;cvLd('Loading your cards…');for(let at=0;at<2;at++){try{await Promise.race([resync(),new Promise((_,rj)=>setTimeout(()=>rj(Error('slow')),20000))])}catch(e){if(at==1)throw Error('The server is taking too long to answer. Please tap Log in to try again.')}if(S.prefs)break}if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
  catch(e){READY=false;entering=false;return showAuth('login',(e&&e.message)||'Could not load your account. Try again.')}entering=false}
 
 /* ---------- boot ---------- */
@@ -483,7 +485,7 @@ async function enter(user){if(entering)return;entering=true;USER=user;showAuth('
   if(ev=='PASSWORD_RECOVERY')return showAuth('recover');
   if(ev=='SIGNED_OUT'){const was=READY||USER;READY=false;USER=null;entering=false;showAuth('login',manualOut||!was?'':'Your session has expired. Please log in again.');manualOut=false}},0)});
  const had=Object.keys(localStorage).concat(Object.keys(sessionStorage)).some(k=>/^sb-.*auth-token/.test(k));
- showAuth('loading');const{data}=await sb.auth.getSession();
+ showAuth('loading');cvLd('Checking your sign-in…');let data;try{({data}=await Promise.race([sb.auth.getSession(),new Promise((_,rj)=>setTimeout(()=>rj(Error('t')),10000))]))}catch(e){return showAuth('login','Could not check your saved sign-in. Check your connection and log in again.')}
  if(data.session&&!/type=recovery/.test(location.hash))enter(data.session.user);else if(!/type=recovery/.test(location.hash))showAuth('login',had?'Your session has expired. Please log in again.':'')})();
 
 /* ---------- live updates + background loops ---------- */
@@ -687,7 +689,7 @@ const _lc=loadCatalog;loadCatalog=function(defs,prods){_lc(defs,prods);defs.forE
 
 /* load more than 1,000 rows (Supabase caps one request at 1,000) */
 async function selAll(t,cols,ord){let out=[],from=0;for(;;){let q=sb.from(t).select(cols);ord.forEach(o=>q=q.order(o));const{data,error}=await q.range(from,from+999);if(error)throw error;out=out.concat(data||[]);if(!data||data.length<1000)break;from+=1000}return{data:out}}
-resync=async function(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1),[a,b,cd,pd]=await Promise.all([selAll('prices','card_id,price,hist',['card_id']),selAll('print_runs','card_id,ed,created',['card_id','ed']),selAll('card_defs','*',['id']),sb.from('products').select('*')]);
+resync=async function(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1),[a,b,cd,pd]=await Promise.all([selAll('prices_lite','card_id,price,hist',['card_id']).catch(()=>selAll('prices','card_id,price,hist',['card_id'])),selAll('print_runs','card_id,ed,created',['card_id','ed']),selAll('card_defs','*',['id']),sb.from('products').select('*')]);
  loadCatalog(cd.data||[],pd.data||[]);hydrate(st,a.data||[],b.data||[]);LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}};
 
 /* light 5-second price refresh */
