@@ -2497,4 +2497,46 @@ const _d3=draw;draw=function(){_d3.apply(this,arguments);try{tidyShop();tidyBind
 new MutationObserver(()=>{try{tidyBinder()}catch(e){}}).observe($$('m'),{childList:true});
 }
 
+/* ===== UI 2.0 part 3: Home dashboard, double-tap guards, high-value sell confirm ===== */
+{
+const css=document.createElement('style');css.textContent=`
+.dsh{grid-column:1/3;grid-row:2;align-self:start;padding:6px 10px 0;display:flex;flex-direction:column;gap:8px;overflow:hidden;min-height:0}
+.dsh .op{width:100%;padding:14px!important;font-size:17px!important;border-radius:14px!important;display:flex;align-items:center;justify-content:center;gap:8px}
+.dsh .op small{font-weight:600;opacity:.75;font-size:12px}
+.dsh .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.dsh .pn2{background:#171430d9;border:1px solid var(--line);border-radius:14px;padding:9px 10px;min-width:0;cursor:pointer;backdrop-filter:blur(4px)}
+.dsh .pn2 h4{margin:0 0 4px;font-size:11px;color:#b9b3dc;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.dsh .bc{display:flex;gap:8px;align-items:center}.dsh .bc .th{width:42px;height:42px;border-radius:8px;overflow:hidden;border:2px solid var(--c,#888);flex:none}.dsh .bc svg{width:100%;height:100%;display:block}
+.dsh .bc b{display:block;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.dsh .bc span{font-size:12px;color:#b9b3dc}
+.dsh .bar{height:6px;border-radius:3px;background:#0007;overflow:hidden;margin:3px 0 6px}.dsh .bar i{display:block;height:100%;background:linear-gradient(90deg,#ffe27a,#f0a81c)}
+.dsh .gl{font-size:12px;display:flex;justify-content:space-between;gap:6px}.dsh .gl span:first-child{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dsh .rp{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#d7d2f2}
+@media(max-height:700px){.dsh .g2 .pn2:last-child{display:none}.dsh .g2{grid-template-columns:1fr}}
+@media(max-height:620px){.dsh .g2{display:none}}`;document.head.appendChild(css);
+const goTab=t=>{tab=t;draw();window.scrollTo(0,0)};
+function tidyDash(){const m=$$('m');if(!m||tab!='home')return;const h=m.querySelector('.hud');if(!h||h.querySelector('.dsh'))return;
+ const sealed=Object.keys(S.sealed||{}).reduce((a,k)=>a+(S.sealed[k]||0),0);
+ let best=null,bv=0;(S.inv||[]).forEach(i=>{const v=val(i);if(v>bv){bv=v;best=i}});
+ const bc=best&&CARDS[best.cid],F=bc&&(FRM[bc.r]||['#888']);
+ let sd=0,sl=0;try{sd=setsDone().length;sl=Object.keys(SETS).length}catch(e){}
+ const gl=window.cvGoals&&window.cvGoals(),items=(gl&&gl.items)||[];const todo=items.filter(i=>!i.claimed).slice(0,2);
+ const feed=(S.feed||[]).slice(0,2).filter(f=>CARDS[f.cid]);
+ const d=document.createElement('div');d.className='dsh';
+ d.innerHTML=`<button class="op" id="dop">📦 ${sealed?'Open Packs <small>'+sealed+' sealed</small>':'Get Packs <small>Shop</small>'}</button>
+ <div class="g2"><div class="pn2" id="dbest"><h4>Best card</h4>${bc?`<div class="bc" style="--c:${F[0]}"><div class="th">${scene(bc)}</div><div style="min-width:0"><b>${esc(bc.n)}</b><span>${kc(bv)}</span></div></div>`:'<span class="mt" style="font-size:12px">Open a pack to get your first card.</span>'}</div>
+ <div class="pn2" id="dprog"><h4>Today's goals</h4>${todo.length?todo.map(i=>`<div class="gl"><span>${esc(i.label||i.name||'Goal')}</span><span>${Math.min(i.have,i.need)}/${i.need}</span></div><div class="bar"><i style="width:${Math.min(100,i.have/i.need*100)}%"></i></div>`).join(''):'<span class="mt" style="font-size:12px">'+(gl?'All done for now.':'Tap to see goals.')+'</span>'}<div class="gl"><span>Collections</span><span>${sd}/${sl}</span></div></div></div>
+ ${feed.length?`<div class="pn2" id="dact"><h4>Recent pulls</h4>${feed.map(f=>`<div class="rp">${esc(CARDS[f.cid].ic)} ${esc(f.w||'Someone')} pulled ${esc(CARDS[f.cid].n)}</div>`).join('')}</div>`:''}`;
+ const cl=h.querySelector('.cl');h.insertBefore(d,cl);
+ $$('dop').onclick=()=>goTab(sealed?'open':'shop');
+ $$('dbest').onclick=()=>best?goTab('binder'):goTab('shop');$$('dprog').onclick=()=>goTab('progress');
+ const da=$$('dact');if(da)da.onclick=()=>goTab('feed');
+ if(READY&&window.cvLoadGoals&&!gl)window.cvLoadGoals().then(()=>{if(tab=='home'){const x=h.querySelector('.dsh');if(x){x.remove();tidyDash()}}})}
+const _d4=draw;draw=function(){_d4.apply(this,arguments);try{tidyDash()}catch(e){console.error(e)}};
+/* a second tap on buy / open / sell within a moment is ignored */
+let lastT=0;const once=()=>{const n=Date.now();if(n-lastT<900)return false;lastT=n;return true};
+const _buy=buy;buy=function(k,o){if(!once())return;return _buy.apply(this,arguments)};
+const _op=openP;openP=function(k){if(!once())return;return _op.apply(this,arguments)};
+const _sl=sell;sell=function(i,q){if(!q){const v=val(i);if(v>=50000||v>=S.money*.1){if(!confirm('Sell '+(CARDS[i.cid]?CARDS[i.cid].n:'this card')+' for '+kc(v*.95)+'?\nThis is a valuable card and cannot be undone.'))return}if(!once())return}return _sl.apply(this,arguments)};
+}
+
 </script></body></html>
