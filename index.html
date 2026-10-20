@@ -367,7 +367,7 @@ function archive(m){const L=CARDS.filter(c=>c.sec);m.innerHTML=`<h2 style="margi
 return S.disc[c.id]?(it?cardH(it,`data-u="${it.uid}"`):`<div class="pn" style="text-align:center">${c.ic}<br><b>${c.n}</b><br><span class="mt">discovered</span></div>`):`<div class="pn" style="text-align:center"><div style="font-size:40px">❓</div><b>???</b><br><span class="mt">SECRET</span></div>`}).join('')+`</div>`+L.filter(c=>S.disc[c.id]).map(c=>`<div class="pn">🔓 <b>${c.n}</b>: ${SECM[c.n]}</div>`).join('');m.querySelectorAll('[data-u]').forEach(e=>e.onclick=()=>detail(e.dataset.u))}
 $$('bg').innerHTML=homeScene();$$('mu').onclick=e=>{mute=!mute;e.target.textContent=mute?'🔇':'🔊'};load();{let n=Math.min(150,Math.floor((Date.now()-S.tick)/5000));while(n-->0)tickMarket();S.tick=Date.now()}
 tick();draw();setInterval(()=>{tick();const e=$$('mo'),h=$$('hm');if(e)e.textContent=m2(S.money);if(h)h.textContent=m2(S.money)},200);document.addEventListener('visibilitychange',save);
-setInterval(()=>{tickMarket();S.tick=Date.now();if(['market','home','feed'].includes(tab)&&!(document.activeElement&&document.activeElement.id=='mq')&&$$('ov').style.display!='flex'&&$$('md').style.display!='flex')draw();else{$$('mo').textContent=$$$(S.money)}},60000);
+setInterval(()=>{tickMarket();S.tick=Date.now();if(['market','home','feed'].includes(tab)&&!(document.activeElement&&document.activeElement.id=='mq')&&$$('ov').style.display!='flex'&&$$('md').style.display!='flex')draw();else{$$('mo').textContent=$$$(S.money)}},20000);
 setInterval(()=>{const l=$$('lt');if(l&&tab=='shop'){const v=Math.ceil((avail()?18e5-Date.now()%36e5:36e5-Date.now()%36e5)/6e4);l.textContent=v}},1000);
 
 /* ================= CARDVAULT ONLINE LAYER =================
@@ -430,14 +430,12 @@ const _coll=collections;collections=function(m){_coll(m);m.querySelectorAll('[da
 daily=function(m){m.innerHTML='<h2 style="margin-top:0">Mystery Card</h2><p class="pn mt">Coming soon to the online version.</p>'};
 
 /* ---------- auth screens ---------- */
-window.cvLd=t=>{const e=document.getElementById('ldst');if(e)e.textContent=t};
-document.addEventListener('click',e=>{const i=e.target&&e.target.id;if(i=='ldrt')location.reload();if(i=='ldcl'){try{[localStorage,sessionStorage].forEach(st=>Object.keys(st).filter(k=>/^sb-/.test(k)).forEach(k=>st.removeItem(k)))}catch(x){}location.reload()}});
-function showAuth(mode,msg){clearTimeout(window._ldT);if(mode=='loading')window._ldT=setTimeout(()=>{['ldrt','ldcl'].forEach(i=>{const x=document.getElementById(i);if(x)x.style.display=''})},12000);const a=$$('auth');a.classList.remove('off');
+function showAuth(mode,msg){const a=$$('auth');a.classList.remove('off');
  const inp=(id,ph,t,v)=>`<input id="${id}" type="${t||'text'}" placeholder="${ph}" value="${v||''}" autocomplete="${t=='password'?'current-password':id=='em'?'email':'username'}">`;
  const err=msg?`<p class="aerr">${esc(msg)}</p>`:'';
  const H={
  setup:`<h2>Setup needed</h2><p class="mt">Open the game file and paste your Supabase URL and anon key into the <b>CV</b> constant at the top of the last script. See SETUP.md.</p>`,
- loading:`<h2>Loading your account…</h2><p class="mt" id="ldst">Starting…</p><div class="row" style="justify-content:center;gap:8px"><button id="ldrt" style="display:none">Try again</button><button class="g" id="ldcl" style="display:none">Clear saved login</button></div><p class="mt" style="font-size:11px;opacity:.55">Version 19 Oct 2026 · restored build · 21:28</p>`,
+ loading:`<h2>Loading your account…</h2><p class="mt">Collection · Home · Income · Market</p>`,
  login:`<h2>WELCOME BACK</h2>${err}${inp('li','Email / Username')}${inp('lp','Password','password')}<label class="mt"><input type="checkbox" id="rm" ${REM?'checked':''}> Remember me</label><button id="go">LOG IN</button><p><a id="fg">Forgot Password?</a></p><p class="mt">New here? <a id="sw">Create Account</a></p>`,
  create:`<h2>WELCOME TO CARDVAULT</h2><p class="mt">Create Account</p>${err}${inp('cu','Username')}${inp('em','Email','email')}${inp('cp','Password (8+ characters)','password')}${inp('cp2','Confirm Password','password')}<button id="go">CREATE ACCOUNT</button><p class="mt">Already have an account? <a id="sw">Log In</a></p>`,
  forgot:`<h2>Reset password</h2>${err}${inp('em','Email','email')}<button id="go">SEND RESET LINK</button><p><a id="sw">Back to Log In</a></p>`,
@@ -458,7 +456,7 @@ async function authDo(mode){const v=id=>($$(id)||{}).value||'';
  if(mode=='forgot'){const{error}=await sb.auth.resetPasswordForEmail(v('em').trim(),{redirectTo:location.href.split('#')[0]});if(error)throw Error(error.message);return showAuth('login','Reset link sent. Check your email.')}
  if(mode=='recover'){const pw=v('np');if(pw.length<8)throw Error('Password must be at least 8 characters');const{error}=await sb.auth.updateUser({password:pw});if(error)throw Error(error.message);const{data}=await sb.auth.getSession();return data.session?enter(data.session.user):showAuth('login','Password changed. Log in.')}}
 async function enter(user){if(entering)return;entering=true;USER=user;showAuth('loading');
- try{READY=true;cvLd('Loading your cards…');window.__core=0;for(let at=0;at<2;at++){try{await Promise.race([resync(),new Promise((_,rj)=>setTimeout(()=>rj(Error('slow')),45000)),new Promise(rs=>{const iv=setInterval(()=>{if(window.__core&&Date.now()-window.__core>3500){clearInterval(iv);rs()}},300)})])}catch(e){if(at==1)throw Error('The server is taking too long to answer. Please tap Log in to try again.')}if(S.prefs)break}if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
+ try{READY=true;await resync();if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
  catch(e){READY=false;entering=false;return showAuth('login',(e&&e.message)||'Could not load your account. Try again.')}entering=false}
 
 /* ---------- boot ---------- */
@@ -468,13 +466,13 @@ async function enter(user){if(entering)return;entering=true;USER=user;showAuth('
   if(ev=='PASSWORD_RECOVERY')return showAuth('recover');
   if(ev=='SIGNED_OUT'){const was=READY||USER;READY=false;USER=null;entering=false;showAuth('login',manualOut||!was?'':'Your session has expired. Please log in again.');manualOut=false}},0)});
  const had=Object.keys(localStorage).concat(Object.keys(sessionStorage)).some(k=>/^sb-.*auth-token/.test(k));
- showAuth('loading');cvLd('Checking your sign-in…');let data;try{({data}=await Promise.race([sb.auth.getSession(),new Promise((_,rj)=>setTimeout(()=>rj(Error('t')),10000))]))}catch(e){return showAuth('login','Could not check your saved sign-in. Check your connection and log in again.')}
+ showAuth('loading');const{data}=await sb.auth.getSession();
  if(data.session&&!/type=recovery/.test(location.hash))enter(data.session.user);else if(!/type=recovery/.test(location.hash))showAuth('login',had?'Your session has expired. Please log in again.':'')})();
 
 /* ---------- live updates + background loops ---------- */
 function settleLoop(){if(settleLoop.on)return;settleLoop.on=1;
  setInterval(()=>{if(READY)sb.rpc('settle_auctions').then(()=>{})},10000);
- setInterval(()=>{if(READY&&noModal()&&!document.hidden)resync()},60000);
+ setInterval(()=>{if(READY&&noModal())resync()},30000);
  setInterval(()=>{document.querySelectorAll('[data-end]').forEach(e=>{const t=+e.dataset.end-cvNow();e.textContent=cvT(t);e.style.color=t>0&&t<6e4?'var(--dn)':''})},1000)}
 const cvT=ms=>{if(ms<=0)return'ENDED';const s=Math.floor(ms/1e3),d=s/86400|0,h=s%86400/3600|0,mi=s%3600/60|0,se=s%60,p=n=>String(n).padStart(2,'0');return d?d+'d '+h+'h '+mi+'m':p(h)+':'+p(mi)+':'+p(se)};
 function subscribeLive(){if(subbed)return;subbed=true;
@@ -596,7 +594,7 @@ function loadCatalog(defs,prods){
   else{o.pity=r.pity;if(!r.ltd)o.price=+r.price}});
  const ents=Object.entries(P).sort((a,b)=>a[1].price-b[1].price);ents.forEach(([k])=>delete P[k]);ents.forEach(([k,v])=>P[k]=v)}
 const FAIR={},TREND={};
-const rateOf=i=>{const c=CARDS[i.cid];return +(((c&&c.base)||S.pr[i.cid]||0)*.01*FM[i.f||0]*(i.m||1)).toFixed(2)};
+const rateOf=i=>{const c=CARDS[i.cid];return +((S.pr[i.cid]||(c&&c.base)||0)*.01*FM[i.f||0]*(i.m||1)).toFixed(2)};
 const _info=info;info=function(c){const d=_info(c);if(d.hp==null||isNaN(d.hp))d.hp=300+(c.r-8)*50;if(c.hp!=null)d.hp=c.hp;
  if(c.atk!=null){d.a[0][2]=c.atk;d.a[1][2]=c.atk*2}if(c.ab)d.a[1][1]=c.ab;return d};
 
@@ -672,17 +670,11 @@ const _lc=loadCatalog;loadCatalog=function(defs,prods){_lc(defs,prods);defs.forE
 
 /* load more than 1,000 rows (Supabase caps one request at 1,000) */
 async function selAll(t,cols,ord){let out=[],from=0;for(;;){let q=sb.from(t).select(cols);ord.forEach(o=>q=q.order(o));const{data,error}=await q.range(from,from+999);if(error)throw error;out=out.concat(data||[]);if(!data||data.length<1000)break;from+=1000}return{data:out}}
-resync=async function(){if(!sb||!READY)return;try{const full=!window.__rc||Date.now()-window.__rc.t>600000;
- let cat=null;if(full){try{const c=JSON.parse(localStorage.getItem('cv_cat')||'null');if(c&&Date.now()-c.t<21600000&&c.cd&&c.cd.length>100)cat=c}catch(e){}}
- const need=full&&!cat;
- const[st,pr,ct]=await Promise.all([rpc('get_state',{},1),rpc('get_prices',{},1),need?rpc('get_catalog',{},1):Promise.resolve(null)]);
- const a={data:(pr||[]).map(r=>({card_id:r[0],price:r[1],hist:S.hi&&S.hi[r[0]]}))};
- if(full){if(ct){cat={t:Date.now(),cd:ct.cd||[],pd:ct.pd||[]};try{localStorage.setItem('cv_cat',JSON.stringify(cat))}catch(e){}}
-  cvLd('Processing '+cat.cd.length+' cards…');const o=window.__rc||{};window.__rc={t:Date.now(),b:o.b||[],cd:cat.cd,pd:cat.pd};loadCatalog(cat.cd,cat.pd)}
- cvLd('Setting up your account…');hydrate(st,a.data,window.__rc.b);window.__core=Date.now();LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}};
+resync=async function(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1),[a,b,cd,pd]=await Promise.all([selAll('prices','card_id,price,hist',['card_id']),selAll('print_runs','card_id,ed,created',['card_id','ed']),selAll('card_defs','*',['id']),sb.from('products').select('*')]);
+ loadCatalog(cd.data||[],pd.data||[]);hydrate(st,a.data||[],b.data||[]);LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}};
 
 /* light 5-second price refresh */
-pollPrices=async function(){if(!READY||pBusy)return;pBusy=1;try{sb.rpc('market_tick').then(()=>{},()=>{});const d=await rpc('get_prices',{},1);(d||[]).forEach(r=>{const p=+r[1],h=S.hi[r[0]]||(S.hi[r[0]]=[p]);S.pr[r[0]]=p;if(r[2]!=null)FAIR[r[0]]=+r[2];TREND[r[0]]=r[3]||'stable';if(h[h.length-1]!==p){h.push(p);if(h.length>80)h.shift()}})}catch(e){}pBusy=0};
+pollPrices=async function(){if(!READY||pBusy)return;pBusy=1;try{await sb.rpc('market_tick');const{data}=await selAll('prices','card_id,price',['card_id']);(data||[]).forEach(r=>{const p=+r.price,h=S.hi[r.card_id]||(S.hi[r.card_id]=[p]);S.pr[r.card_id]=p;if(h[h.length-1]!==p){h.push(p);if(h.length>80)h.shift()}})}catch(e){}pBusy=0};
 
 /* market tab shows the top 150 (search still finds everything) */
 const _mk=market;market=function(m){_mk(m);m.querySelectorAll('[data-m]').forEach((e,i)=>{if(i>=150)e.remove()})};
@@ -905,7 +897,7 @@ mkt=async function(id){if(!READY)return _mktM(id);const c=CARDS[id];
 /* ===== FRIENDS, PROFILES AND LIVE INCOME ADD-ON ===== */
 
 /* fair values and trends come from the server (income = 2% of fair value per minute) */
-async function loadFair(){if(!READY||(window.__lf&&Date.now()-window.__lf<300000))return;window.__lf=Date.now();try{const d=await rpc('get_prices',{},1);(d||[]).forEach(r=>{if(r[2]!=null)FAIR[r[0]]=+r[2];TREND[r[0]]=r[3]||'stable'})}catch(e){}}
+async function loadFair(){if(!READY)return;try{const{data}=await selAll('prices','card_id,fair,trend',['card_id']);(data||[]).forEach(r=>{if(r.fair!=null)FAIR[r.card_id]=+r.fair;TREND[r.card_id]=r.trend||'stable'})}catch(e){}}
 const _rsFA=resync;resync=async function(){await _rsFA();await loadFair()};
 setInterval(()=>{if(READY)loadFair()},60000);
 /* equipped cards now earn at their live rate, so there is no 10-minute lock */
@@ -1060,7 +1052,7 @@ const EXSORT={value_desc:['Highest value',(a,b)=>b.v-a.v],value_asc:['Lowest val
  newest:['Newest discoveries',(a,b)=>(b.s.d||0)-(a.s.d||0)],owners:['Most owners',(a,b)=>b.s.o-a.s.o],gain:['Biggest 24h gain',(a,b)=>(b.s.c==null?-1e9:b.s.c)-(a.s.c==null?-1e9:a.s.c)],
  loss:['Biggest 24h drop',(a,b)=>(a.s.c==null?1e9:a.s.c)-(b.s.c==null?1e9:b.s.c)],income:['Highest $/min',(a,b)=>b.rate-a.rate],active:['Most sales this week',(a,b)=>b.s.s-a.s.s],listed:['Most listed',(a,b)=>b.s.l-a.s.l]};
 function exRow(c){
- const s=exS(c),v=S.pr[c.id]||0,left=exLeft(c,s),rate=(c.base||v)*.01,ch=s.c;
+ const s=exS(c),v=S.pr[c.id]||0,left=exLeft(c,s),rate=(v||c.base)*.01,ch=s.c;
  const tags=[];
  if(c.pr>0&&s.f==0)tags.push('<span class="tag" style="background:#7c3aed;color:#fff">NOT YET DISCOVERED</span>');
  if(c.pr>0&&left==0)tags.push('<span class="tag" style="background:#6b7280;color:#fff">SOLD OUT</span>');
@@ -1073,7 +1065,7 @@ function exRow(c){
  <div style="text-align:right;min-width:92px"><b>${kc(v)}</b><br><span class="${ch==null?'mt':ch>=0?'up':'dn'}" style="font-size:12px">${ch==null?'new':(ch>=0?'+':'')+ch+'%'} ${({rising:'📈',falling:'📉',hot:'🔥',cold:'❄️'})[s.t]||''}</span><br><span class="mt" style="font-size:12px">${kc(rate)}/min</span></div></div>`}
 market=function(m,skip){
  if(!skip)exLoad();
- const all=CARDS.filter(c=>c&&exMatch(c)),rows=all.map(c=>{const s=exS(c);return{c,s,v:S.pr[c.id]||0,left:exLeft(c,s),rate:(c.base||S.pr[c.id]||0)*.01}});
+ const all=CARDS.filter(c=>c&&exMatch(c)),rows=all.map(c=>{const s=exS(c);return{c,s,v:S.pr[c.id]||0,left:exLeft(c,s),rate:(S.pr[c.id]||c.base||0)*.01}});
  rows.sort(EXSORT[EX.sort][1]);
  const nUnd=CARDS.filter(c=>c&&c.pr>0&&!(c.sec&&!S.disc[c.id])&&exS(c).f==0).length,sets=Object.keys(SETS),rars=[...new Set(CARDS.filter(c=>c).map(c=>c.r))].sort((a,b)=>a-b);
  const sel=(id,opts,val)=>`<select id="${id}" style="background:var(--pn);color:var(--tx);border:1px solid var(--pn2);border-radius:8px;padding:6px;font:inherit">${opts.map(([k,l])=>`<option value="${k}" ${String(val)===String(k)?'selected':''}>${l}</option>`).join('')}</select>`;
@@ -1916,7 +1908,7 @@ mkt=async function(id){const c=CARDS[id];if(!c)return;
   const s=(cd&&cd.series||[]).map(x=>[+x[0],+x[1]]),cut=now-(rg=='24h'?1:7)*864e5,p=s.filter(x=>x[0]>=cut);
   const out=(p.length>=2?p:s.slice(-2)).slice();if(cur)out.push([now,cur]);return out};
  const paint=()=>{
-  const price=+S.pr[id]||+d.price||0,lim=d.lim||{},fixed=d.inc!=null?+d.inc:(c.base||price)*.01;
+  const price=+S.pr[id]||+d.price||0,lim=d.lim||{},fixed=d.inc!=null?+d.inc:(price||c.base)*.01;
   const pr=+d.press||0,pos=Math.max(3,Math.min(97,(pr+1)/2*100));
   const sales=d.sales10||[];
   modal(`<div style="max-height:86vh;overflow:auto;text-align:left;padding-right:4px">
