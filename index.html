@@ -1,4 +1,4 @@
-   <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8"><title>CardVault</title><link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <style>
@@ -454,7 +454,7 @@ function showAuth(mode,msg){clearTimeout(window._ldT);if(mode=='loading')window.
  const err=msg?`<p class="aerr">${esc(msg)}</p>`:'';
  const H={
  setup:`<h2>Setup needed</h2><p class="mt">Open the game file and paste your Supabase URL and anon key into the <b>CV</b> constant at the top of the last script. See SETUP.md.</p>`,
- loading:`<h2>Loading your account…</h2><p class="mt" id="ldst">Starting…</p><div class="row" style="justify-content:center;gap:8px"><button id="ldrt" style="display:none">Try again</button><button class="g" id="ldcl" style="display:none">Clear saved login</button></div><p class="mt" style="font-size:11px;opacity:.55">Version 19 Oct 2026 · build R2 · 19 Oct 15:02</p>`,
+ loading:`<h2>Loading your account…</h2><p class="mt" id="ldst">Starting…</p><div class="row" style="justify-content:center;gap:8px"><button id="ldrt" style="display:none">Try again</button><button class="g" id="ldcl" style="display:none">Clear saved login</button></div><p class="mt" style="font-size:11px;opacity:.55">Version 19 Oct 2026 · build R4 · 19 Oct 15:46</p>`,
  login:`<h2>WELCOME BACK</h2>${err}${inp('li','Email / Username')}${inp('lp','Password','password')}<label class="mt"><input type="checkbox" id="rm" ${REM?'checked':''}> Remember me</label><button id="go">LOG IN</button><p><a id="fg">Forgot Password?</a></p><p class="mt">New here? <a id="sw">Create Account</a></p>`,
  create:`<h2>WELCOME TO CARDVAULT</h2><p class="mt">Create Account</p>${err}${inp('cu','Username')}${inp('em','Email','email')}${inp('cp','Password (8+ characters)','password')}${inp('cp2','Confirm Password','password')}<button id="go">CREATE ACCOUNT</button><p class="mt">Already have an account? <a id="sw">Log In</a></p>`,
  forgot:`<h2>Reset password</h2>${err}${inp('em','Email','email')}<button id="go">SEND RESET LINK</button><p><a id="sw">Back to Log In</a></p>`,
@@ -475,7 +475,7 @@ async function authDo(mode){const v=id=>($$(id)||{}).value||'';
  if(mode=='forgot'){const{error}=await sb.auth.resetPasswordForEmail(v('em').trim(),{redirectTo:location.href.split('#')[0]});if(error)throw Error(error.message);return showAuth('login','Reset link sent. Check your email.')}
  if(mode=='recover'){const pw=v('np');if(pw.length<8)throw Error('Password must be at least 8 characters');const{error}=await sb.auth.updateUser({password:pw});if(error)throw Error(error.message);const{data}=await sb.auth.getSession();return data.session?enter(data.session.user):showAuth('login','Password changed. Log in.')}}
 async function enter(user){if(entering)return;entering=true;USER=user;showAuth('loading');
- try{READY=true;cvLd('Loading your cards…');for(let at=0;at<2;at++){try{await Promise.race([resync(),new Promise((_,rj)=>setTimeout(()=>rj(Error('slow')),45000))])}catch(e){if(at==1)throw Error('The server is taking too long to answer. Please tap Log in to try again.')}if(S.prefs)break}if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));cvLd('Drawing home…');tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
+ try{READY=true;cvLd('Loading your cards…');for(let at=0;at<2;at++){window.__core=0;try{await Promise.race([resync(),new Promise((_,rj)=>setTimeout(()=>rj(Error('slow')),45000)),new Promise(rs=>{const iv=setInterval(()=>{if(window.__core&&Date.now()-window.__core>3500){clearInterval(iv);rs()}},300)})])}catch(e){if(at==1)throw Error('The server is taking too long to answer. Please tap Log in to try again.')}if(S.prefs)break}if(!S.prefs)throw Error('Could not load your account'+(LASTERR?' ('+LASTERR+')':''));cvLd('Drawing home…');tab='home';$$('auth').classList.add('off');draw();subscribeLive();settleLoop()}
  catch(e){READY=false;entering=false;return showAuth('login',(e&&e.message)||'Could not load your account. Try again.')}entering=false}
 
 /* ---------- boot ---------- */
@@ -690,9 +690,10 @@ const _lc=loadCatalog;loadCatalog=function(defs,prods){_lc(defs,prods);defs.forE
 /* load more than 1,000 rows (Supabase caps one request at 1,000) */
 async function selAll(t,cols,ord){let out=[],from=0,pg=0;const vis=()=>!document.getElementById('auth').classList.contains('off');for(;;){let res=null,lastE=null;for(let at=0;at<3&&!res;at++){try{if(vis())cvLd('Downloading '+t+' (part '+(pg+1)+(at?', retry '+at:'')+')…');let q=sb.from(t).select(cols);ord.forEach(o=>q=q.order(o));res=await Promise.race([q.range(from,from+999),new Promise((_,rj)=>setTimeout(()=>rj(Error('no answer from the server for '+t)),12000))]);if(res.error)throw res.error}catch(e){lastE=e;res=null}}if(!res)throw lastE||Error('download failed: '+t);const data=res.data;out=out.concat(data||[]);pg++;if(!data||data.length<1000)break;from+=1000}return{data:out}}
 resync=async function(){if(!sb||!READY)return;try{const st=await rpc('get_state',{},1);let a;const full=!window.__rc||Date.now()-window.__rc.t>600000;
- if(full){const[a0,b0,cd,pd]=await Promise.all([selAll('prices_lite','card_id,price,hist',['card_id']).catch(()=>selAll('prices','card_id,price,hist',['card_id'])),selAll('print_runs','card_id,ed,created',['card_id','ed']),selAll('card_defs','*',['id']),sb.from('products').select('*')]);a=a0;cvLd('Processing '+(cd.data||[]).length+' cards…');window.__rc={t:Date.now(),b:b0.data||[],cd:cd.data||[],pd:pd.data||[]};loadCatalog(window.__rc.cd,window.__rc.pd)}
- else a={data:Object.keys(S.pr).map(k=>({card_id:+k,price:S.pr[k],hist:S.hi&&S.hi[k]}))};
- cvLd('Setting up your account…');hydrate(st,a.data||[],window.__rc.b);cvLd('Drawing your home…');LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}};
+ if(full){const[a0,cd,pd]=await Promise.all([selAll('prices_lite','card_id,price',['card_id']).catch(()=>selAll('prices','card_id,price',['card_id'])),selAll('card_defs','*',['id']),sb.from('products').select('*')]);a=a0;cvLd('Processing '+(cd.data||[]).length+' cards…');const o=window.__rc||{};window.__rc={t:Date.now(),b:o.b||[],h:o.h||{},cd:cd.data||[],pd:pd.data||[]};loadCatalog(window.__rc.cd,window.__rc.pd);
+  if(!window.__bg){window.__bg=1;setTimeout(async()=>{try{const[h,r]=await Promise.all([selAll('prices_lite','card_id,hist',['card_id']),selAll('print_runs','card_id,ed,created',['card_id','ed'])]);const hm={};(h.data||[]).forEach(x=>{hm[x.card_id]=x.hist});window.__rc.h=hm;window.__rc.b=r.data||[];window.__bgdone=1;resync()}catch(e){}window.__bg=0},1500)}}
+ else a={data:Object.keys(S.pr).map(k=>({card_id:+k,price:S.pr[k],hist:(window.__rc.h&&window.__rc.h[k])||(S.hi&&S.hi[k])}))};
+ cvLd('Setting up your account…');hydrate(st,a.data||[],window.__rc.b);window.__core=Date.now();cvLd('Drawing your home…');LASTERR='';if(noModal())draw()}catch(e){LASTERR=(e&&(e.message||e.details))||String(e)}};
 
 /* light 5-second price refresh */
 pollPrices=async function(){if(!READY||pBusy)return;pBusy=1;try{await sb.rpc('market_tick');const{data}=await selAll('prices','card_id,price',['card_id']);(data||[]).forEach(r=>{const p=+r.price,h=S.hi[r.card_id]||(S.hi[r.card_id]=[p]);S.pr[r.card_id]=p;if(h[h.length-1]!==p){h.push(p);if(h.length>80)h.shift()}})}catch(e){}pBusy=0};
