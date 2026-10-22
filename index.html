@@ -2497,4 +2497,95 @@ const _d3=draw;draw=function(){_d3.apply(this,arguments);try{tidyShop();tidyBind
 new MutationObserver(()=>{try{tidyBinder()}catch(e){}}).observe($$('m'),{childList:true});
 }
 
-</script></body></html>
+</script><style id="cvtheme">/* ===== CardVault "Living Cosmic Vault" theme (shared tokens, ambient layer, polish) ===== */
+:root{--cv-gold:#f0b92d;--cv-gold2:#ffe27a;--cv-violet:#6b4de0;--cv-blue:#2a6ad8;--cv-ink:#0b0a16;--cv-line:#ffffff1a;--cv-ease:cubic-bezier(.22,.8,.3,1)}
+html{background:#0b0a16}
+body{background:transparent!important}
+body.home{background:transparent!important}
+/* ambient layer: sits behind everything, never blocks clicks */
+#cvamb{position:fixed;inset:0;z-index:-1;pointer-events:none;overflow:hidden;contain:strict;background:radial-gradient(120% 90% at 50% -10%,#1e1a45 0,#0f0d20 55%,#08070f 100%)}
+#cvamb .au{position:absolute;border-radius:50%;will-change:transform;opacity:.34}
+#cvamb .a1{width:90vmax;height:90vmax;left:-35vmax;top:-45vmax;background:radial-gradient(circle,#6b4de0 0,#6b4de000 62%);animation:cvA1 70s ease-in-out infinite alternate}
+#cvamb .a2{width:80vmax;height:80vmax;right:-40vmax;top:5vh;background:radial-gradient(circle,#2a6ad8 0,#2a6ad800 62%);opacity:.26;animation:cvA2 90s ease-in-out infinite alternate}
+#cvamb .a3{width:70vmax;height:70vmax;left:10vw;bottom:-50vmax;background:radial-gradient(circle,#e8b84a 0,#e8b84a00 62%);opacity:.11;animation:cvA3 110s ease-in-out infinite alternate}
+#cvamb canvas{position:absolute;inset:0;width:100%;height:100%}
+#cvamb .st{position:absolute;top:-10%;left:-30%;width:60%;height:2px;background:linear-gradient(90deg,transparent,#ffe9a8aa,transparent);transform:rotate(24deg) translateX(0);opacity:0}
+#cvamb .st.go{animation:cvSt 3.4s ease-out 1}
+@keyframes cvA1{to{transform:translate3d(18vmax,12vmax,0) scale(1.12)}}
+@keyframes cvA2{to{transform:translate3d(-16vmax,18vmax,0) scale(.92)}}
+@keyframes cvA3{to{transform:translate3d(22vmax,-10vmax,0) scale(1.15)}}
+@keyframes cvSt{0%{opacity:0;transform:rotate(24deg) translateX(0)}15%{opacity:.8}100%{opacity:0;transform:rotate(24deg) translateX(260vw)}}
+body[data-fx=calm] #cvamb canvas,body[data-fx=calm] #cvamb .st{display:none}
+body[data-fx=off] #cvamb canvas,body[data-fx=off] #cvamb .st{display:none}
+body[data-fx=off] #cvamb .au{animation:none!important}
+@media(prefers-reduced-motion:reduce){#cvamb .au{animation:none!important}#cvamb canvas,#cvamb .st{display:none}}
+/* page change */
+main.cvin{animation:cvIn .28s var(--cv-ease) both}
+@keyframes cvIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+body[data-fx=off] main.cvin{animation:none}
+@media(prefers-reduced-motion:reduce){main.cvin{animation:none}}
+/* buttons, focus, press states */
+button{transition:transform .12s var(--cv-ease),filter .15s,box-shadow .15s,background-color .15s;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+button:active:not(:disabled){transform:translateY(1px) scale(.97);filter:brightness(.95)}
+@media(hover:hover){button:hover:not(:disabled){filter:brightness(1.1)}.cw .card{transition:transform .22s var(--cv-ease),box-shadow .22s}.cw:hover .card{transform:translateY(-4px) scale(1.02)}}
+button:focus-visible,a:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--cv-gold2);outline-offset:2px}
+input,select,textarea{transition:border-color .15s,box-shadow .15s}
+input:focus,select:focus,textarea:focus{border-color:var(--cv-gold)!important;box-shadow:0 0 0 3px #f0b92d33;outline:none}
+/* panels and modals share one look */
+.pn{border:1px solid var(--cv-line);background:linear-gradient(180deg,#221d44cc,#181533cc)}
+#md .box,#ov .box,#auth .box{border:1px solid #ffffff22;box-shadow:0 24px 60px -12px #000c,0 0 0 1px #0006 inset}
+#auth>div,#auth .box{border:1px solid #ffffff22}
+::selection{background:#f0b92d55}
+*{scrollbar-width:thin;scrollbar-color:#ffffff30 transparent}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:#ffffff30;border-radius:8px}
+/* header money gets a quiet gold shimmer */
+#mo{background:linear-gradient(100deg,#f0b92d 0,#ffe27a 45%,#f0b92d 90%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;background-size:220% 100%;animation:cvShim 9s ease-in-out infinite}
+@keyframes cvShim{0%,100%{background-position:0 0}50%{background-position:100% 0}}
+body[data-fx=off] #mo,body[data-fx=calm] #mo{animation:none}
+@media(prefers-reduced-motion:reduce){#mo{animation:none}}
+/* tour banner no longer covers the page */
+#tourb{background:linear-gradient(180deg,#2c2658,#211c46)!important;top:auto!important;bottom:calc(env(safe-area-inset-bottom,0px) + 84px)!important;padding:7px 10px!important;max-width:520px;margin:0 auto;box-shadow:0 10px 30px #000c!important}
+/* settings row */
+.mrow.fx{cursor:pointer}
+/* comfortable tap targets on touch screens */
+@media(pointer:coarse){button{min-height:40px}nav button,.mrow{min-height:44px}}
+</style>
+<script>(()=>{
+const LS=k=>{try{return localStorage.getItem(k)}catch(e){return null}},SS=(k,v)=>{try{localStorage.setItem(k,v)}catch(e){}};
+const reduce=matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+let mode=LS('cv_fx')||(reduce?'off':'full');
+const body=document.body;
+const amb=document.createElement('div');amb.id='cvamb';amb.setAttribute('aria-hidden','true');
+amb.innerHTML='<i class="au a1"></i><i class="au a2"></i><i class="au a3"></i><canvas></canvas><i class="st"></i>';
+body.insertBefore(amb,body.firstChild);
+const cv=amb.querySelector('canvas'),st=amb.querySelector('.st'),cx=cv.getContext&&cv.getContext('2d');
+let W=0,H=0,P=[],raf=0,last=0,stT=0;
+function size(){W=cv.width=Math.ceil(innerWidth*Math.min(devicePixelRatio||1,1.5));H=cv.height=Math.ceil(innerHeight*Math.min(devicePixelRatio||1,1.5));
+ const n=Math.round(Math.min(46,Math.max(18,innerWidth*innerHeight/26000)));
+ P=Array.from({length:n},()=>({x:Math.random()*W,y:Math.random()*H,r:(Math.random()*1.3+.4)*(W/innerWidth),vx:(Math.random()-.5)*.12*(W/innerWidth),vy:-(Math.random()*.16+.03)*(W/innerWidth),a:Math.random()*6.28,s:Math.random()*.012+.004,g:Math.random()<.22}))}
+function frame(t){raf=requestAnimationFrame(frame);if(t-last<33)return;last=t;
+ cx.clearRect(0,0,W,H);
+ for(const p of P){p.x+=p.vx;p.y+=p.vy;p.a+=p.s;if(p.y<-4){p.y=H+4;p.x=Math.random()*W}if(p.x<-4)p.x=W+4;if(p.x>W+4)p.x=-4;
+  const al=.25+.35*Math.sin(p.a)**2;cx.fillStyle=p.g?'rgba(255,226,140,'+al+')':'rgba(190,175,255,'+(al*.8)+')';cx.beginPath();cx.arc(p.x,p.y,p.r,0,6.283);cx.fill()}}
+function run(){stop();if(mode!='full'||document.hidden||!cx)return;size();raf=requestAnimationFrame(frame);glim()}
+function stop(){if(raf)cancelAnimationFrame(raf);raf=0;clearTimeout(stT);if(cx)cx.clearRect(0,0,W,H)}
+function glim(){clearTimeout(stT);stT=setTimeout(()=>{if(mode!='full'||document.hidden)return;st.style.top=(Math.random()*70)+'%';st.classList.remove('go');void st.offsetWidth;st.classList.add('go');glim()},12000+Math.random()*10000)}
+function apply(){body.dataset.fx=mode;run()}
+document.addEventListener('visibilitychange',run);
+let rt;addEventListener('resize',()=>{clearTimeout(rt);rt=setTimeout(()=>{if(mode=='full')run()},250)});
+apply();
+window.cvSetFx=m=>{mode=m;SS('cv_fx',m);apply()};
+/* page-change animation: only when the page actually changes, never on background refreshes */
+let lastTab=null;
+const wrap=()=>{if(typeof draw!='function'||draw.__cvt)return;const d=draw;draw=function(){const r=d.apply(this,arguments);try{if(typeof tab!='undefined'&&tab!==lastTab){lastTab=tab;const m=document.querySelector('main');if(m&&mode!='off'){m.classList.remove('cvin');void m.offsetWidth;m.classList.add('cvin')}}}catch(e){}return r};draw.__cvt=1};
+wrap();
+/* effects setting inside the ☰ menu */
+const LBL={full:['✨','Ambient effects','Full'],calm:['🌌','Ambient effects','Calm'],off:['⏸️','Ambient effects','Off']};
+function paintRow(r){const l=LBL[mode];r.innerHTML='<span class="e">'+l[0]+'</span><b>'+l[1]+'</b><span>'+l[2]+' · tap to change</span>'}
+const md=document.getElementById('md');
+if(md){new MutationObserver(()=>{if(md.querySelector('.mrow.fx'))return;const hook=md.querySelector('[data-m="tour"]');if(!hook)return;
+ const r=document.createElement('div');r.className='mrow fx';paintRow(r);hook.parentNode.insertBefore(r,hook.nextSibling);
+ r.onclick=()=>{window.cvSetFx(mode=='full'?'calm':mode=='calm'?'off':'full');paintRow(r)}}).observe(md,{childList:true,subtree:true})}
+})();
+</script>
+</body></html>
