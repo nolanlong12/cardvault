@@ -2588,4 +2588,120 @@ if(md){new MutationObserver(()=>{if(md.querySelector('.mrow.fx'))return;const ho
  r.onclick=()=>{window.cvSetFx(mode=='full'?'calm':mode=='calm'?'off':'full');paintRow(r)}}).observe(md,{childList:true,subtree:true})}
 })();
 </script>
+<style id="cvgems">/* ===== Gems & Lucky Potions ===== */
+body.hasgem #ih{display:inline-block}
+#gmc{display:inline-flex;align-items:center;gap:4px;margin-left:8px;padding:1px 9px;min-height:0!important;border-radius:12px;font-size:12px;font-weight:700;background:linear-gradient(#1b1636,#0b0a18);color:#a8ecff;border:1.5px solid #5ac8fa88;vertical-align:top;cursor:pointer}
+#gmc b{color:#fff}
+.gm-card{border:1px solid #ffffff1c;border-radius:14px;padding:12px;margin:10px 0;background:linear-gradient(180deg,#232049cc,#181533cc)}
+.gm-card h3{margin:0 0 4px;font-size:16px}
+.gm-bal{display:flex;gap:10px;flex-wrap:wrap}
+.gm-bal>div{flex:1;min-width:120px;border-radius:12px;padding:10px;background:#0006;border:1px solid #ffffff14;text-align:center}
+.gm-bal b{display:block;font-size:22px;color:#a8ecff}
+.gm-bal .gpot b{color:#d7a8ff}
+.gm-days{display:flex;gap:4px;margin-top:8px}
+.gm-days>div{flex:1;text-align:center;border-radius:10px;padding:6px 2px;background:#0005;font-size:11px;border:1px solid #ffffff12}
+.gm-days>div.big7{background:linear-gradient(#3a2a07,#251a05);border-color:#f0b92d88}
+.gm-days b{display:block;font-size:14px;color:#a8ecff}
+.gm-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:9px 0;border-top:1px solid #ffffff12}
+.gm-row:first-of-type{border-top:0}
+.gm-row .tag2{font-size:11px;color:#7ee2a8;margin-left:6px}
+.gm-note{font-size:12px;color:var(--mt);line-height:1.45}
+.gm-line{display:flex;justify-content:space-between;padding:5px 0;border-top:1px solid #ffffff10}
+.gm-line:first-of-type{border-top:0}
+</style>
+<script>(()=>{
+const G=window.GEM={ok:false,gems:0,potions:0,money:0,held:0,cfg:null,pending:null,t:0};
+const cfg=()=>G.cfg||{},fm=n=>Math.round(+n).toLocaleString(),esc2=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function gemLoad(force){
+ if(typeof READY==='undefined'||!READY||typeof sb==='undefined'||!sb)return G;
+ if(!force&&Date.now()-G.t<45000)return G;G.t=Date.now();
+ try{const r=await sb.rpc('gems_get');if(r.error)throw r.error;Object.assign(G,r.data,{ok:true})}catch(e){G.ok=false}
+ paintGem();return G}
+window.gemLoad=()=>gemLoad(true);
+function paintGem(){
+ const ih=document.getElementById('ih');if(!ih)return;let c=document.getElementById('gmc');
+ if(!G.ok){if(c)c.remove();document.body.classList.remove('hasgem');return}
+ if(!c){c=document.createElement('button');c.id='gmc';c.className='g';c.title='Gem Store';c.onclick=()=>gemStore();ih.after(c)}
+ document.body.classList.add('hasgem');c.innerHTML='💎 <b>'+fm(G.gems)+'</b>';
+ const r=document.getElementById('gemrow');if(r){const s=r.querySelector('[data-gs]');if(s)s.innerHTML='💎 <b>'+fm(G.gems)+'</b> Gems · 🧪 <b>'+G.potions+'/'+(cfg().potion_max||3)+'</b> Lucky Potions'}}
+function shopRow(){
+ if(!G.ok||typeof tab==='undefined'||tab!=='shop')return;const m=document.getElementById('m');if(!m||document.getElementById('gemrow'))return;
+ const d=document.createElement('div');d.id='gemrow';d.className='pn';d.style.cssText='display:flex;align-items:center;gap:10px;cursor:pointer';
+ d.innerHTML='<span style="font-size:26px">💎</span><span style="flex:1"><b>Gems &amp; Lucky Potions</b><div class="mt" style="font-size:12px" data-gs></div></span><span style="opacity:.7">›</span>';
+ d.onclick=()=>gemStore();const h=m.querySelector('h2,.sh,h1');(h&&h.parentNode===m)?h.after(d):m.insertBefore(d,m.firstChild);paintGem()}
+/* ---------- Gem Store ---------- */
+function gemStore(){
+ const c=cfg(),pm=c.potion_max||3,pp=c.potion_price||500,bl=c.bundles||[],base=bl.length?bl[0].gems/bl[0].usd:100,dg=c.daily_gems||[5,5,5,5,5,5,10];
+ const full=G.potions>=pm,can=G.gems>=pp;
+ const why=full?'You already hold the maximum ('+pm+').':!can?'You need '+fm(pp-G.gems)+' more Gems.':'';
+ const days=dg.map((g,i)=>'<div class="'+(i==6?'big7':'')+'">Day '+(i+1)+'<b>+'+g+' 💎</b>'+(i==6?'<div>+ 🧪 Potion</div>':'')+'</div>').join('');
+ const bund=bl.map(b=>{const bonus=Math.round((b.gems/b.usd/base-1)*100);return'<div class="gm-row"><span><b>'+fm(b.gems)+' 💎</b>'+(bonus>=2?'<span class="tag2">+'+bonus+'% bonus</span>':'')+'</span><button class="g" disabled style="opacity:.55">$'+b.usd.toFixed(2)+'</button></div>'}).join('');
+ modal('<h2 style="margin:0 0 6px">💎 Gem Store</h2>'
+  +'<div class="gm-bal"><div>Gems<b>'+fm(G.gems)+'</b></div><div class="gpot">Lucky Potions<b>'+G.potions+'/'+pm+'</b></div></div>'
+  +(G.pending?'<div class="gm-card" style="border-color:#f0b92d88"><div class="gm-note">You were buying <b>'+esc2(G.pending.name)+'</b>.</div><button id="gback" style="margin-top6px;margin-top:6px">↩ Back to that purchase</button></div>':'')
+  +'<div class="gm-card"><h3>🧪 Lucky Potion <span class="gm-note">· '+fm(pp)+' 💎</span></h3><div class="gm-note">Improves your odds on <b>one</b> pack or box opening (about +'+Math.round(((c.potion_boost||1.15)-1)*100)+'% on the better outcomes). It never guarantees a rare card or a profit, and it is used up only when that opening succeeds. You can hold up to '+pm+'.</div>'
+  +'<button id="gbp" style="margin-top:8px;width:100%" '+(full||!can?'disabled':'')+'>'+(full||!can?why:'Buy a Lucky Potion — '+fm(pp)+' 💎')+'</button></div>'
+  +'<div class="gm-card"><h3>🎁 Free Gems every day</h3><div class="gm-note">Check in on the Goals page. Keep your streak for a Lucky Potion on day 7.</div><div class="gm-days">'+days+'</div></div>'
+  +'<div class="gm-card"><h3>Gem bundles</h3>'+bund+'<div class="gm-note" style="margin-top:6px">'+(c.payments_enabled?'':'<b>Buying Gems with real money isn\'t available yet.</b> When it opens it will use a secure payment provider and Gems will only be added after the server verifies the payment. For now, Gems come from the daily reward.')+'</div></div>'
+  +'<div class="gm-card"><h3>What can Gems do?</h3><div class="gm-note">• Buy Lucky Potions.<br>• Cover missing money when you buy a pack or box: the game shows the exact Gem cost and asks you first. $'+fm(c.money_per_gem||10)+' of missing money = 1 Gem.</div></div>'
+  +'<button class="g" id="gcl" style="width:100%;margin-top:6px">Close</button>');
+ document.getElementById('gcl').onclick=closeM;
+ const b=document.getElementById('gback');if(b)b.onclick=()=>{const p=G.pending;G.pending=null;closeM();buy(p.k,p.open)};
+ const bp=document.getElementById('gbp');let armed=0;
+ if(bp&&!bp.disabled)bp.onclick=async()=>{
+  if(!armed){armed=1;bp.textContent='Tap again to spend '+fm(pp)+' 💎';setTimeout(()=>{if(bp.isConnected&&!bp.disabled){armed=0;bp.textContent='Buy a Lucky Potion — '+fm(pp)+' 💎'}},4000);return}
+  bp.disabled=true;
+  try{const r=await rpc('buy_potion');G.gems=r.gems;G.potions=r.potions;toast('🧪 Lucky Potion added ('+r.potions+'/'+pm+')')}catch(e){await gemLoad(true)}
+  paintGem();gemStore()}}
+window.gemStore=gemStore;
+/* ---------- short on money? cover it with Gems (always asks first) ---------- */
+const _buy=buy;
+buy=async function(k,open){
+ const p=P[k];if(!p||p.myst||!G.ok)return _buy(k,open);
+ const c=cfg(),sf=c.shortfall||{};
+ if(S.money>=p.price||!sf.enabled||!sf.packs)return _buy(k,open);
+ await gemLoad(true);
+ const avail=G.money-G.held,short=p.price-avail;
+ if(short<=0)return _buy(k,open);
+ const rate=c.money_per_gem||10,need=Math.ceil(short/rate),have=G.gems;
+ const lines='<div class="gm-line"><span>Item price</span><b>'+$$$(p.price)+'</b></div><div class="gm-line"><span>Your money</span><b>'+$$$(Math.max(0,avail))+'</b></div><div class="gm-line"><span>You are short</span><b style="color:#f87171">'+$$$(short)+'</b></div><div class="gm-line"><span>Gems needed ($'+fm(rate)+' per Gem)</span><b>'+fm(need)+' 💎</b></div><div class="gm-line"><span>Your Gems</span><b>'+fm(have)+' 💎</b></div>';
+ if(have>=need){
+  modal('<h2 style="margin:0 0 6px">Use Gems to cover the difference?</h2><div class="gm-note">You are short '+$$$(short)+' in-game money. You can use <b>'+fm(need)+' Gems</b> to cover the difference and buy <b>'+esc2(p.n)+'</b>. This will leave you with <b>'+fm(have-need)+' Gems</b>.</div><div class="gm-card">'+lines+'</div><div class="row"><button id="sfy" style="flex:1">Use '+fm(need)+' Gems &amp; buy</button><button class="g" id="sfn">Cancel</button></div>');
+  document.getElementById('sfn').onclick=closeM;
+  const y=document.getElementById('sfy');y.onclick=async()=>{y.disabled=true;
+   try{const r=await rpc('buy_product_gems',{p_key:k});S.money=+r.money;G.gems=r.gems;S.sealed[k]=(S.sealed[k]||0)+1;closeM();
+     toast(r.gems_used?'Used '+fm(r.gems_used)+' Gems · added to sealed stock':'Added to sealed stock');paintGem();
+     if(open)return openP(k);draw()}catch(e){y.disabled=false;gemLoad(true)}}
+ }else{
+  modal('<h2 style="margin:0 0 6px">Not enough money or Gems</h2><div class="gm-note">You need <b>'+fm(need-have)+' more Gems</b> to cover the missing '+$$$(short)+'. Your item will be waiting for you.</div><div class="gm-card">'+lines+'</div><div class="row"><button id="sfs" style="flex:1">Open the Gem Store</button><button class="g" id="sfn">Cancel</button></div>');
+  document.getElementById('sfn').onclick=closeM;
+  document.getElementById('sfs').onclick=()=>{G.pending={k,open,name:p.n};gemStore()}}};
+/* ---------- Lucky Potion choice when opening ---------- */
+const _oR=openReal;
+async function openLucky(k,mode){
+ let packs;try{packs=await rpc('open_product_lucky',{p_key:k,p_mode:mode})}catch(e){gemLoad(true);return}
+ G.potions=Math.max(0,G.potions-1);paintGem();
+ S.sealed[k]--;SRC=P[k].n;packs.forEach(pk=>pk.forEach(c=>{c.h=c.h||[];c.m=+c.m;S.inv.push(c);S.disc[c.cid]=1}));
+ logH(packs,P[k].n);S.xp+=10;S.st.open++;flow(k,packs);lazySync()}
+openReal=function(k,mode){
+ if(!(G.ok&&G.potions>0))return _oR(k,mode);
+ return new Promise(res=>{
+  modal('<h2 style="margin:0 0 6px">🧪 Use a Lucky Potion?</h2><div class="gm-note">You have <b>'+G.potions+'</b>. A Lucky Potion slightly improves your odds for <b>this one opening only</b> and is used up when the pack opens. It does not guarantee a rare card or a profit. Opening normally keeps the usual odds and keeps your potion.</div><div class="gm-card"><b>'+esc2(P[k].n)+'</b> · '+(mode=='hard'?'Hard':'Normal')+'</div>'
+   +'<div class="row"><button id="lpy" style="flex:1">🧪 Use Lucky Potion (uses 1 of '+G.potions+')</button><button class="g" id="lpn" style="flex:1">Open normally</button></div><button class="g" id="lpc" style="width:100%;margin-top:6px">Cancel</button>');
+  document.getElementById('lpy').onclick=()=>{closeM();res(openLucky(k,mode))};
+  document.getElementById('lpn').onclick=()=>{closeM();res(_oR(k,mode))};
+  document.getElementById('lpc').onclick=()=>{closeM();res()}})};
+/* ---------- keep balances fresh, text updates, menu entry ---------- */
+const _rpc=rpc;
+rpc=async function(fn,a,q){const r=await _rpc(fn,a,q);if(/^(daily_checkin|open_product|goal_collect|claim_streak)/.test(fn))setTimeout(()=>gemLoad(true),400);return r};
+const _rs=resync;resync=async function(){const r=await _rs.apply(this,arguments);gemLoad();return r};
+const _dr=draw;draw=function(){const r=_dr.apply(this,arguments);try{paintGem();shopRow()}catch(e){}return r};
+const fixDaily=()=>{const m=document.getElementById('m');if(!m)return;m.querySelectorAll('.mt').forEach(e=>{if(e.textContent.includes('Day 7 gives a free Rare Pack.')&&!e.dataset.gfix){e.dataset.gfix=1;e.innerHTML=e.innerHTML.replace('Day 7 gives a free Rare Pack.','Every day gives Gems (5, and 10 on day 7). Day 7 also gives a free Rare Pack and a 🧪 Lucky Potion.')}})};
+const mm=document.getElementById('m');if(mm)new MutationObserver(fixDaily).observe(mm,{childList:true,subtree:true});
+const md=document.getElementById('md');
+if(md)new MutationObserver(()=>{if(!G.ok||md.querySelector('.mrow.gm'))return;const h=md.querySelector('[data-m="tour"]');if(!h)return;
+ const r=document.createElement('div');r.className='mrow gm';r.innerHTML='<span class="e">💎</span><b>Gem Store</b><span>'+fm(G.gems)+' Gems · '+G.potions+'/'+(cfg().potion_max||3)+' potions</span>';r.onclick=()=>gemStore();h.parentNode.insertBefore(r,h)}).observe(md,{childList:true,subtree:true});
+setTimeout(()=>gemLoad(true),1500);
+})();
+</script>
 </body></html>
