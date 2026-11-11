@@ -1868,7 +1868,7 @@ document.addEventListener('pointerdown',e=>{if(e.target.closest&&e.target.closes
 window.buzz=buzz;
 if(typeof sfx=='function'){const _sfx=sfx;sfx=function(k,r){if(k!='tear'&&r>=4)buzz([30,40,60]);return _sfx.apply(this,arguments)}}
 /* add-to-home-screen hint */
-const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone;
+const standalone=window.matchMedia('(display-mode: standalone)').matches||navigator.standalone||!!(window.Capacitor&&window.Capacitor.isNativePlatform&&window.Capacitor.isNativePlatform());
 const mob=/iPhone|iPad|Android/i.test(navigator.userAgent);
 let dis=false;try{dis=localStorage.getItem('cvInst')=='1'}catch(e){}
 if(mob&&!standalone&&!dis)setTimeout(()=>{if($$('inst')||document.body.classList.contains('x'))return;const ios=/iPhone|iPad/i.test(navigator.userAgent);
@@ -2702,6 +2702,69 @@ const md=document.getElementById('md');
 if(md)new MutationObserver(()=>{if(!G.ok||md.querySelector('.mrow.gm'))return;const h=md.querySelector('[data-m="tour"]');if(!h)return;
  const r=document.createElement('div');r.className='mrow gm';r.innerHTML='<span class="e">💎</span><b>Gem Store</b><span>'+fm(G.gems)+' Gems · '+G.potions+'/'+(cfg().potion_max||3)+' potions</span>';r.onclick=()=>gemStore();h.parentNode.insertBefore(r,h)}).observe(md,{childList:true,subtree:true});
 setTimeout(()=>gemLoad(true),1500);
+})();
+</script>
+<script>
+/* ===== COLLECTOR UPDATE: Celestial + God Tier rarities, Hold/Sell/Speculate tags, jackpots, Collector's Crown ===== */
+(function(){
+/* new rarities: 23 Celestial, 24 God Tier */
+try{if(RN.length===23){
+ RN.push('Celestial','God Tier');
+ RC.push('#7dd3fc','#fde047');
+ FRM.push(['#7dd3fc','#071a33','#e0f4ff','#b3e5ff'],['#fde047','#1a1200','#fffbe0','#fff3a3']);
+ SG.push('✧','✪');
+}}catch(e){}
+
+/* keep each card's market type, and pick up renamed cards without a reload */
+try{const _lcMK=loadCatalog;loadCatalog=function(defs,prods){_lcMK(defs,prods);
+ (defs||[]).forEach(d=>{const c=CARDS[d.id];if(!c)return;c.mk=d.mkind||null;if(d.name&&c.n!==d.name)c.n=d.name;if(d.icon&&c.ic!==d.icon)c.ic=d.icon;if(c.img&&!d.img)delete c.img})}}catch(e){}
+
+/* Hold / Sell / Speculate */
+const MKT=id=>{const c=CARDS[id];if(!c)return null;const p=+S.pr[id]||+c.base||0,b=+c.base||p;
+ if(c.mk==='spec')return['🎲','Speculate','#c084fc','Can suddenly explode in value, or fall back hard. High risk, high reward.'];
+ if(c.mk==='hold')return['💎','Hold','#4ade80','Built to grow in value the longer it stays in circulation.'];
+ if(b&&p>b*1.6)return['💸','Sell','#f87171','Trading well above its normal value. Prices like this usually come back down.'];
+ if(b&&p<b*.65)return['📈','Hold','#4ade80','Trading below its normal value. Prices like this usually recover.'];
+ if(c.one||(c.sup>0&&c.sup<=25))return['💎','Hold','#4ade80','Very few copies exist, so collectors keep wanting it.'];
+ return null};
+window.MKT=MKT;
+const tagH=id=>{const t=MKT(id);return t?`<div class="mkt-tag" style="margin:8px 0;padding:8px 10px;border-radius:10px;background:${t[2]}1f;border:1px solid ${t[2]}66;text-align:left"><b style="color:${t[2]}">${t[0]} ${t[1]}</b> <span class="mt" style="font-size:12px">${t[3]}</span></div>`:''};
+const addTag=id=>{try{const md=$$('md');if(!md||md.style.display!='flex'||md.querySelector('.mkt-tag'))return;
+ const box=md.querySelector('.box');if(!box)return;const h=box.querySelector('h2');const after=h&&h.nextElementSibling&&h.nextElementSibling.classList.contains('mt')?h.nextElementSibling:h;
+ if(after)after.insertAdjacentHTML('afterend',tagH(id))}catch(e){}};
+try{const _mktT=mkt;mkt=async function(id,...a){const r=await _mktT.call(this,id,...a);addTag(id);return r}}catch(e){}
+try{const _cpT=cardPage;cardPage=async function(id,...a){const r=await _cpT.call(this,id,...a);addTag(id);return r}}catch(e){}
+
+/* jackpot reveal: the case-hit animation says JACKPOT instead */
+let JPN=0;
+try{const _flowJP=flow;flow=function(k,packs){try{if([].concat(...packs).some(c=>c&&c.jp))JPN=Date.now()}catch(e){}return _flowJP(k,packs)}}catch(e){}
+new MutationObserver(()=>{if(!JPN||Date.now()-JPN>20000)return;const ov=$$('ov');if(!ov)return;
+ ov.querySelectorAll('div').forEach(d=>{if(d.childElementCount)return;const t=d.textContent.trim();
+  if(t==='CASE HIT')d.textContent='💰 JACKPOT 💰';else if(t==='THE CASE IS OPENING')d.textContent='THE VAULT IS OPENING'})})
+ .observe(document.body,{childList:true,subtree:true});
+
+/* Collector's Crown */
+async function crownPage(){
+ if(!READY)return toast('Sign in first');
+ modal(`<h2 style="margin:0">👑 Collector's Crown</h2><p class="mt">Loading…</p><button class="g" id="mc">Close</button>`);$$('mc').onclick=closeM;
+ let s=null;try{s=await rpc('crown_status',{},1)}catch(e){}
+ if(!s||!s.cards){modal(`<h2 style="margin:0">👑 Collector's Crown</h2><p class="mt">Could not load right now. Try again in a moment.</p><button class="g" id="mc">Close</button>`);$$('mc').onclick=closeM;return}
+ const have=s.cards.filter(x=>x.have).length,tot=s.cards.length,cr=CARDS[s.crown],left=+s.left||0;
+ const rows=s.cards.map(x=>{const c=CARDS[x.id]||{n:'Card #'+x.id,set:'',ic:'🃏'};
+  return`<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:8px;background:${x.have?'#16a34a22':'#0003'}"><span style="font-size:18px">${x.have?'✅':'⬜'}</span><span>${c.ic||''}</span><span style="flex:1;min-width:0"><b>${esc(c.n)}</b><br><span class="mt" style="font-size:12px">${esc(c.set||'')}</span></span><span class="mt" style="font-size:12px">${S.pr[x.id]?$$$(S.pr[x.id]):''}</span></div>`}).join('');
+ const can=have>=tot&&!s.claimed&&left>0;
+ modal(`<h2 style="margin:0">👑 Collector's Crown</h2>
+  <p class="mt" style="margin:6px 0">Own one of each of these ${tot} Legendary cards to earn a Collector's Crown, worth about <b>${$$$(S.pr[s.crown]||(cr&&cr.base)||500000000)}</b>. It can't be pulled from any pack, and only 10 will ever exist.</p>
+  <div style="display:flex;gap:10px;margin:8px 0"><div style="flex:1;background:#0003;border-radius:10px;padding:8px"><div class="mt" style="font-size:11px">Your progress</div><b>${have} / ${tot}</b></div><div style="flex:1;background:#0003;border-radius:10px;padding:8px"><div class="mt" style="font-size:11px">Crowns left</div><b>${left} / 10</b></div></div>
+  <div style="height:8px;border-radius:99px;background:#0004;overflow:hidden;margin-bottom:10px"><div style="height:100%;width:${Math.round(have/tot*100)}%;background:#fde047"></div></div>
+  <div style="display:grid;gap:6px;max-height:46vh;overflow:auto">${rows}</div>
+  <div class="row" style="margin-top:12px">${s.claimed?'<b style="color:#fde047">👑 You own a Collector\'s Crown</b>':`<button id="ccgo" ${can?'':'disabled'}>${left<=0?'All crowns claimed':can?'Claim my Crown':'Need '+(tot-have)+' more'}</button>`}<button class="g" id="mc">Close</button></div>`);
+ $$('mc').onclick=closeM;
+ const b=$$('ccgo');if(b)b.onclick=async()=>{b.disabled=true;let it;try{it=await rpc('crown_claim')}catch(e){b.disabled=false;return}
+  it.h=it.h||[];it.m=+it.m;S.inv.push(it);S.disc[it.cid]=1;toast('👑 You earned a Collector\'s Crown!',5000);crownPage();try{draw()}catch(e){}}}
+window.crownPage=crownPage;
+try{const _moreCC=more;more=function(m){_moreCC(m);const g=m.querySelector('.tg');if(!g||g.querySelector('[data-cc]'))return;
+ const t=document.createElement('div');t.className='tile';t.dataset.cc='1';t.innerHTML='<div style="font-size:40px">👑</div><b>Collector\'s Crown</b>';t.onclick=crownPage;g.insertBefore(t,g.firstChild)}}catch(e){}
 })();
 </script>
 </body></html>
